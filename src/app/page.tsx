@@ -1,3 +1,4 @@
+'use client'
 import { RestaurantHeader } from "@/components/demo/RestaurantHeader";
 import { ReviewSection } from "@/components/demo/ReviewSection";
 import { useState, useEffect } from "react";

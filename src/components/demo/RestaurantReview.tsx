@@ -1,9 +1,10 @@
+'use client'
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RestaurantHeader } from "./RestaurantHeader";
 import { ReviewSection } from "./ReviewSection";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { AiSurveyWidget } from "./AiSurveyWidget";
 import { Footer } from "@/components/Footer";
 
@@ -18,7 +19,7 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAiSurvey, setShowAiSurvey] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     const loadRestaurantReviewPage = async () => {
@@ -37,18 +38,18 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
             googleMapsUrl: data.google_maps_url,
           }));
         } else {
-          navigate('/');
+          router.push('/');
         }
       } catch (err) {
         console.error('Error loading demo page:', err);
-        navigate('/');
+        router.push('/');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadRestaurantReviewPage();
-  }, [slug, navigate]);
+  }, [router, slug]);
 
   const handleTakeAiSurvey = () => {
     setShowAiSurvey(true);
