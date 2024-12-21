@@ -50,6 +50,30 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
     };
 
     fetchAnalytics();
+
+    // Set up real-time subscription for analytics updates
+    const channel = supabase
+      .channel('analytics_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'review_page_analytics',
+          filter: `review_page_id=eq.${reviewPageId}`,
+        },
+        (payload) => {
+          console.log('Analytics update received:', payload);
+          if (payload.new) {
+            setAnalytics(payload.new as AnalyticsData);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [reviewPageId]);
 
   const chartData = [

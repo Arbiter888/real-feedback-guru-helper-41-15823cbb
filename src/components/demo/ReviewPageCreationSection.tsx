@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Building2 } from "lucide-react";
 import { CreateReviewPageButton } from "./CreateReviewPageButton";
 import { ReviewPageUrlSection } from "./ReviewPageUrlSection";
@@ -11,6 +11,24 @@ interface ReviewPageCreationSectionProps {
 export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: ReviewPageCreationSectionProps) => {
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [reviewPageId, setReviewPageId] = useState<string | null>(null);
+
+  // Load saved review page data from localStorage on component mount
+  useEffect(() => {
+    const savedUrl = localStorage.getItem('reviewPageUrl');
+    const savedId = localStorage.getItem('reviewPageId');
+    if (savedUrl) setGeneratedUrl(savedUrl);
+    if (savedId) setReviewPageId(savedId);
+  }, []);
+
+  // Save review page data to localStorage when generated
+  useEffect(() => {
+    if (generatedUrl) {
+      localStorage.setItem('reviewPageUrl', generatedUrl);
+    }
+    if (reviewPageId) {
+      localStorage.setItem('reviewPageId', reviewPageId);
+    }
+  }, [generatedUrl, reviewPageId]);
 
   return (
     <div className="relative">
