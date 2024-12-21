@@ -8,12 +8,13 @@ import { LogOut, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
+import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [generatedUrl, setGeneratedUrl] = useState<string>("");
+  const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [restaurantName, setRestaurantName] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -32,12 +33,6 @@ export default function DashboardPage() {
       setContactEmail(parsed.contactEmail || '');
     }
   }, [user, navigate]);
-
-  useEffect(() => {
-    if (generatedUrl) {
-      navigate(generatedUrl);
-    }
-  }, [generatedUrl, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -130,6 +125,13 @@ export default function DashboardPage() {
               Start collecting reviews and managing your restaurant's online presence
             </p>
             <CreateReviewPageButton setGeneratedUrl={setGeneratedUrl} />
+            
+            {/* Add the URL and QR code section */}
+            <ReviewPageUrlSection
+              restaurantName={restaurantName}
+              googleMapsUrl={googleMapsUrl}
+              generatedUrl={generatedUrl}
+            />
           </div>
         </div>
       </div>
