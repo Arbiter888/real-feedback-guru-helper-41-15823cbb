@@ -10,6 +10,7 @@ interface ReviewPageCreationSectionProps {
 
 export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: ReviewPageCreationSectionProps) => {
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const [reviewPageId, setReviewPageId] = useState<string | null>(null);
 
   return (
     <div className="relative">
@@ -43,7 +44,10 @@ export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: Rev
           </div>
         </div>
 
-        <CreateReviewPageButton setGeneratedUrl={setGeneratedUrl} />
+        <CreateReviewPageButton 
+          setGeneratedUrl={setGeneratedUrl} 
+          setReviewPageId={setReviewPageId}
+        />
 
         <ReviewPageUrlSection
           restaurantName={restaurantName}
