@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
 import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
+import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ export default function DashboardPage() {
   const [restaurantName, setRestaurantName] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [reviewPageId, setReviewPageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -118,15 +120,17 @@ export default function DashboardPage() {
           </div>
         </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
           <div className="text-center py-8">
             <h2 className="text-2xl font-semibold mb-4">Create Your Review Page</h2>
             <p className="text-muted-foreground mb-6">
               Start collecting reviews and managing your restaurant's online presence
             </p>
-            <CreateReviewPageButton setGeneratedUrl={setGeneratedUrl} />
+            <CreateReviewPageButton 
+              setGeneratedUrl={setGeneratedUrl}
+              setReviewPageId={setReviewPageId}
+            />
             
-            {/* Add the URL and QR code section */}
             <ReviewPageUrlSection
               restaurantName={restaurantName}
               googleMapsUrl={googleMapsUrl}
@@ -134,6 +138,12 @@ export default function DashboardPage() {
             />
           </div>
         </div>
+
+        {reviewPageId && (
+          <div className="mb-6">
+            <ReviewPageAnalytics reviewPageId={reviewPageId} />
+          </div>
+        )}
       </div>
     </div>
   );

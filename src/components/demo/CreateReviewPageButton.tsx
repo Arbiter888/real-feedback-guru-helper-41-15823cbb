@@ -14,9 +14,10 @@ const generateUniqueSlug = (baseName: string) => {
 
 interface CreateReviewPageButtonProps {
   setGeneratedUrl: React.Dispatch<React.SetStateAction<string>>;
+  setReviewPageId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButtonProps) => {
+export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: CreateReviewPageButtonProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -68,6 +69,9 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
         console.error('Error creating review page:', error);
         throw error;
       }
+
+      setReviewPageId(data.id);
+      setGeneratedUrl(`/${uniqueSlug}`);
 
       toast({
         title: "Review page created!",

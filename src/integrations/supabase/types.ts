@@ -463,6 +463,50 @@ export type Database = {
         }
         Relationships: []
       }
+      review_page_analytics: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_viewed_at: string | null
+          link_clicks: number | null
+          page_views: number | null
+          qr_code_scans: number | null
+          review_page_id: string
+          review_submissions: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          link_clicks?: number | null
+          page_views?: number | null
+          qr_code_scans?: number | null
+          review_page_id: string
+          review_submissions?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_viewed_at?: string | null
+          link_clicks?: number | null
+          page_views?: number | null
+          qr_code_scans?: number | null
+          review_page_id?: string
+          review_submissions?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_page_analytics_review_page_id_fkey"
+            columns: ["review_page_id"]
+            isOneToOne: false
+            referencedRelation: "review_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_pages: {
         Row: {
           active: boolean | null
