@@ -67,20 +67,16 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
         throw error;
       }
 
-      const fullUrl = `${window.location.origin}/${uniqueSlug}`;
-      await navigator.clipboard.writeText(fullUrl);
-
+      // Set the generated URL to the slug directly
+      setGeneratedUrl(`/${uniqueSlug}`);
+      
       toast({
         title: "Review page created!",
-        description: "The URL has been copied to your clipboard.",
+        description: "Your review page has been created successfully.",
       });
 
-      if (setGeneratedUrl) {
-        setGeneratedUrl(`/${uniqueSlug}`);
-      }
     } catch (error) {
       console.error('Error creating review page:', error);
-
       toast({
         title: "Error",
         description: "Failed to create review page. Please try again.",
