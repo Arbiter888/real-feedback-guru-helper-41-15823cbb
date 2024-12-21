@@ -1,4 +1,1 @@
 project_id = "xygmqhxlnwjrgxvbzcyb"
-
-[functions.refine-review]
-verify_jwt = false

@@ -57,6 +57,45 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_generator_pages: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          default_campaign_settings: Json | null
+          default_theme_color: string | null
+          full_url: string | null
+          google_maps_url: string | null
+          id: string
+          restaurant_name: string
+          slug: string
+          team_access_enabled: boolean | null
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          default_campaign_settings?: Json | null
+          default_theme_color?: string | null
+          full_url?: string | null
+          google_maps_url?: string | null
+          id?: string
+          restaurant_name: string
+          slug: string
+          team_access_enabled?: boolean | null
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          default_campaign_settings?: Json | null
+          default_theme_color?: string | null
+          full_url?: string | null
+          google_maps_url?: string | null
+          id?: string
+          restaurant_name?: string
+          slug?: string
+          team_access_enabled?: boolean | null
+        }
+        Relationships: []
+      }
       demo_pages: {
         Row: {
           contact_email: string | null
@@ -89,27 +128,111 @@ export type Database = {
       }
       demo_preferences: {
         Row: {
+          booking_url: string | null
           contact_email: string | null
           created_at: string
+          facebook_url: string | null
           google_maps_url: string
           id: string
+          instagram_url: string | null
+          phone_number: string | null
+          preferred_booking_method: string | null
           restaurant_name: string
+          website_description: string | null
+          website_gallery: Json | null
+          website_hero_image: string | null
+          website_menu_sections: Json | null
+          website_url: string | null
         }
         Insert: {
+          booking_url?: string | null
           contact_email?: string | null
           created_at?: string
+          facebook_url?: string | null
           google_maps_url: string
           id?: string
+          instagram_url?: string | null
+          phone_number?: string | null
+          preferred_booking_method?: string | null
           restaurant_name: string
+          website_description?: string | null
+          website_gallery?: Json | null
+          website_hero_image?: string | null
+          website_menu_sections?: Json | null
+          website_url?: string | null
         }
         Update: {
+          booking_url?: string | null
           contact_email?: string | null
           created_at?: string
+          facebook_url?: string | null
           google_maps_url?: string
           id?: string
+          instagram_url?: string | null
+          phone_number?: string | null
+          preferred_booking_method?: string | null
           restaurant_name?: string
+          website_description?: string | null
+          website_gallery?: Json | null
+          website_hero_image?: string | null
+          website_menu_sections?: Json | null
+          website_url?: string | null
         }
         Relationships: []
+      }
+      email_campaigns: {
+        Row: {
+          created_at: string
+          email_copy: string
+          id: string
+          menu_photo_url: string | null
+          offer_id: string | null
+          promo_photos: string[] | null
+          restaurant_id: string | null
+          sent_at: string | null
+          status: string | null
+          unique_code: string
+        }
+        Insert: {
+          created_at?: string
+          email_copy: string
+          id?: string
+          menu_photo_url?: string | null
+          offer_id?: string | null
+          promo_photos?: string[] | null
+          restaurant_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+          unique_code: string
+        }
+        Update: {
+          created_at?: string
+          email_copy?: string
+          id?: string
+          menu_photo_url?: string | null
+          offer_id?: string | null
+          promo_photos?: string[] | null
+          restaurant_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+          unique_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_campaigns_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -137,11 +260,15 @@ export type Database = {
           created_at: string
           description: string
           discount_value: string
+          email_template: string | null
           id: string
+          menu_photo_url: string | null
+          promo_photos: string[] | null
           restaurant_id: string | null
           status: string | null
           terms_conditions: string | null
           title: string
+          valid_days: number | null
           valid_from: string
           valid_until: string | null
         }
@@ -149,11 +276,15 @@ export type Database = {
           created_at?: string
           description: string
           discount_value: string
+          email_template?: string | null
           id?: string
+          menu_photo_url?: string | null
+          promo_photos?: string[] | null
           restaurant_id?: string | null
           status?: string | null
           terms_conditions?: string | null
           title: string
+          valid_days?: number | null
           valid_from?: string
           valid_until?: string | null
         }
@@ -161,11 +292,15 @@ export type Database = {
           created_at?: string
           description?: string
           discount_value?: string
+          email_template?: string | null
           id?: string
+          menu_photo_url?: string | null
+          promo_photos?: string[] | null
           restaurant_id?: string | null
           status?: string | null
           terms_conditions?: string | null
           title?: string
+          valid_days?: number | null
           valid_from?: string
           valid_until?: string | null
         }
@@ -231,6 +366,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      restaurant_websites: {
+        Row: {
+          contact_info: Json | null
+          created_at: string
+          gallery: Json | null
+          hero_image: string | null
+          id: string
+          menu_sections: Json | null
+          restaurant_name: string
+          slug: string
+          theme_color: string | null
+          website_content: Json
+        }
+        Insert: {
+          contact_info?: Json | null
+          created_at?: string
+          gallery?: Json | null
+          hero_image?: string | null
+          id?: string
+          menu_sections?: Json | null
+          restaurant_name: string
+          slug: string
+          theme_color?: string | null
+          website_content?: Json
+        }
+        Update: {
+          contact_info?: Json | null
+          created_at?: string
+          gallery?: Json | null
+          hero_image?: string | null
+          id?: string
+          menu_sections?: Json | null
+          restaurant_name?: string
+          slug?: string
+          theme_color?: string | null
+          website_content?: Json
+        }
+        Relationships: []
       }
       restaurants: {
         Row: {
