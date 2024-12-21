@@ -87,11 +87,30 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
           return;
         }
 
-        // Parse receipt_data JSON for each review
-        const parsedReviews = (reviewsData || []).map(review => ({
-          ...review,
-          receipt_data: review.receipt_data ? (review.receipt_data as ReceiptData) : null
-        }));
+        // Parse receipt_data JSON for each review with proper type checking
+        const parsedReviews = (reviewsData || []).map(review => {
+          let parsedReceiptData: ReceiptData | null = null;
+          
+          if (review.receipt_data) {
+            // Type guard to ensure receipt_data has the correct structure
+            const receiptJson = review.receipt_data as { total_amount: number; items: Array<{ name: string; price: number }> };
+            if (
+              typeof receiptJson.total_amount === 'number' &&
+              Array.isArray(receiptJson.items) &&
+              receiptJson.items.every(item => 
+                typeof item.name === 'string' && 
+                typeof item.price === 'number'
+              )
+            ) {
+              parsedReceiptData = receiptJson;
+            }
+          }
+
+          return {
+            ...review,
+            receipt_data: parsedReceiptData
+          };
+        });
 
         setReviews(parsedReviews);
       } catch (error) {
