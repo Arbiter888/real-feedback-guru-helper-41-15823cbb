@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MetricsOverview } from "./analytics/MetricsOverview";
 import { ReviewsTable } from "./analytics/ReviewsTable";
 import { AnalyticsChart } from "./analytics/AnalyticsChart";
+import { Json } from "@/integrations/supabase/types";
 
 interface AnalyticsData {
   page_views: number;
@@ -17,15 +18,23 @@ interface AnalyticsData {
   last_viewed_at: string | null;
 }
 
+interface ReceiptData {
+  total_amount: number;
+  items: Array<{ name: string; price: number }>;
+}
+
 interface Review {
   id: string;
   review_text: string;
   created_at: string;
-  refined_review?: string;
-  receipt_data?: {
-    total_amount: number;
-    items: Array<{ name: string; price: number }>;
-  };
+  refined_review?: string | null;
+  receipt_data?: ReceiptData | null;
+  business_name: string;
+  photo_url: string | null;
+  server_name: string | null;
+  status: string | null;
+  unique_code: string;
+  review_page_id: string | null;
 }
 
 const defaultAnalytics: AnalyticsData = {
@@ -78,7 +87,13 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
           return;
         }
 
-        setReviews(reviewsData || []);
+        // Parse receipt_data JSON for each review
+        const parsedReviews = (reviewsData || []).map(review => ({
+          ...review,
+          receipt_data: review.receipt_data ? (review.receipt_data as ReceiptData) : null
+        }));
+
+        setReviews(parsedReviews);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
