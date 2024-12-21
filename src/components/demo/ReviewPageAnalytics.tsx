@@ -12,11 +12,24 @@ interface AnalyticsData {
   last_viewed_at: string | null;
 }
 
+const defaultAnalytics: AnalyticsData = {
+  page_views: 0,
+  qr_code_scans: 0,
+  link_clicks: 0,
+  review_submissions: 0,
+  last_viewed_at: null,
+};
+
 export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) => {
-  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData>(defaultAnalytics);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
+      if (!reviewPageId) {
+        setAnalytics(defaultAnalytics);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('review_page_analytics')
         .select('*')
@@ -28,15 +41,11 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
         return;
       }
 
-      setAnalytics(data);
+      setAnalytics(data || defaultAnalytics);
     };
 
     fetchAnalytics();
   }, [reviewPageId]);
-
-  if (!analytics) {
-    return <div>Loading analytics...</div>;
-  }
 
   const chartData = [
     { name: 'Page Views', value: analytics.page_views, icon: Eye },

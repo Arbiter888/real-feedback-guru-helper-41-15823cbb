@@ -4,7 +4,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogOut, Plus } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
@@ -81,6 +81,7 @@ export default function DashboardPage() {
         </div>
         
         <div className="grid gap-6">
+          {/* Restaurant Information Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4">Restaurant Information</h2>
             <div className="space-y-4">
@@ -121,6 +122,7 @@ export default function DashboardPage() {
             </div>
           </div>
           
+          {/* Review Page Creation Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="text-center py-8">
               <h2 className="text-2xl font-semibold mb-4">Create Your Review Page</h2>
@@ -144,11 +146,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {reviewPageId && (
-            <div className="bg-white rounded-xl shadow-lg">
-              <ReviewPageAnalytics reviewPageId={reviewPageId} />
-            </div>
-          )}
+          {/* Analytics Section - Always visible */}
+          <div className="bg-white rounded-xl shadow-lg">
+            <ReviewPageAnalytics reviewPageId={reviewPageId || ''} />
+          </div>
         </div>
       </div>
     </div>
