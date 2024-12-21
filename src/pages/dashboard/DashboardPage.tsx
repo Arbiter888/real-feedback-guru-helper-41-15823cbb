@@ -80,70 +80,76 @@ export default function DashboardPage() {
           </Button>
         </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Restaurant Information</h2>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="restaurantName">Restaurant Name</Label>
-              <Input
-                id="restaurantName"
-                value={restaurantName}
-                onChange={(e) => setRestaurantName(e.target.value)}
-                placeholder="Enter your restaurant name"
-              />
-            </div>
+        <div className="grid gap-6">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h2 className="text-xl font-semibold mb-4">Restaurant Information</h2>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="restaurantName">Restaurant Name</Label>
+                <Input
+                  id="restaurantName"
+                  value={restaurantName}
+                  onChange={(e) => setRestaurantName(e.target.value)}
+                  placeholder="Enter your restaurant name"
+                />
+              </div>
 
-            <div>
-              <Label htmlFor="googleMapsUrl">Google Maps URL</Label>
-              <Input
-                id="googleMapsUrl"
-                value={googleMapsUrl}
-                onChange={(e) => setGoogleMapsUrl(e.target.value)}
-                placeholder="Paste your Google Maps link"
-              />
-            </div>
+              <div>
+                <Label htmlFor="googleMapsUrl">Google Maps URL</Label>
+                <Input
+                  id="googleMapsUrl"
+                  value={googleMapsUrl}
+                  onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                  placeholder="Paste your Google Maps link"
+                />
+              </div>
 
-            <div>
-              <Label htmlFor="contactEmail">Contact Email</Label>
-              <Input
-                id="contactEmail"
-                type="email"
-                value={contactEmail}
-                onChange={(e) => setContactEmail(e.target.value)}
-                placeholder="Enter restaurant contact email"
-              />
-            </div>
+              <div>
+                <Label htmlFor="contactEmail">Contact Email</Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="Enter restaurant contact email"
+                />
+              </div>
 
-            <Button onClick={handleSavePreferences} className="w-full">
-              Save Restaurant Information
-            </Button>
+              <Button onClick={handleSavePreferences} className="w-full">
+                Save Restaurant Information
+              </Button>
+            </div>
           </div>
+          
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <div className="text-center py-8">
+              <h2 className="text-2xl font-semibold mb-4">Create Your Review Page</h2>
+              <p className="text-muted-foreground mb-6">
+                Start collecting reviews and managing your restaurant's online presence
+              </p>
+              <CreateReviewPageButton 
+                setGeneratedUrl={setGeneratedUrl}
+                setReviewPageId={setReviewPageId}
+              />
+              
+              {generatedUrl && (
+                <div className="mt-8">
+                  <ReviewPageUrlSection
+                    restaurantName={restaurantName}
+                    googleMapsUrl={googleMapsUrl}
+                    generatedUrl={generatedUrl}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {reviewPageId && (
+            <div className="bg-white rounded-xl shadow-lg">
+              <ReviewPageAnalytics reviewPageId={reviewPageId} />
+            </div>
+          )}
         </div>
-        
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="text-center py-8">
-            <h2 className="text-2xl font-semibold mb-4">Create Your Review Page</h2>
-            <p className="text-muted-foreground mb-6">
-              Start collecting reviews and managing your restaurant's online presence
-            </p>
-            <CreateReviewPageButton 
-              setGeneratedUrl={setGeneratedUrl}
-              setReviewPageId={setReviewPageId}
-            />
-            
-            <ReviewPageUrlSection
-              restaurantName={restaurantName}
-              googleMapsUrl={googleMapsUrl}
-              generatedUrl={generatedUrl}
-            />
-          </div>
-        </div>
-
-        {reviewPageId && (
-          <div className="mb-6">
-            <ReviewPageAnalytics reviewPageId={reviewPageId} />
-          </div>
-        )}
       </div>
     </div>
   );
