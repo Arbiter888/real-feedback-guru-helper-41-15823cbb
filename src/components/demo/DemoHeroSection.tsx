@@ -1,12 +1,25 @@
 import { motion } from "framer-motion";
-import { Bot, Star, Gift, MessageSquare } from "lucide-react";
+import { Bot, Star, Gift, MessageSquare, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface DemoHeroSectionProps {
   onSurveyDemo: () => void;
 }
 
 export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handleAuthClick = () => {
+    if (user) {
+      navigate("/dashboard");
+    } else {
+      navigate("/auth/login");
+    }
+  };
+
   return (
     <section className="relative py-12 md:py-20">
       <div className="absolute inset-0 overflow-hidden">
@@ -19,6 +32,22 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 text-center relative">
+        <div className="flex justify-end mb-4">
+          <Button onClick={handleAuthClick} variant="outline">
+            {user ? (
+              <>
+                Dashboard
+                <MessageSquare className="ml-2 h-4 w-4" />
+              </>
+            ) : (
+              <>
+                Restaurant Login
+                <LogIn className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

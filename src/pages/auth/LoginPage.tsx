@@ -13,29 +13,10 @@ export default function LoginPage() {
     // Check if user is already logged in
     supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/");
+        navigate("/dashboard");
       }
     });
-
-    // Listen for auth errors
-    const handleAuthError = (event: CustomEvent<any>) => {
-      if (event.detail?.error?.message === "User already registered") {
-        toast({
-          title: "Account already exists",
-          description: "Please sign in with your existing account instead.",
-          variant: "destructive",
-        });
-      }
-    };
-
-    // Add event listener for auth errors
-    window.addEventListener("supabase.auth.error", handleAuthError as EventListener);
-
-    // Cleanup
-    return () => {
-      window.removeEventListener("supabase.auth.error", handleAuthError as EventListener);
-    };
-  }, [navigate, toast]);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20 flex items-center justify-center p-4">
@@ -46,7 +27,7 @@ export default function LoginPage() {
             alt="EatUP! Logo" 
             className="h-16 mx-auto mb-6"
           />
-          <h1 className="text-2xl font-bold text-secondary mb-2">Welcome to EatUP!</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to EatUP!</h1>
           <p className="text-muted-foreground">Sign in to manage your restaurant reviews</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-lg">
