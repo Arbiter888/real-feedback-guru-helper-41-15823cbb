@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Link2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { nanoid } from "nanoid";
 
-const generateSlug = (baseName: string) => {
-  return baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+const generateUniqueSlug = (baseName: string) => {
+  const baseSlug = baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const uniqueId = nanoid(6); // Generate a 6-character unique ID
+  return `${baseSlug}-${uniqueId}`;
 };
 
 interface CreateReviewPageButtonProps {
@@ -21,6 +24,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
 
     try {
       const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+      console.log('Loaded preferences:', savedRestaurantInfo);
 
       if (!savedRestaurantInfo) {
         toast({
@@ -28,11 +32,11 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
           description: "Please set your restaurant preferences first.",
           variant: "destructive",
         });
-
         return;
       }
 
       const { restaurantName, googleMapsUrl, contactEmail } = JSON.parse(savedRestaurantInfo);
+      console.log('Parsed contact email:', contactEmail);
 
       if (!restaurantName || !googleMapsUrl) {
         toast({
@@ -40,11 +44,10 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
           description: "Please set your restaurant preferences first.",
           variant: "destructive",
         });
-
         return;
       }
 
-      const uniqueSlug = generateSlug(restaurantName);
+      const uniqueSlug = generateUniqueSlug(restaurantName);
 
       const { data, error } = await supabase
         .from('demo_pages')
@@ -60,6 +63,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
         .single();
 
       if (error) {
+        console.error('Error creating review page:', error);
         throw error;
       }
 
