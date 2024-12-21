@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Eye, MessageSquare, QrCode, MousePointer, Receipt, FileText, Wand2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface AnalyticsData {
   page_views: number;
@@ -14,6 +15,17 @@ interface AnalyticsData {
   avg_review_length: number;
   total_refined_reviews: number;
   last_viewed_at: string | null;
+}
+
+interface Review {
+  id: string;
+  review_text: string;
+  created_at: string;
+  refined_review?: string;
+  receipt_data?: {
+    total_amount: number;
+    items: Array<{ name: string; price: number }>;
+  };
 }
 
 const defaultAnalytics: AnalyticsData = {
@@ -30,6 +42,7 @@ const defaultAnalytics: AnalyticsData = {
 
 export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) => {
   const [analytics, setAnalytics] = useState<AnalyticsData>(defaultAnalytics);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -39,27 +52,41 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
       }
 
       try {
-        const { data, error } = await supabase
+        // Fetch analytics data
+        const { data: analyticsData, error: analyticsError } = await supabase
           .from('review_page_analytics')
           .select('*')
           .eq('review_page_id', reviewPageId)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error fetching analytics:', error);
+        if (analyticsError) {
+          console.error('Error fetching analytics:', analyticsError);
           return;
         }
 
-        setAnalytics(data || defaultAnalytics);
+        setAnalytics(analyticsData || defaultAnalytics);
+
+        // Fetch reviews data
+        const { data: reviewsData, error: reviewsError } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('review_page_id', reviewPageId)
+          .order('created_at', { ascending: false });
+
+        if (reviewsError) {
+          console.error('Error fetching reviews:', reviewsError);
+          return;
+        }
+
+        setReviews(reviewsData || []);
       } catch (error) {
-        console.error('Error fetching analytics:', error);
-        setAnalytics(defaultAnalytics);
+        console.error('Error fetching data:', error);
       }
     };
 
     fetchAnalytics();
 
-    // Set up real-time subscription for analytics updates
+    // Set up real-time subscription
     const channel = supabase
       .channel('analytics_changes')
       .on(
@@ -97,6 +124,16 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
     return value.toLocaleString();
   };
 
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   return (
     <Card className="p-6">
       <h2 className="text-xl font-semibold mb-6">Review Page Analytics</h2>
@@ -116,7 +153,6 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
           </Card>
         ))}
 
-        {/* Additional Review Metrics */}
         <Card className="p-4">
           <div className="space-y-2">
             <p className="text-sm text-gray-600">Average Review Length</p>
@@ -128,6 +164,56 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
             </div>
           </div>
         </Card>
+      </div>
+
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold mb-4">Review Details</h3>
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Original Review</TableHead>
+                <TableHead>AI Enhanced Review</TableHead>
+                <TableHead>Receipt Data</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {reviews.map((review) => (
+                <TableRow key={review.id}>
+                  <TableCell className="whitespace-nowrap">
+                    {formatDate(review.created_at)}
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {review.review_text}
+                  </TableCell>
+                  <TableCell className="max-w-xs truncate">
+                    {review.refined_review || 'Not enhanced'}
+                  </TableCell>
+                  <TableCell>
+                    {review.receipt_data ? (
+                      <div className="text-sm">
+                        <p>Total: ${review.receipt_data.total_amount}</p>
+                        <p className="text-xs text-gray-500">
+                          {review.receipt_data.items.length} items
+                        </p>
+                      </div>
+                    ) : (
+                      'No receipt'
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {reviews.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-4 text-gray-500">
+                    No reviews yet
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       <div className="h-[300px]">
