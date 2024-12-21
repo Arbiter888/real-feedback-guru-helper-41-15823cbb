@@ -30,18 +30,23 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
         return;
       }
 
-      const { data, error } = await supabase
-        .from('review_page_analytics')
-        .select('*')
-        .eq('review_page_id', reviewPageId)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('review_page_analytics')
+          .select('*')
+          .eq('review_page_id', reviewPageId)
+          .maybeSingle();
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching analytics:', error);
+          return;
+        }
+
+        setAnalytics(data || defaultAnalytics);
+      } catch (error) {
         console.error('Error fetching analytics:', error);
-        return;
+        setAnalytics(defaultAnalytics);
       }
-
-      setAnalytics(data || defaultAnalytics);
     };
 
     fetchAnalytics();
