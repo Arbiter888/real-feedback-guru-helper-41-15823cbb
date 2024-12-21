@@ -4,6 +4,7 @@ import { Link2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { nanoid } from "nanoid";
+import { useNavigate } from "react-router-dom";
 
 const generateUniqueSlug = (baseName: string) => {
   const baseSlug = baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -18,6 +19,7 @@ interface CreateReviewPageButtonProps {
 export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButtonProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCreateReviewPage = async () => {
     setIsCreating(true);
@@ -67,13 +69,13 @@ export const CreateReviewPageButton = ({ setGeneratedUrl }: CreateReviewPageButt
         throw error;
       }
 
-      // Set the generated URL to the slug directly
-      setGeneratedUrl(`/${uniqueSlug}`);
-      
       toast({
         title: "Review page created!",
         description: "Your review page has been created successfully.",
       });
+
+      // Navigate to the new review page
+      navigate(`/${uniqueSlug}`);
 
     } catch (error) {
       console.error('Error creating review page:', error);
