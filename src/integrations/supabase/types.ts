@@ -575,6 +575,9 @@ export type Database = {
           created_at: string
           id: string
           photo_url: string | null
+          receipt_data: Json | null
+          refined_review: string | null
+          review_page_id: string | null
           review_text: string
           server_name: string | null
           status: string | null
@@ -585,6 +588,9 @@ export type Database = {
           created_at?: string
           id?: string
           photo_url?: string | null
+          receipt_data?: Json | null
+          refined_review?: string | null
+          review_page_id?: string | null
           review_text: string
           server_name?: string | null
           status?: string | null
@@ -595,12 +601,23 @@ export type Database = {
           created_at?: string
           id?: string
           photo_url?: string | null
+          receipt_data?: Json | null
+          refined_review?: string | null
+          review_page_id?: string | null
           review_text?: string
           server_name?: string | null
           status?: string | null
           unique_code?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reviews_review_page_id_fkey"
+            columns: ["review_page_id"]
+            isOneToOne: false
+            referencedRelation: "review_pages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_plans: {
         Row: {
