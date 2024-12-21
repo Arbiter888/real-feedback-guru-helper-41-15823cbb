@@ -465,36 +465,48 @@ export type Database = {
       }
       review_page_analytics: {
         Row: {
+          avg_review_length: number | null
           created_at: string | null
           id: string
           last_viewed_at: string | null
           link_clicks: number | null
           page_views: number | null
           qr_code_scans: number | null
+          receipts_uploaded: number | null
           review_page_id: string
           review_submissions: number | null
+          reviews_submitted: number | null
+          total_refined_reviews: number | null
           updated_at: string | null
         }
         Insert: {
+          avg_review_length?: number | null
           created_at?: string | null
           id?: string
           last_viewed_at?: string | null
           link_clicks?: number | null
           page_views?: number | null
           qr_code_scans?: number | null
+          receipts_uploaded?: number | null
           review_page_id: string
           review_submissions?: number | null
+          reviews_submitted?: number | null
+          total_refined_reviews?: number | null
           updated_at?: string | null
         }
         Update: {
+          avg_review_length?: number | null
           created_at?: string | null
           id?: string
           last_viewed_at?: string | null
           link_clicks?: number | null
           page_views?: number | null
           qr_code_scans?: number | null
+          receipts_uploaded?: number | null
           review_page_id?: string
           review_submissions?: number | null
+          reviews_submitted?: number | null
+          total_refined_reviews?: number | null
           updated_at?: string | null
         }
         Relationships: [
