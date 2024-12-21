@@ -1,15 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Plus, LogOut } from "lucide-react";
+import { LogOut, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [generatedUrl, setGeneratedUrl] = useState<string>("");
 
   useEffect(() => {
     if (!user) {
@@ -17,9 +19,11 @@ export default function DashboardPage() {
     }
   }, [user, navigate]);
 
-  const handleCreateReviewPage = () => {
-    navigate("/dashboard/create-review-page");
-  };
+  useEffect(() => {
+    if (generatedUrl) {
+      navigate(generatedUrl);
+    }
+  }, [generatedUrl, navigate]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -49,10 +53,7 @@ export default function DashboardPage() {
             <p className="text-muted-foreground mb-6">
               Start collecting reviews and managing your restaurant's online presence
             </p>
-            <Button onClick={handleCreateReviewPage} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              Create Review Page
-            </Button>
+            <CreateReviewPageButton setGeneratedUrl={setGeneratedUrl} />
           </div>
         </div>
       </div>
