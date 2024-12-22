@@ -1,42 +1,3 @@
-export const constructRewardEmailBody = (
-  businessName: string,
-  googleMapsUrl: string,
-  uniqueCode: string | null,
-  review: string,
-) => {
-  const visitTimestamp = new Date().toLocaleString();
-  
-  let emailBody = `Dear ${businessName} Team,\n\n`;
-  emailBody += `I'd love to join your restaurant community through EatUP! I'm excited to receive exclusive updates and special offers directly from ${businessName}, while enjoying EatUP!'s innovative rewards program.\n\n`;
-  
-  if (uniqueCode) {
-    emailBody += `My Unique Reward Code: ${uniqueCode}\n`;
-    emailBody += `(I'll show this code on my next visit to unlock my special reward)\n\n`;
-  }
-  
-  emailBody += `Visit Details:\n`;
-  emailBody += `Date: ${visitTimestamp}\n`;
-  emailBody += `Location: ${googleMapsUrl}\n\n`;
-  
-  emailBody += `My Review:\n${review}\n\n`;
-
-  emailBody += "What I'm Looking Forward To:\n";
-  emailBody += `1. Exclusive updates and offers directly from ${businessName}\n`;
-  emailBody += "2. Special event invitations and community updates\n";
-  emailBody += "3. Progressive rewards that get better with each visit\n\n";
-
-  emailBody += "My Next Steps:\n";
-  emailBody += `1. Return to ${businessName} with my unique reward code\n`;
-  emailBody += "2. Share my dining experiences to unlock better rewards\n";
-  emailBody += "3. Stay connected with your restaurant community\n\n";
-
-  emailBody += `Thank you for welcoming me to the ${businessName} community!\n\n`;
-  emailBody += "Best regards,\n";
-  emailBody += "[Your Name]";
-
-  return emailBody;
-};
-
 export const getEmailRecipients = () => {
   const recipients = ['rewards@eatup.co'];
   
@@ -54,4 +15,60 @@ export const getEmailRecipients = () => {
   }
   
   return recipients.join(',');
+};
+
+export const getEmailSubject = (restaurantName: string) => {
+  return `Join ${restaurantName}'s Mailing List & EatUP! Rewards`;
+};
+
+export const constructEmailBody = (
+  restaurantName: string,
+  googleMapsUrl: string,
+  rewardCode: string | null,
+  reviewText?: string,
+  refinedReview?: string,
+  analysisResult?: string | null
+) => {
+  const visitTimestamp = new Date().toLocaleString();
+  
+  let emailBody = `Dear ${restaurantName} Team,\n\n`;
+  emailBody += `I'd love to join your mailing list and the EatUP! rewards program. I'm excited to receive exclusive updates and special offers directly from ${restaurantName}, while enjoying EatUP!'s innovative rewards program.\n\n`;
+  
+  if (rewardCode) {
+    emailBody += `My Unique Reward Code: ${rewardCode}\n`;
+    emailBody += `(I'll show this code on my next visit to unlock my special reward)\n\n`;
+  }
+  
+  emailBody += `Visit Details:\n`;
+  emailBody += `Date: ${visitTimestamp}\n`;
+  emailBody += `Location: ${googleMapsUrl}\n\n`;
+  
+  if (refinedReview) {
+    emailBody += `My Review:\n${refinedReview}\n\n`;
+  } else if (reviewText) {
+    emailBody += `My Review:\n${reviewText}\n\n`;
+  }
+  
+  // Add receipt analysis if available
+  if (analysisResult) {
+    const analysis = JSON.parse(analysisResult);
+    emailBody += "Receipt Details:\n";
+    emailBody += `Total Amount: $${analysis.total_amount}\n`;
+    emailBody += "Items:\n";
+    analysis.items.forEach((item: { name: string; price: number }) => {
+      emailBody += `- ${item.name}: $${item.price}\n`;
+    });
+    emailBody += "\n";
+  }
+
+  emailBody += "What I'm Looking Forward To:\n";
+  emailBody += `1. Exclusive updates and offers directly from ${restaurantName}\n`;
+  emailBody += "2. Special event invitations and community updates\n";
+  emailBody += "3. Progressive rewards that get better with each visit\n\n";
+
+  emailBody += "Thank you for welcoming me to your community!\n\n";
+  emailBody += "Best regards,\n";
+  emailBody += "[Your Name]";
+
+  return emailBody;
 };
