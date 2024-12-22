@@ -17,6 +17,7 @@ export const EmailSignup = ({
   const [restaurantName, setRestaurantName] = useState(customRestaurantName || "The Local Kitchen & Bar");
   const [googleMapsUrl, setGoogleMapsUrl] = useState(customGoogleMapsUrl || "https://maps.app.goo.gl/Nx23mQHet4TBfctJ6");
   const [contactEmail, setContactEmail] = useState("");
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
 
   useEffect(() => {
     const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
@@ -25,12 +26,14 @@ export const EmailSignup = ({
       const { 
         restaurantName: savedRestaurantName,
         googleMapsUrl: savedGoogleMapsUrl,
-        contactEmail: savedContactEmail
+        contactEmail: savedContactEmail,
+        selectedServer: savedServer
       } = JSON.parse(savedRestaurantInfo);
       
       if (!customRestaurantName) setRestaurantName(savedRestaurantName);
       if (!customGoogleMapsUrl) setGoogleMapsUrl(savedGoogleMapsUrl);
       if (savedContactEmail) setContactEmail(savedContactEmail);
+      if (savedServer) setSelectedServer(savedServer);
     }
   }, [customRestaurantName, customGoogleMapsUrl]);
 
@@ -50,7 +53,8 @@ export const EmailSignup = ({
       rewardCode,
       reviewText || undefined,
       refinedReview || undefined,
-      analysisResult
+      analysisResult,
+      selectedServer
     );
     
     const mailtoLink = `mailto:${recipients.join(',')}?subject=${encodeURIComponent(getEmailSubject(restaurantName))}&body=${encodeURIComponent(emailBody)}`;

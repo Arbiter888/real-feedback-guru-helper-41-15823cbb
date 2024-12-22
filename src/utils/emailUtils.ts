@@ -27,7 +27,8 @@ export const constructEmailBody = (
   rewardCode: string | null,
   reviewText?: string,
   refinedReview?: string,
-  analysisResult?: string | null
+  analysisResult?: string | null,
+  serverName?: string | null
 ) => {
   const visitTimestamp = new Date().toLocaleString();
   
@@ -41,6 +42,9 @@ export const constructEmailBody = (
   
   emailBody += `Visit Details:\n`;
   emailBody += `Date: ${visitTimestamp}\n`;
+  if (serverName) {
+    emailBody += `Server: ${serverName}\n`;
+  }
   emailBody += `Location: ${googleMapsUrl}\n\n`;
   
   if (refinedReview) {
