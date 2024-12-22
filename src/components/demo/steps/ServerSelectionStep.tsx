@@ -9,6 +9,7 @@ interface ServerSelectionStepProps {
 
 export const ServerSelectionStep = ({ onServerSelect }: ServerSelectionStepProps) => {
   const [serverNames, setServerNames] = useState<string[]>([]);
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
 
   useEffect(() => {
     const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
@@ -19,6 +20,11 @@ export const ServerSelectionStep = ({ onServerSelect }: ServerSelectionStepProps
       }
     }
   }, []);
+
+  const handleServerSelect = (name: string) => {
+    setSelectedServer(name);
+    onServerSelect(name);
+  };
 
   if (!serverNames.length) return null;
 
@@ -32,15 +38,15 @@ export const ServerSelectionStep = ({ onServerSelect }: ServerSelectionStepProps
         {serverNames.map((name) => (
           <Button
             key={name}
-            variant="outline"
-            onClick={() => onServerSelect(name)}
+            variant={selectedServer === name ? "default" : "outline"}
+            onClick={() => handleServerSelect(name)}
             className="flex-grow sm:flex-grow-0"
           >
             {name}
           </Button>
         ))}
       </div>
-      <Select onValueChange={onServerSelect}>
+      <Select onValueChange={handleServerSelect} value={selectedServer || undefined}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Or select your server" />
         </SelectTrigger>
