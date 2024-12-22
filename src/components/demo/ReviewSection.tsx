@@ -6,6 +6,7 @@ import { RewardsSection } from "./RewardsSection";
 import { ThoughtsStep } from "./steps/ThoughtsStep";
 import { UploadStep } from "./steps/UploadStep";
 import { RefineStep } from "./steps/RefineStep";
+import { ServerSelectionStep } from "./steps/ServerSelectionStep";
 import { RestaurantInfo } from "./RestaurantInfo";
 import { nanoid } from 'nanoid';
 import { AiFeedbackSection } from "./AiFeedbackSection";
@@ -29,6 +30,7 @@ export const ReviewSection = ({
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [isRefining, setIsRefining] = useState(false);
   const [rewardCode, setRewardCode] = useState<string | null>(null);
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [googleMapsUrl, setGoogleMapsUrl] = useState(customGoogleMapsUrl || "https://maps.app.goo.gl/Nx23mQHet4TBfctJ6");
   const [restaurantName, setRestaurantName] = useState(customRestaurantName || "The Local Kitchen & Bar");
   const { toast } = useToast();
@@ -174,6 +176,8 @@ export const ReviewSection = ({
             </div>
           </div>
         </div>
+
+        <ServerSelectionStep onServerSelect={setSelectedServer} />
 
         <ThoughtsStep 
           reviewText={reviewText}
