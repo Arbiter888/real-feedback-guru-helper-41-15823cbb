@@ -36,7 +36,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
         return;
       }
 
-      const { restaurantName, googleMapsUrl, contactEmail } = JSON.parse(savedRestaurantInfo);
+      const { restaurantName, googleMapsUrl, contactEmail, serverNames } = JSON.parse(savedRestaurantInfo);
       console.log('Parsed contact email:', contactEmail);
 
       if (!restaurantName || !googleMapsUrl) {
@@ -58,6 +58,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             google_maps_url: googleMapsUrl,
             contact_email: contactEmail,
             slug: uniqueSlug,
+            server_names: serverNames || [], // Include server names in the demo page
           }
         ])
         .select()

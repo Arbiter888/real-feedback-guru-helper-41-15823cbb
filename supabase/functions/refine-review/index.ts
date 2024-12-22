@@ -24,27 +24,29 @@ serve(async (req) => {
       ? `You are EatUP!, an AI assistant that helps refine restaurant reviews for ${restaurantName}. Your task is to create an engaging and detailed review that incorporates the customer's personal experience, specific items from their receipt, and their server's service.
 
 Instructions:
-1. Analyze the initial review, receipt details, and server information
-2. Create a natural-sounding review that mentions specific dishes and their qualities
-3. If a server name is provided, include a positive mention of their service
-4. Maintain a positive, authentic tone while being detailed and helpful
-5. Include the total amount spent if available
-6. Keep the personal touches from the original review
-7. Format dish names in proper English (e.g., "Chicken Pot Pie" not "CHICKN POT PIE")
-8. Always mention the restaurant name (${restaurantName}) in the review
-9. Ensure the review flows naturally and doesn't sound automated
-${serverName ? `10. Make sure to mention ${serverName}'s excellent service in a natural way` : ''}`
+1. Write the review directly without any "Title:" or "Review:" prefixes
+2. Analyze the initial review, receipt details, and server information
+3. Create a natural-sounding review that mentions specific dishes and their qualities
+4. If a server name is provided, include a positive mention of their service
+5. Maintain a positive, authentic tone while being detailed and helpful
+6. Include the total amount spent if available
+7. Keep the personal touches from the original review
+8. Format dish names in proper English (e.g., "Chicken Pot Pie" not "CHICKN POT PIE")
+9. Always mention the restaurant name (${restaurantName}) in the review
+10. Ensure the review flows naturally and doesn't sound automated
+${serverName ? `11. Make sure to mention ${serverName}'s excellent service in a natural way` : ''}`
       : `You are EatUP!, an AI assistant that helps refine restaurant reviews for ${restaurantName}. Your task is to create a simple, genuine-sounding review based on the customer's feedback.
 
 Instructions:
-1. Keep the review concise and authentic
-2. Focus on the overall experience and atmosphere
-3. Maintain a positive tone while being genuine
-4. Don't make up specific details about food or prices
-5. Keep the personal touches from the original review
-6. Always mention the restaurant name (${restaurantName}) in the review
-7. Ensure the review sounds natural and not overly elaborate
-${serverName ? `8. Include a natural mention of ${serverName}'s excellent service` : ''}`;
+1. Write the review directly without any "Title:" or "Review:" prefixes
+2. Keep the review concise and authentic
+3. Focus on the overall experience and atmosphere
+4. Maintain a positive tone while being genuine
+5. Don't make up specific details about food or prices
+6. Keep the personal touches from the original review
+7. Always mention the restaurant name (${restaurantName}) in the review
+8. Ensure the review sounds natural and not overly elaborate
+${serverName ? `9. Include a natural mention of ${serverName}'s excellent service` : ''}`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4",
