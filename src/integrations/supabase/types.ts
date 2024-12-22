@@ -105,6 +105,7 @@ export type Database = {
           id: string
           restaurant_name: string
           slug: string
+          server_names: string[] | null;
         }
         Insert: {
           contact_email?: string | null
@@ -114,6 +115,7 @@ export type Database = {
           id?: string
           restaurant_name: string
           slug: string
+          server_names?: string[] | null;
         }
         Update: {
           contact_email?: string | null
@@ -123,6 +125,7 @@ export type Database = {
           id?: string
           restaurant_name?: string
           slug?: string
+          server_names?: string[] | null;
         }
         Relationships: []
       }
@@ -288,7 +291,7 @@ export type Database = {
           terms_conditions?: string | null
           title: string
           valid_days?: number | null
-          valid_from?: string
+          valid_from: string
           valid_until?: string | null
         }
         Update: {
@@ -556,7 +559,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           page_title?: string
-          restaurant_id?: string
+          restaurant_id: string
           thank_you_message?: string | null
           theme_color?: string | null
           updated_at?: string
@@ -709,7 +712,7 @@ export type Tables<
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
     ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
         Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
@@ -763,10 +766,10 @@ export type TablesUpdate<
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
-      ? U
-      : never
+      Update: infer U
+    }
+    ? U
+    : never
     : never
 
 export type Enums<

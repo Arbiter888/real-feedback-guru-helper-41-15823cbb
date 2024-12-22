@@ -38,6 +38,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
 
       const { restaurantName, googleMapsUrl, contactEmail, serverNames } = JSON.parse(savedRestaurantInfo);
       console.log('Parsed contact email:', contactEmail);
+      console.log('Server names:', serverNames);
 
       if (!restaurantName || !googleMapsUrl) {
         toast({
@@ -58,7 +59,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             google_maps_url: googleMapsUrl,
             contact_email: contactEmail,
             slug: uniqueSlug,
-            server_names: serverNames || [], // Include server names in the demo page
+            server_names: serverNames || [], // Ensure server_names is always an array
           }
         ])
         .select()
