@@ -13,25 +13,27 @@ serve(async (req) => {
   }
 
   try {
-    const { review, receiptData, restaurantName } = await req.json();
-    console.log('Processing review:', review, 'with receipt data:', receiptData, 'for restaurant:', restaurantName);
+    const { review, receiptData, restaurantName, serverName } = await req.json();
+    console.log('Processing review:', review, 'with receipt data:', receiptData, 'for restaurant:', restaurantName, 'server:', serverName);
 
     const openai = new OpenAI({
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
 
     const systemPrompt = receiptData 
-      ? `You are EatUP!, an AI assistant that helps refine restaurant reviews for ${restaurantName}. Your task is to create an engaging and detailed review that incorporates both the customer's personal experience and the specific items from their receipt.
+      ? `You are EatUP!, an AI assistant that helps refine restaurant reviews for ${restaurantName}. Your task is to create an engaging and detailed review that incorporates the customer's personal experience, specific items from their receipt, and their server's service.
 
 Instructions:
-1. Analyze both the initial review and the receipt details
+1. Analyze the initial review, receipt details, and server information
 2. Create a natural-sounding review that mentions specific dishes and their qualities
-3. Maintain a positive, authentic tone while being detailed and helpful
-4. Include the total amount spent if available
-5. Keep the personal touches from the original review
-6. Format dish names in proper English (e.g., "Chicken Pot Pie" not "CHICKN POT PIE")
-7. Always mention the restaurant name (${restaurantName}) in the review
-8. Ensure the review flows naturally and doesn't sound automated`
+3. If a server name is provided, include a positive mention of their service
+4. Maintain a positive, authentic tone while being detailed and helpful
+5. Include the total amount spent if available
+6. Keep the personal touches from the original review
+7. Format dish names in proper English (e.g., "Chicken Pot Pie" not "CHICKN POT PIE")
+8. Always mention the restaurant name (${restaurantName}) in the review
+9. Ensure the review flows naturally and doesn't sound automated
+${serverName ? `10. Make sure to mention ${serverName}'s excellent service in a natural way` : ''}`
       : `You are EatUP!, an AI assistant that helps refine restaurant reviews for ${restaurantName}. Your task is to create a simple, genuine-sounding review based on the customer's feedback.
 
 Instructions:
@@ -41,10 +43,11 @@ Instructions:
 4. Don't make up specific details about food or prices
 5. Keep the personal touches from the original review
 6. Always mention the restaurant name (${restaurantName}) in the review
-7. Ensure the review sounds natural and not overly elaborate`;
+7. Ensure the review sounds natural and not overly elaborate
+${serverName ? `8. Include a natural mention of ${serverName}'s excellent service` : ''}`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
@@ -52,7 +55,7 @@ Instructions:
         },
         {
           role: "user",
-          content: `Initial Review: "${review}"\n\nReceipt Details: ${receiptData ? JSON.stringify(receiptData) : 'No receipt data available'}`
+          content: `Initial Review: "${review}"\n\nReceipt Details: ${receiptData ? JSON.stringify(receiptData) : 'No receipt data available'}${serverName ? `\n\nServer Name: ${serverName}` : ''}`
         }
       ],
       temperature: receiptData ? 0.7 : 0.5,

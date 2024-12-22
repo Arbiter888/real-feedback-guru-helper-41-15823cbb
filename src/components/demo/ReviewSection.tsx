@@ -24,13 +24,13 @@ export const ReviewSection = ({
   hidePreferences = false,
   onTakeAiSurvey
 }: ReviewSectionProps) => {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [reviewText, setReviewText] = useState("");
   const [refinedReview, setRefinedReview] = useState("");
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [isRefining, setIsRefining] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [rewardCode, setRewardCode] = useState<string | null>(null);
-  const [selectedServer, setSelectedServer] = useState<string | null>(null);
   const [googleMapsUrl, setGoogleMapsUrl] = useState(customGoogleMapsUrl || "https://maps.app.goo.gl/Nx23mQHet4TBfctJ6");
   const [restaurantName, setRestaurantName] = useState(customRestaurantName || "The Local Kitchen & Bar");
   const { toast } = useToast();
@@ -42,7 +42,6 @@ export const ReviewSection = ({
 
   const handleReceiptUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    console.log('File selected:', file);
     if (!file) return;
 
     try {
@@ -51,33 +50,21 @@ export const ReviewSection = ({
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      console.log('Uploading file to Supabase storage...');
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('review_photos')
         .upload(filePath, file);
 
-      if (uploadError) {
-        console.error('Upload error:', uploadError);
-        throw uploadError;
-      }
-      console.log('Upload successful:', uploadData);
+      if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('review_photos')
         .getPublicUrl(filePath);
 
-      console.log('Public URL generated:', publicUrl);
-
-      console.log('Calling analyze-receipt function...');
       const { data, error } = await supabase.functions.invoke('analyze-receipt', {
         body: { imageUrl: publicUrl },
       });
 
-      if (error) {
-        console.error('Analysis error:', error);
-        throw error;
-      }
-      console.log('Analysis result:', data);
+      if (error) throw error;
 
       setAnalysisResult(data.analysis);
       toast({
@@ -112,7 +99,8 @@ export const ReviewSection = ({
         body: { 
           review: reviewText,
           receiptData: analysisResult || null,
-          restaurantName: restaurantName // Pass the restaurant name to the function
+          restaurantName,
+          serverName: selectedServer // Pass the selected server to the refine function
         },
       });
 
@@ -139,19 +127,11 @@ export const ReviewSection = ({
     const finalReview = refinedReview || reviewText;
     navigator.clipboard.writeText(finalReview);
     window.open(googleMapsUrl, '_blank');
-    // Generate a unique 8-character reward code
     const uniqueCode = nanoid(8);
     setRewardCode(uniqueCode);
     toast({
       title: "Review copied!",
       description: "Opening Google Reviews in a new tab. Please paste your review there.",
-    });
-  };
-
-  const handleStep1Complete = () => {
-    toast({
-      title: "✅ Step 1 Complete!",
-      description: "Great! You can now enhance your review or optionally add a receipt photo.",
     });
   };
 
@@ -182,7 +162,12 @@ export const ReviewSection = ({
         <ThoughtsStep 
           reviewText={reviewText}
           onChange={setReviewText}
-          onComplete={handleStep1Complete}
+          onComplete={() => {
+            toast({
+              title: "✅ Step 1 Complete!",
+              description: "Great! You can now enhance your review or optionally add a receipt photo.",
+            });
+          }}
         />
 
         <UploadStep 
@@ -200,14 +185,12 @@ export const ReviewSection = ({
           onCopyAndRedirect={handleCopyAndRedirect}
         />
 
-        <div className="pt-6">
-          <RewardsSection 
-            rewardCode={rewardCode} 
-            hasUploadedReceipt={!!analysisResult}
-            customRestaurantName={restaurantName}
-            customGoogleMapsUrl={googleMapsUrl}
-          />
-        </div>
+        <RewardsSection 
+          rewardCode={rewardCode} 
+          hasUploadedReceipt={!!analysisResult}
+          customRestaurantName={restaurantName}
+          customGoogleMapsUrl={googleMapsUrl}
+        />
 
         {onTakeAiSurvey && (
           <AiFeedbackSection onTakeAiSurvey={onTakeAiSurvey} />
