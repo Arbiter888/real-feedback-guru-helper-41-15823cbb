@@ -51,6 +51,7 @@
     "embla-carousel-react": "^8.5.1",
     "framer-motion": "^11.14.4",
     "input-otp": "^1.2.4",
+    "jspdf": "^2.5.2",
     "lucide-react": "^0.462.0",
     "nanoid": "^5.0.9",
     "next-themes": "^0.3.0",

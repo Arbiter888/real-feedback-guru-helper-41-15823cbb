@@ -3,6 +3,7 @@ import QRCode from "qrcode";
 import { Button } from "@/components/ui/button";
 import { Download, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 
 interface ReviewPageUrlSectionProps {
   restaurantName: string | null;
@@ -10,7 +11,7 @@ interface ReviewPageUrlSectionProps {
   generatedUrl: string | null;
 }
 
-export const ReviewPageUrlSection = ({ generatedUrl }: ReviewPageUrlSectionProps) => {
+export const ReviewPageUrlSection = ({ restaurantName, generatedUrl }: ReviewPageUrlSectionProps) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
@@ -35,6 +36,53 @@ export const ReviewPageUrlSection = ({ generatedUrl }: ReviewPageUrlSectionProps
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleDownloadPDF = () => {
+    if (!qrCodeUrl || !restaurantName) return;
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    // Set up the PDF content
+    pdf.setFontSize(24);
+    pdf.setTextColor(233, 78, 135); // Primary pink color
+    const title = `Leave a review for ${restaurantName}`;
+    const titleWidth = pdf.getTextWidth(title);
+    const pageWidth = pdf.internal.pageSize.width;
+    const titleX = (pageWidth - titleWidth) / 2;
+    pdf.text(title, titleX, 30);
+
+    pdf.setFontSize(18);
+    pdf.setTextColor(0, 0, 0);
+    const subtitle = "and get rewarded!";
+    const subtitleWidth = pdf.getTextWidth(subtitle);
+    const subtitleX = (pageWidth - subtitleWidth) / 2;
+    pdf.text(subtitle, subtitleX, 40);
+
+    // Add QR code
+    const img = new Image();
+    img.src = qrCodeUrl;
+    
+    img.onload = () => {
+      const qrSize = 100;
+      const qrX = (pageWidth - qrSize) / 2;
+      pdf.addImage(img, 'PNG', qrX, 60, qrSize, qrSize);
+
+      // Add instructions
+      pdf.setFontSize(12);
+      pdf.setTextColor(100, 100, 100);
+      const instructions = "Scan the QR code with your phone's camera to leave a review";
+      const instructionsWidth = pdf.getTextWidth(instructions);
+      const instructionsX = (pageWidth - instructionsWidth) / 2;
+      pdf.text(instructions, instructionsX, 180);
+
+      // Save the PDF
+      pdf.save(`${restaurantName.toLowerCase().replace(/\s+/g, '-')}-review-qr.pdf`);
+    };
   };
 
   const handleCopyUrl = async () => {
@@ -91,14 +139,24 @@ export const ReviewPageUrlSection = ({ generatedUrl }: ReviewPageUrlSectionProps
               alt="QR Code for review page" 
               className="w-32 h-32"
             />
-            <Button 
-              onClick={handleDownloadQR}
-              variant="outline"
-              className="w-full mt-3 text-sm"
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download QR Code
-            </Button>
+            <div className="flex flex-col gap-2 mt-3">
+              <Button 
+                onClick={handleDownloadQR}
+                variant="outline"
+                className="w-full text-sm"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download QR Code
+              </Button>
+              <Button 
+                onClick={handleDownloadPDF}
+                variant="outline"
+                className="w-full text-sm"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF with QR Code
+              </Button>
+            </div>
           </div>
         </div>
       )}
