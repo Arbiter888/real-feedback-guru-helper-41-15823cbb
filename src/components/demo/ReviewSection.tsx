@@ -10,6 +10,7 @@ import { ServerSelectionStep } from "./steps/ServerSelectionStep";
 import { RestaurantInfo } from "./RestaurantInfo";
 import { nanoid } from 'nanoid';
 import { AiFeedbackSection } from "./AiFeedbackSection";
+import { IntroSection } from "./sections/IntroSection";
 
 interface ReviewSectionProps {
   customRestaurantName?: string;
@@ -50,7 +51,7 @@ export const ReviewSection = ({
       const fileName = `${crypto.randomUUID()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('review_photos')
         .upload(filePath, file);
 
@@ -100,7 +101,7 @@ export const ReviewSection = ({
           review: reviewText,
           receiptData: analysisResult || null,
           restaurantName,
-          serverName: selectedServer // Pass the selected server to the refine function
+          serverName: selectedServer
         },
       });
 
@@ -142,21 +143,8 @@ export const ReviewSection = ({
           <RestaurantInfo onRestaurantInfoSaved={handlePreferencesSaved} />
         )}
         
-        <div className="text-center">
-          <div className="space-y-2">
-            <p className="text-lg font-medium text-primary">
-              Get Your Reward Today! 🎁
-            </p>
-            <div className="text-gray-600">
-              <p>Share your experience and get rewarded in 3 simple steps:</p>
-              <p>1. Write your review below</p>
-              <p>2. Add your receipt to better personalise your review</p>
-              <p>3. Post it on Google and show it to your server</p>
-              <p className="text-primary mt-2">Sign up to EatUP! for another reward for your second visit (more information below)</p>
-            </div>
-          </div>
-        </div>
-
+        <IntroSection />
+        
         <ServerSelectionStep onServerSelect={setSelectedServer} />
 
         <ThoughtsStep 
