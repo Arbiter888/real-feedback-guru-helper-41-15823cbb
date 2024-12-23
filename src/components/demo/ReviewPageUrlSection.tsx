@@ -21,7 +21,8 @@ export const ReviewPageUrlSection = ({
   const [copied, setCopied] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
-  const baseUrl = window.location.origin.replace(/:\/*$/, '');
+  // Ensure proper URL formatting
+  const baseUrl = window.location.origin.replace(/:\/*$/, '').replace(/\/$/, '');
   const fullUrl = generatedUrl ? `${baseUrl}${generatedUrl}` : '';
 
   const handleCopyUrl = async () => {
@@ -85,7 +86,7 @@ export const ReviewPageUrlSection = ({
             <PDFGenerator 
               url={fullUrl}
               qrCodeUrl={qrCodeUrl}
-              restaurantName={restaurantName || "Restaurant"}
+              restaurantName={restaurantName || "Business"}
             />
           </div>
         </div>
