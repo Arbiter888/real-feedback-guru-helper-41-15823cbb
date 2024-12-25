@@ -22,6 +22,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+  const [visibleEmailPreviews, setVisibleEmailPreviews] = useState<Set<string>>(new Set());
 
   const { data: reviews, isLoading: isLoadingReviews } = useQuery({
     queryKey: ["recentReviews"],
@@ -67,6 +68,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
       });
       
       setSelectedReviewId(reviewId);
+      setVisibleEmailPreviews(prev => new Set([...prev, reviewId]));
     } catch (error) {
       console.error("Error generating follow-up:", error);
       toast({
@@ -77,6 +79,18 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const toggleEmailPreview = (reviewId: string) => {
+    setVisibleEmailPreviews(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(reviewId)) {
+        newSet.delete(reviewId);
+      } else {
+        newSet.add(reviewId);
+      }
+      return newSet;
+    });
   };
 
   const handleSendEmail = async () => {
@@ -104,9 +118,11 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
               onGenerateFollowUp={handleGenerateFollowUp}
               isGenerating={isGenerating}
               selectedReviewId={selectedReviewId}
+              onTogglePreview={() => toggleEmailPreview(review.id)}
+              showPreview={visibleEmailPreviews.has(review.id)}
             />
 
-            {selectedReviewId === review.id && followUpEmails?.map((email) => (
+            {visibleEmailPreviews.has(review.id) && followUpEmails?.map((email) => (
               <EmailPreviewCard
                 key={email.id}
                 email={email}
