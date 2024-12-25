@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.2.1";
 
 const corsHeaders = {
@@ -42,7 +41,7 @@ serve(async (req) => {
     Format the response as a JSON array with objects containing 'title', 'description', and 'timing' fields.`;
 
     const completion = await openai.createChatCompletion({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
@@ -64,6 +63,7 @@ serve(async (req) => {
       },
     );
   } catch (error) {
+    console.error("Error generating voucher suggestions:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
       {

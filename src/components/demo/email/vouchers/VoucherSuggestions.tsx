@@ -16,18 +16,23 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggest
     queryKey: ["voucher-suggestions", review.id],
     queryFn: async () => {
       // First, try to get existing suggestions
-      const { data: existingSuggestions } = await supabase
+      const { data: existingSuggestions, error } = await supabase
         .from("review_voucher_suggestions")
         .select("*")
         .eq("review_id", review.id)
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error fetching suggestions:", error);
+        return null;
+      }
 
       if (existingSuggestions) {
         return existingSuggestions.suggested_vouchers;
       }
 
       // If no suggestions exist, generate new ones
-      const { data, error } = await supabase.functions.invoke("generate-voucher-suggestions", {
+      const { data, error: genError } = await supabase.functions.invoke("generate-voucher-suggestions", {
         body: {
           review: {
             text: review.review_text,
@@ -37,15 +42,23 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggest
         },
       });
 
-      if (error) throw error;
+      if (genError) {
+        console.error("Error generating suggestions:", genError);
+        throw genError;
+      }
 
       // Store the generated suggestions
-      await supabase
+      const { error: insertError } = await supabase
         .from("review_voucher_suggestions")
         .insert({
           review_id: review.id,
           suggested_vouchers: data.suggestions,
         });
+
+      if (insertError) {
+        console.error("Error storing suggestions:", insertError);
+        throw insertError;
+      }
 
       return data.suggestions;
     },
