@@ -1,13 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { BusinessSetupSection } from "@/components/dashboard/sections/BusinessSetupSection";
+import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -21,10 +17,9 @@ interface RestaurantInfo {
   preferredBookingMethod: 'phone' | 'website';
 }
 
-export default function DashboardPage() {
+export default function EmailCampaignsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>({
     restaurantName: "",
     googleMapsUrl: "",
@@ -50,15 +45,6 @@ export default function DashboardPage() {
     }
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account.",
-    });
-    navigate("/");
-  };
-
   if (!user) return null;
 
   return (
@@ -67,16 +53,8 @@ export default function DashboardPage() {
         <DashboardSidebar />
         <main className="flex-1 px-4 py-8">
           <div className="max-w-7xl mx-auto space-y-8">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
-            </div>
-
-            {/* Business Setup Section */}
-            <BusinessSetupSection />
+            <h1 className="text-3xl font-bold text-gray-900">Email Campaigns</h1>
+            <EmailManagementSection restaurantInfo={restaurantInfo} />
           </div>
         </main>
       </div>
