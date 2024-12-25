@@ -8,7 +8,6 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -36,28 +35,27 @@ serve(async (req) => {
     });
     const openai = new OpenAIApi(configuration);
 
-    // Construct a more structured prompt to ensure JSON response
-    let prompt = `Based on this customer review: "${review.text}", generate 3 personalized voucher suggestions.`;
-    
-    if (review.receiptData) {
-      prompt += `\nTheir spending data shows they spent $${review.receiptData.total_amount}.`;
-    }
-    
-    if (review.serverName) {
-      prompt += `\nThey were served by ${review.serverName}.`;
-    }
+    // Enhanced prompt for better sentiment-based suggestions
+    let prompt = `Analyze this customer review and generate 3 personalized voucher suggestions. Review: "${review.text}"
 
-    prompt += `\n\nProvide exactly 3 voucher suggestions in a valid JSON array format. Each suggestion should be an object with these exact fields:
-    - "title": A short, compelling offer title
-    - "description": A brief description of the offer
-    - "timing": When to send this voucher
+    Consider the following:
+    ${review.receiptData ? `- Customer spent $${review.receiptData.total_amount}` : ''}
+    ${review.serverName ? `- They were served by ${review.serverName}` : ''}
 
-    Format your entire response as a JSON array like this:
+    For each suggestion, determine the sentiment category (highly_positive, positive, neutral, or negative) and provide:
+    1. A compelling offer title
+    2. A detailed description
+    3. Strategic timing for sending
+    4. Clear reasoning for why this specific voucher matches the customer's experience
+
+    Format your response as a JSON array with exactly these fields:
     [
       {
-        "title": "Example Title",
-        "description": "Example Description",
-        "timing": "Example Timing"
+        "title": "Offer title",
+        "description": "Detailed description",
+        "timing": "When to send",
+        "reasoning": "Why this voucher matches",
+        "category": "sentiment_category"
       }
     ]
 
@@ -66,7 +64,7 @@ serve(async (req) => {
     console.log("Sending prompt to OpenAI:", prompt);
 
     const completion = await openai.createChatCompletion({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -85,7 +83,6 @@ serve(async (req) => {
 
     let suggestions;
     try {
-      // Clean the response to ensure it's valid JSON
       const cleanedContent = content.trim().replace(/```json\n?|\n?```/g, '');
       suggestions = JSON.parse(cleanedContent);
       
@@ -93,9 +90,8 @@ serve(async (req) => {
         throw new Error('Response is not an array');
       }
 
-      // Validate the structure of each suggestion
       suggestions.forEach((suggestion, index) => {
-        if (!suggestion.title || !suggestion.description || !suggestion.timing) {
+        if (!suggestion.title || !suggestion.description || !suggestion.timing || !suggestion.category || !suggestion.reasoning) {
           throw new Error(`Suggestion at index ${index} is missing required fields`);
         }
       });

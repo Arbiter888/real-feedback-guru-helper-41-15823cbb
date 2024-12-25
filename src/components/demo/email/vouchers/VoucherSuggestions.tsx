@@ -1,22 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Review } from "../ReviewVoucherSection";
-import { CheckCircle, ArrowRight } from "lucide-react";
-import { LucideIcon } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { VoucherSuggestionCard } from "./VoucherSuggestionCard";
 
 interface VoucherSuggestionsProps {
   review: Review;
   onGenerateVoucher: (review: Review) => void;
-  sentiment: {
-    icon: LucideIcon;
-    label: string;
-    color: string;
-  };
 }
 
-export const VoucherSuggestions = ({ review, onGenerateVoucher, sentiment }: VoucherSuggestionsProps) => {
+export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggestionsProps) => {
   const { toast } = useToast();
 
   const { data: suggestions, isLoading } = useQuery({
@@ -38,8 +32,6 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher, sentiment }: Vou
           return existingSuggestions.suggested_vouchers;
         }
 
-        console.log("Generating new suggestions for review:", review.id);
-
         const { data, error: genError } = await supabase.functions.invoke("generate-voucher-suggestions", {
           body: {
             review: {
@@ -50,10 +42,7 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher, sentiment }: Vou
           },
         });
 
-        if (genError) {
-          console.error("Error generating suggestions:", genError);
-          throw genError;
-        }
+        if (genError) throw genError;
 
         if (!data?.suggestions) {
           console.error("No suggestions returned from function");
@@ -67,10 +56,7 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher, sentiment }: Vou
             suggested_vouchers: data.suggestions,
           });
 
-        if (insertError) {
-          console.error("Error storing suggestions:", insertError);
-          throw insertError;
-        }
+        if (insertError) throw insertError;
 
         return data.suggestions;
       } catch (error) {
@@ -98,47 +84,20 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher, sentiment }: Vou
       <div className="flex items-center gap-2">
         <h4 className="text-sm font-medium text-gray-700">Suggested Voucher Sequence</h4>
         <ArrowRight className="h-4 w-4 text-gray-400" />
-        <div className="flex items-center gap-1 text-sm text-gray-600">
-          <CheckCircle className="h-4 w-4 text-green-500" />
-          Matches customer sentiment
-        </div>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {suggestions.map((suggestion: any, index: number) => (
-          <div
+          <VoucherSuggestionCard
             key={index}
-            className={`p-4 rounded-lg border ${
-              sentiment.color.includes('green') ? 'border-green-200 bg-green-50/50' :
-              sentiment.color.includes('red') ? 'border-red-200 bg-red-50/50' :
-              sentiment.color.includes('yellow') ? 'border-yellow-200 bg-yellow-50/50' :
-              'border-pink-200 bg-pink-50/50'
-            }`}
-          >
-            <div className="flex justify-between items-start gap-4">
-              <div>
-                <p className="font-medium text-gray-900">{suggestion.title}</p>
-                <p className="text-sm text-gray-600 mt-1">{suggestion.description}</p>
-                {suggestion.timing && (
-                  <p className="text-xs text-gray-500 mt-2">
-                    Recommended timing: {suggestion.timing}
-                  </p>
-                )}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  onGenerateVoucher(review);
-                  toast({
-                    title: "Voucher email scheduled",
-                    description: "The voucher email will be generated with this suggestion.",
-                  });
-                }}
-              >
-                Use Suggestion
-              </Button>
-            </div>
-          </div>
+            suggestion={suggestion}
+            onUse={() => {
+              onGenerateVoucher(review);
+              toast({
+                title: "Voucher email scheduled",
+                description: "The voucher email will be generated with this suggestion.",
+              });
+            }}
+          />
         ))}
       </div>
     </div>
