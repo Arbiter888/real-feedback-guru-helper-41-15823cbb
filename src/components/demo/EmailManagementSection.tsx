@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
 import { EmailDatabaseTable } from "./email/EmailDatabaseTable";
+import { FollowUpEmailsSection } from "./email/FollowUpEmailsSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -146,6 +147,11 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
           disabled={!emailContacts?.length}
           restaurantInfo={restaurantInfo}
         />
+      </div>
+
+      {/* Follow-up Emails Section */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <FollowUpEmailsSection />
       </div>
 
       {/* Email Database Section */}

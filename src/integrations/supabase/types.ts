@@ -311,6 +311,50 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_up_emails: {
+        Row: {
+          created_at: string
+          email_content: string
+          email_subject: string
+          id: string
+          review_id: string | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string | null
+          voucher_details: Json | null
+        }
+        Insert: {
+          created_at?: string
+          email_content: string
+          email_subject: string
+          id?: string
+          review_id?: string | null
+          scheduled_for: string
+          sent_at?: string | null
+          status?: string | null
+          voucher_details?: Json | null
+        }
+        Update: {
+          created_at?: string
+          email_content?: string
+          email_subject?: string
+          id?: string
+          review_id?: string | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string | null
+          voucher_details?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_emails_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
