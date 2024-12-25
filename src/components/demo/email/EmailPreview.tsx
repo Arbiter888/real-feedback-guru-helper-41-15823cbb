@@ -1,5 +1,12 @@
 import { Label } from "@/components/ui/label";
 
+interface EmailPreviewProps {
+  emailSubject: string;
+  htmlContent: string;
+  showPreview: boolean;
+  restaurantInfo: RestaurantInfo;
+}
+
 interface RestaurantInfo {
   restaurantName: string;
   websiteUrl: string;
@@ -8,13 +15,6 @@ interface RestaurantInfo {
   phoneNumber: string;
   bookingUrl: string;
   googleMapsUrl: string;
-}
-
-interface EmailPreviewProps {
-  emailSubject: string;
-  htmlContent: string;
-  showPreview: boolean;
-  restaurantInfo: RestaurantInfo;
 }
 
 export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo }: EmailPreviewProps) => {
@@ -66,9 +66,9 @@ export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restauran
   `;
 
   return (
-    <div className="mt-6 space-y-4 bg-white rounded-lg border p-6">
-      <Label className="text-lg font-semibold">Email Preview</Label>
-      <div className="space-y-4">
+    <div className="mt-6 space-y-4">
+      <Label>Email Preview</Label>
+      <div className="p-6 border rounded-lg bg-white space-y-4">
         <div className="bg-gray-50 p-4 rounded-lg">
           <h3 className="font-medium text-left">Subject: {emailSubject}</h3>
         </div>
