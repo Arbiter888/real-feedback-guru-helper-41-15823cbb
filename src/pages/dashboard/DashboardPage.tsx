@@ -12,28 +12,49 @@ import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
 import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 
+interface RestaurantInfo {
+  restaurantName: string;
+  googleMapsUrl: string;
+  contactEmail: string;
+  websiteUrl: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  phoneNumber: string;
+  bookingUrl: string;
+  preferredBookingMethod: 'phone' | 'website';
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
-  const [restaurantName, setRestaurantName] = useState("");
-  const [googleMapsUrl, setGoogleMapsUrl] = useState("");
-  const [contactEmail, setContactEmail] = useState("");
-  const [reviewPageId, setReviewPageId] = useState<string | null>(null);
+  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>({
+    restaurantName: "",
+    googleMapsUrl: "",
+    contactEmail: "",
+    websiteUrl: "",
+    facebookUrl: "",
+    instagramUrl: "",
+    phoneNumber: "",
+    bookingUrl: "",
+    preferredBookingMethod: 'phone'
+  });
 
   useEffect(() => {
     if (!user) {
       navigate("/auth/login");
+      return;
     }
 
     // Load saved preferences if they exist
     const savedInfo = localStorage.getItem('restaurantInfo');
     if (savedInfo) {
       const parsed = JSON.parse(savedInfo);
-      setRestaurantName(parsed.restaurantName || '');
-      setGoogleMapsUrl(parsed.googleMapsUrl || '');
-      setContactEmail(parsed.contactEmail || '');
+      setRestaurantInfo(prev => ({
+        ...prev,
+        ...parsed
+      }));
     }
   }, [user, navigate]);
 
@@ -47,7 +68,7 @@ export default function DashboardPage() {
   };
 
   const handleSavePreferences = () => {
-    if (!restaurantName || !googleMapsUrl) {
+    if (!restaurantInfo.restaurantName || !restaurantInfo.googleMapsUrl) {
       toast({
         title: "Missing information",
         description: "Please provide both restaurant name and Google Maps URL.",
@@ -56,16 +77,21 @@ export default function DashboardPage() {
       return;
     }
 
-    localStorage.setItem('restaurantInfo', JSON.stringify({
-      restaurantName,
-      googleMapsUrl,
-      contactEmail,
-    }));
+    localStorage.setItem('restaurantInfo', JSON.stringify(restaurantInfo));
 
     toast({
       title: "Preferences saved",
       description: "Your restaurant information has been saved successfully.",
     });
+  };
+
+  const handleInputChange = (field: keyof RestaurantInfo) => (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setRestaurantInfo(prev => ({
+      ...prev,
+      [field]: e.target.value
+    }));
   };
 
   if (!user) return null;
@@ -90,8 +116,8 @@ export default function DashboardPage() {
                 <Label htmlFor="restaurantName">Restaurant Name</Label>
                 <Input
                   id="restaurantName"
-                  value={restaurantName}
-                  onChange={(e) => setRestaurantName(e.target.value)}
+                  value={restaurantInfo.restaurantName}
+                  onChange={handleInputChange('restaurantName')}
                   placeholder="Enter your restaurant name"
                 />
               </div>
@@ -100,8 +126,8 @@ export default function DashboardPage() {
                 <Label htmlFor="googleMapsUrl">Google Maps URL</Label>
                 <Input
                   id="googleMapsUrl"
-                  value={googleMapsUrl}
-                  onChange={(e) => setGoogleMapsUrl(e.target.value)}
+                  value={restaurantInfo.googleMapsUrl}
+                  onChange={handleInputChange('googleMapsUrl')}
                   placeholder="Paste your Google Maps link"
                 />
               </div>
@@ -111,9 +137,59 @@ export default function DashboardPage() {
                 <Input
                   id="contactEmail"
                   type="email"
-                  value={contactEmail}
-                  onChange={(e) => setContactEmail(e.target.value)}
+                  value={restaurantInfo.contactEmail}
+                  onChange={handleInputChange('contactEmail')}
                   placeholder="Enter restaurant contact email"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="websiteUrl">Website URL</Label>
+                <Input
+                  id="websiteUrl"
+                  value={restaurantInfo.websiteUrl}
+                  onChange={handleInputChange('websiteUrl')}
+                  placeholder="Enter your website URL"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="facebookUrl">Facebook URL</Label>
+                <Input
+                  id="facebookUrl"
+                  value={restaurantInfo.facebookUrl}
+                  onChange={handleInputChange('facebookUrl')}
+                  placeholder="Enter your Facebook page URL"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="instagramUrl">Instagram URL</Label>
+                <Input
+                  id="instagramUrl"
+                  value={restaurantInfo.instagramUrl}
+                  onChange={handleInputChange('instagramUrl')}
+                  placeholder="Enter your Instagram profile URL"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  value={restaurantInfo.phoneNumber}
+                  onChange={handleInputChange('phoneNumber')}
+                  placeholder="Enter your phone number"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="bookingUrl">Booking URL</Label>
+                <Input
+                  id="bookingUrl"
+                  value={restaurantInfo.bookingUrl}
+                  onChange={handleInputChange('bookingUrl')}
+                  placeholder="Enter your booking page URL"
                 />
               </div>
 
@@ -138,8 +214,8 @@ export default function DashboardPage() {
               {generatedUrl && (
                 <div className="mt-8">
                   <ReviewPageUrlSection
-                    restaurantName={restaurantName}
-                    googleMapsUrl={googleMapsUrl}
+                    restaurantName={restaurantInfo.restaurantName}
+                    googleMapsUrl={restaurantInfo.googleMapsUrl}
                     generatedUrl={generatedUrl}
                   />
                 </div>
@@ -148,7 +224,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Email Management Section */}
-          <EmailManagementSection />
+          <EmailManagementSection restaurantInfo={restaurantInfo} />
 
           {/* Analytics Section */}
           <div className="bg-white rounded-xl shadow-lg">

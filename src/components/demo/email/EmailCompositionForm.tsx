@@ -1,19 +1,28 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AiPromptSection } from "./AiPromptSection";
 import { VoucherSection } from "./VoucherSection";
+import { EmailHeader } from "./EmailHeader";
+import { EmailContent } from "./EmailContent";
+import { EmailPreview } from "./EmailPreview";
 
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
   disabled?: boolean;
+  restaurantInfo?: {
+    restaurantName: string;
+    websiteUrl: string;
+    facebookUrl: string;
+    instagramUrl: string;
+    phoneNumber: string;
+    bookingUrl: string;
+  };
 }
 
-export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormProps) => {
+export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: EmailCompositionFormProps) => {
   const { toast } = useToast();
   const [emailSubject, setEmailSubject] = useState("");
   const [emailContent, setEmailContent] = useState("");
@@ -95,12 +104,6 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
     }
   };
 
-  const formatEmailContent = (content: string) => {
-    return content.split('\n').map(paragraph => 
-      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
-    ).join('\n');
-  };
-
   const insertImagesIntoContent = () => {
     if (uploadedImages.length === 0) {
       toast({
@@ -115,7 +118,9 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
       `<img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
     ).join('\n');
 
-    const formattedContent = formatEmailContent(emailContent);
+    const formattedContent = emailContent.split('\n').map(paragraph => 
+      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
+    ).join('\n');
 
     const newHtmlContent = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; text-align: left;">
@@ -133,7 +138,9 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
   const handleVoucherGenerated = (voucherHtml: string) => {
     setHtmlContent(prevHtml => {
       const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; text-align: left;">
-        ${formatEmailContent(emailContent)}
+        ${emailContent.split('\n').map(paragraph => 
+          paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
+        ).join('\n')}
       </div>`;
       return baseHtml.replace('</div>', `${voucherHtml}</div>`);
     });
@@ -193,26 +200,15 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
           )}
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="emailSubject">Email Subject</Label>
-          <Input
-            id="emailSubject"
-            value={emailSubject}
-            onChange={(e) => setEmailSubject(e.target.value)}
-            placeholder="Enter email subject"
-          />
-        </div>
+        <EmailHeader 
+          emailSubject={emailSubject}
+          setEmailSubject={setEmailSubject}
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="emailContent">Email Content</Label>
-          <textarea
-            id="emailContent"
-            value={emailContent}
-            onChange={(e) => setEmailContent(e.target.value)}
-            placeholder="Enter your email content"
-            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
+        <EmailContent 
+          emailContent={emailContent}
+          setEmailContent={setEmailContent}
+        />
       </div>
 
       <VoucherSection onVoucherGenerated={handleVoucherGenerated} />
@@ -241,23 +237,19 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
         </Button>
       </div>
 
-      {showPreview && (htmlContent || emailContent) && (
-        <div className="mt-6 space-y-4">
-          <Label>Email Preview</Label>
-          <div className="p-6 border rounded-lg bg-white space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-medium text-left">Subject: {emailSubject}</h3>
-            </div>
-            <div className="prose max-w-none text-left">
-              {htmlContent ? (
-                <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-              ) : (
-                <div style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>{emailContent}</div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <EmailPreview 
+        emailSubject={emailSubject}
+        htmlContent={htmlContent || emailContent}
+        showPreview={showPreview}
+        restaurantInfo={restaurantInfo || {
+          restaurantName: "",
+          websiteUrl: "",
+          facebookUrl: "",
+          instagramUrl: "",
+          phoneNumber: "",
+          bookingUrl: "",
+        }}
+      />
     </div>
   );
 };
