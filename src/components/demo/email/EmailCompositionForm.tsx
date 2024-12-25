@@ -122,15 +122,15 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     ).join('\n');
 
     const imageHtml = uploadedImages.map(url => 
-      `<img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
+      `<div style="text-align: center; margin: 20px 0;">
+        <img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; border-radius: 8px;" />
+       </div>`
     ).join('\n');
 
     const newHtmlContent = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; text-align: left;">
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
         ${formattedContent}
-        <div style="margin: 20px 0;">
-          ${imageHtml}
-        </div>
+        ${imageHtml}
       </div>
     `;
 
@@ -140,7 +140,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
   const handleVoucherGenerated = (voucherHtml: string) => {
     setHtmlContent(prevHtml => {
-      const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; text-align: left;">
+      const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
         ${emailContent.split('\n').map(paragraph => 
           paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
         ).join('\n')}
