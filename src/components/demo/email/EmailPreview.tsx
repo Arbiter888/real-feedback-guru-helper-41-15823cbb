@@ -14,25 +14,58 @@ interface RestaurantInfo {
   instagramUrl: string;
   phoneNumber: string;
   bookingUrl: string;
+  googleMapsUrl: string;
 }
 
 export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo }: EmailPreviewProps) => {
   if (!showPreview) return null;
 
   const footerHtml = `
-    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
-      <p style="margin: 0; color: #666; font-size: 14px;">Contact us:</p>
-      ${restaurantInfo.phoneNumber ? `<p style="margin: 5px 0;"><a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none;">📞 ${restaurantInfo.phoneNumber}</a></p>` : ''}
-      ${restaurantInfo.websiteUrl ? `<p style="margin: 5px 0;"><a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none;">🌐 Visit our website</a></p>` : ''}
-      ${restaurantInfo.bookingUrl ? `<p style="margin: 5px 0;"><a href="${restaurantInfo.bookingUrl}" style="color: #E94E87; text-decoration: none;">📅 Make a reservation</a></p>` : ''}
-      <div style="margin-top: 10px;">
-        ${restaurantInfo.facebookUrl ? `<a href="${restaurantInfo.facebookUrl}" style="margin-right: 10px; color: #E94E87; text-decoration: none;">Facebook</a>` : ''}
-        ${restaurantInfo.instagramUrl ? `<a href="${restaurantInfo.instagramUrl}" style="color: #E94E87; text-decoration: none;">Instagram</a>` : ''}
+    <div style="margin-top: 30px; padding: 20px 0;">
+      <h2 style="font-size: 24px; margin-bottom: 16px; color: #333;">${restaurantInfo.restaurantName}</h2>
+      <div style="margin-bottom: 20px;">
+        ${restaurantInfo.phoneNumber ? `
+          <p style="margin: 8px 0;">
+            <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+              📞 ${restaurantInfo.phoneNumber}
+            </a>
+          </p>
+        ` : ''}
+        ${restaurantInfo.googleMapsUrl ? `
+          <p style="margin: 8px 0;">
+            <a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+              📍 Find us
+            </a>
+          </p>
+        ` : ''}
+      </div>
+      <div style="margin-top: 16px;">
+        ${restaurantInfo.websiteUrl ? `
+          <a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
+            🌐 Visit our Website
+          </a>
+        ` : ''}
+        ${restaurantInfo.facebookUrl ? `
+          <a href="${restaurantInfo.facebookUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
+            👥 Follow us on Facebook
+          </a>
+        ` : ''}
+        ${restaurantInfo.instagramUrl ? `
+          <a href="${restaurantInfo.instagramUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+            📸 Follow us on Instagram
+          </a>
+        ` : ''}
       </div>
     </div>
   `;
 
-  const fullHtmlContent = htmlContent + footerHtml;
+  // Replace **text** with bold text
+  const formattedContent = htmlContent.replace(
+    /\*\*(.*?)\*\*/g,
+    '<strong style="font-weight: 600;">$1</strong>'
+  );
+
+  const fullHtmlContent = formattedContent + footerHtml;
 
   return (
     <div className="mt-6 space-y-4">

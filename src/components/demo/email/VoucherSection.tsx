@@ -26,14 +26,14 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
     const qrData = await QRCode.toDataURL(uniqueCode);
     setQrCodeUrl(qrData);
 
-    // Generate voucher HTML with the new design
+    // Generate voucher HTML with the new design and image placement
     const voucherHtml = `
+      ${qrData ? `<img src="${qrData}" alt="Menu Item" style="width: 100%; max-width: 500px; height: auto; margin: 2rem auto; display: block; border-radius: 8px;" />` : ''}
       <div style="margin: 2rem 0; text-align: center;">
         <div style="background-color: #FFF5F8; padding: 2rem; border-radius: 12px; max-width: 400px; margin: 0 auto;">
           <h2 style="color: #E94E87; font-size: 1.25rem; margin-bottom: 0.5rem;">Special Reward for Your Next Visit!</h2>
           <p style="font-size: 1.125rem; margin: 0.5rem 0;">${offerTitle}</p>
           <p style="color: #666; margin: 0.5rem 0;">Show code: ${uniqueCode}</p>
-          ${qrData ? `<img src="${qrData}" alt="Voucher QR Code" style="width: 150px; height: 150px; margin: 1rem auto;" />` : ''}
           <p style="font-size: 0.875rem; color: #666; margin-top: 1rem;">${offerDescription}</p>
         </div>
       </div>
