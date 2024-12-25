@@ -71,7 +71,7 @@ export default function DashboardPage() {
         <main className="flex-1 px-4 py-8">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard Demo</h1>
               <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
@@ -79,21 +79,45 @@ export default function DashboardPage() {
             </div>
 
             {/* Section 1: Business Setup */}
-            <BusinessSetupSection />
-
-            {/* Section 2: Review Vouchers */}
-            <section id="review-vouchers" className="space-y-8">
-              <VoucherManagementSection />
+            <section id="business-setup" className="space-y-8">
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">Business Setup</h2>
+                <p className="text-muted-foreground mb-6">
+                  Configure your restaurant's information and create your review collection page
+                </p>
+                <BusinessSetupSection />
+              </div>
             </section>
 
-            {/* Section 3: Email Campaigns */}
+            {/* Section 2: Email Campaigns */}
             <section id="email-campaigns" className="space-y-8">
-              <EmailManagementSection restaurantInfo={restaurantInfo} />
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">Email Campaign Management</h2>
+                <p className="text-muted-foreground mb-6">
+                  Create and manage your email campaigns with AI-powered content generation
+                </p>
+                <EmailManagementSection restaurantInfo={restaurantInfo} />
+              </div>
+            </section>
+
+            {/* Section 3: Review Vouchers */}
+            <section id="review-vouchers" className="space-y-8">
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">AI-Powered Voucher Management</h2>
+                <p className="text-muted-foreground mb-6">
+                  Generate personalized vouchers based on customer review sentiment
+                </p>
+                <VoucherManagementSection restaurantInfo={restaurantInfo} />
+              </div>
             </section>
 
             {/* Section 4: Analytics */}
             <section id="analytics" className="space-y-8">
-              <div className="bg-white rounded-xl shadow-lg">
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h2 className="text-xl font-semibold mb-4">Review Page Analytics</h2>
+                <p className="text-muted-foreground mb-6">
+                  Track the performance of your review collection page
+                </p>
                 <ReviewPageAnalytics reviewPageId="" />
               </div>
             </section>
