@@ -103,8 +103,18 @@ export const FollowUpEmailsSection = () => {
               </div>
             </div>
             <EmailPreview
-              subject={email.email_subject}
-              content={email.email_content}
+              emailSubject={email.email_subject}
+              htmlContent={email.email_content}
+              showPreview={true}
+              restaurantInfo={{
+                restaurantName: "Restaurant Name", // You should get this from context/props
+                websiteUrl: "",
+                facebookUrl: "",
+                instagramUrl: "",
+                phoneNumber: "",
+                bookingUrl: "",
+                googleMapsUrl: "",
+              }}
             />
             {email.voucher_details && (
               <div className="bg-primary/5 rounded p-3 mt-2">
