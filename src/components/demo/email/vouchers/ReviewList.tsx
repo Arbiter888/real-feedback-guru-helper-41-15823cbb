@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
 import { Review } from "../ReviewVoucherSection";
+import { VoucherSuggestions } from "./VoucherSuggestions";
 
 interface ReviewListProps {
   reviews: Review[];
@@ -35,6 +36,11 @@ export const ReviewList = ({ reviews, onGenerateVoucher }: ReviewListProps) => {
               Generate Voucher Email
             </Button>
           </div>
+          
+          <VoucherSuggestions 
+            review={review}
+            onGenerateVoucher={onGenerateVoucher}
+          />
         </div>
       ))}
     </div>

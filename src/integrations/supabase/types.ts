@@ -678,6 +678,45 @@ export type Database = {
           },
         ]
       }
+      review_voucher_suggestions: {
+        Row: {
+          created_at: string
+          id: string
+          review_id: string
+          status: string | null
+          suggested_vouchers: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          review_id: string
+          status?: string | null
+          suggested_vouchers?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          review_id?: string
+          status?: string | null
+          suggested_vouchers?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_review"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "review_voucher_suggestions_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           business_name: string
