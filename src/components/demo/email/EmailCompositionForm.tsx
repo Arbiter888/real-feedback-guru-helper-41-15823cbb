@@ -39,7 +39,6 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [showPreview, setShowPreview] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>("");
-  const [currentImageTitle, setCurrentImageTitle] = useState<string>("");
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -118,6 +117,12 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     }
   };
 
+  const handleImageTitleChange = (index: number, title: string) => {
+    const updatedImages = [...uploadedImages];
+    updatedImages[index] = { ...updatedImages[index], title };
+    setUploadedImages(updatedImages);
+  };
+
   const handleAddImageToEmail = (index: number) => {
     if (!uploadedImages[index].title) {
       toast({
@@ -161,12 +166,6 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
     setHtmlContent(newHtmlContent);
     setShowPreview(true);
-  };
-
-  const handleImageTitleChange = (index: number, title: string) => {
-    const updatedImages = [...uploadedImages];
-    updatedImages[index] = { ...updatedImages[index], title };
-    setUploadedImages(updatedImages);
   };
 
   const handleVoucherGenerated = (voucherHtml: string) => {

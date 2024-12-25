@@ -9,7 +9,6 @@ import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 import { RestaurantInfoSection } from "@/components/dashboard/RestaurantInfoSection";
 import { ReviewPageSection } from "@/components/dashboard/ReviewPageSection";
-import { VoucherSequenceSection } from "@/components/dashboard/VoucherSequenceSection";
 import { RestaurantInfo } from "@/types/restaurant";
 
 export default function DashboardPage() {
@@ -87,8 +86,6 @@ export default function DashboardPage() {
             onUrlGenerated={setGeneratedUrl}
             onPageCreated={setReviewPageId}
           />
-
-          <VoucherSequenceSection />
 
           <EmailManagementSection restaurantInfo={restaurantInfo} />
 
