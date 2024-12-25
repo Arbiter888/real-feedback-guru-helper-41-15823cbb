@@ -95,6 +95,12 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
     }
   };
 
+  const formatEmailContent = (content: string) => {
+    return content.split('\n').map(paragraph => 
+      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
+    ).join('\n');
+  };
+
   const insertImagesIntoContent = () => {
     if (uploadedImages.length === 0) {
       toast({
@@ -109,12 +115,10 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
       `<img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
     ).join('\n');
 
-    const formattedContent = emailContent.split('\n').map(paragraph => 
-      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6;">${paragraph}</p>` : ''
-    ).join('\n');
+    const formattedContent = formatEmailContent(emailContent);
 
     const newHtmlContent = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; text-align: left;">
         ${formattedContent}
         <div style="margin: 20px 0;">
           ${imageHtml}
@@ -128,10 +132,8 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
 
   const handleVoucherGenerated = (voucherHtml: string) => {
     setHtmlContent(prevHtml => {
-      const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-        ${emailContent.split('\n').map(paragraph => 
-          paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6;">${paragraph}</p>` : ''
-        ).join('\n')}
+      const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; text-align: left;">
+        ${formatEmailContent(emailContent)}
       </div>`;
       return baseHtml.replace('</div>', `${voucherHtml}</div>`);
     });
@@ -244,13 +246,13 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
           <Label>Email Preview</Label>
           <div className="p-6 border rounded-lg bg-white space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-medium">Subject: {emailSubject}</h3>
+              <h3 className="font-medium text-left">Subject: {emailSubject}</h3>
             </div>
-            <div className="prose max-w-none">
+            <div className="prose max-w-none text-left">
               {htmlContent ? (
                 <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
               ) : (
-                <div style={{ whiteSpace: 'pre-wrap' }}>{emailContent}</div>
+                <div style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>{emailContent}</div>
               )}
             </div>
           </div>
