@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { EmailHeader } from "./EmailHeader";
 import { EmailContent } from "./EmailContent";
 import { EmailPreview } from "./EmailPreview";
-import { VoucherSection } from "./VoucherSection";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -110,12 +109,14 @@ export const EmailCompositionForm = ({
         </Button>
       </div>
 
-      <EmailPreview
-        emailSubject={emailSubject}
-        htmlContent={emailContent}
-        showPreview={showPreview}
-        restaurantInfo={restaurantInfo}
-      />
+      {showPreview && (
+        <EmailPreview
+          emailSubject={emailSubject}
+          htmlContent={emailContent}
+          showPreview={showPreview}
+          restaurantInfo={restaurantInfo}
+        />
+      )}
     </form>
   );
 };
