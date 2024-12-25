@@ -634,6 +634,47 @@ export type Database = {
           },
         ]
       }
+      review_voucher_emails: {
+        Row: {
+          created_at: string
+          email_content: string
+          email_subject: string
+          id: string
+          review_id: string
+          sent_at: string | null
+          status: string | null
+          voucher_code: string
+        }
+        Insert: {
+          created_at?: string
+          email_content: string
+          email_subject: string
+          id?: string
+          review_id: string
+          sent_at?: string | null
+          status?: string | null
+          voucher_code: string
+        }
+        Update: {
+          created_at?: string
+          email_content?: string
+          email_subject?: string
+          id?: string
+          review_id?: string
+          sent_at?: string | null
+          status?: string | null
+          voucher_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_voucher_emails_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           business_name: string
