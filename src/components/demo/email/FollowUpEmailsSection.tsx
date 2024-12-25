@@ -20,7 +20,7 @@ interface FollowUpEmailsSectionProps {
 
 export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionProps) => {
   const { toast } = useToast();
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingReviewId, setGeneratingReviewId] = useState<string | null>(null);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [visibleEmailPreviews, setVisibleEmailPreviews] = useState<Set<string>>(new Set());
 
@@ -54,7 +54,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
   });
 
   const handleGenerateFollowUp = async (reviewId: string) => {
-    setIsGenerating(true);
+    setGeneratingReviewId(reviewId);
     try {
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { reviewId },
@@ -77,7 +77,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         variant: "destructive",
       });
     } finally {
-      setIsGenerating(false);
+      setGeneratingReviewId(null);
     }
   };
 
@@ -116,7 +116,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
             <ReviewCard
               review={review}
               onGenerateFollowUp={handleGenerateFollowUp}
-              isGenerating={isGenerating}
+              isGenerating={generatingReviewId === review.id}
               selectedReviewId={selectedReviewId}
               onTogglePreview={() => toggleEmailPreview(review.id)}
               showPreview={visibleEmailPreviews.has(review.id)}
