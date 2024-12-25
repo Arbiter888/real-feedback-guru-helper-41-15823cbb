@@ -5,7 +5,20 @@ import { useToast } from "@/hooks/use-toast";
 import { ReviewCard } from "./ReviewCard";
 import { EmailPreviewCard } from "./EmailPreviewCard";
 
-export const FollowUpEmailsSection = () => {
+interface RestaurantInfo {
+  restaurantName: string;
+  websiteUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  phoneNumber?: string;
+  googleMapsUrl?: string;
+}
+
+interface FollowUpEmailsSectionProps {
+  restaurantInfo: RestaurantInfo;
+}
+
+export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionProps) => {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
@@ -98,6 +111,7 @@ export const FollowUpEmailsSection = () => {
                 key={email.id}
                 email={email}
                 onSendEmail={handleSendEmail}
+                restaurantInfo={restaurantInfo}
               />
             ))}
           </div>

@@ -29,7 +29,7 @@ export const ReviewCard = ({
     const positiveCount = positiveWords.filter(word => lowercaseReview.includes(word)).length;
     const negativeCount = negativeWords.filter(word => lowercaseReview.includes(word)).length;
     
-    return positiveCount > negativeCount ? "primary" : negativeCount > positiveCount ? "destructive" : "secondary";
+    return positiveCount > negativeCount ? "default" : negativeCount > positiveCount ? "destructive" : "secondary";
   };
 
   return (
@@ -38,12 +38,12 @@ export const ReviewCard = ({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant={getSentimentColor(review.review_text)}>
-              {getSentimentColor(review.review_text) === "primary" ? (
+              {getSentimentColor(review.review_text) === "default" ? (
                 <ThumbsUp className="w-3 h-3 mr-1" />
               ) : (
                 <ThumbsDown className="w-3 h-3 mr-1" />
               )}
-              {getSentimentColor(review.review_text) === "primary" ? "Positive" : "Needs Attention"}
+              {getSentimentColor(review.review_text) === "default" ? "Positive" : "Needs Attention"}
             </Badge>
             {review.server_name && (
               <Badge variant="outline">Server: {review.server_name}</Badge>
