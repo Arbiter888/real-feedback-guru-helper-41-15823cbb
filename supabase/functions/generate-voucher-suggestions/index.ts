@@ -36,8 +36,8 @@ serve(async (req) => {
     });
     const openai = new OpenAIApi(configuration);
 
-    // Construct the prompt based on review and receipt data
-    let prompt = `Based on this customer review: "${review.text}"`;
+    // Construct a more structured prompt to ensure JSON response
+    let prompt = `Based on this customer review: "${review.text}", generate 3 personalized voucher suggestions.`;
     
     if (review.receiptData) {
       prompt += `\nTheir spending data shows they spent $${review.receiptData.total_amount}.`;
@@ -47,14 +47,21 @@ serve(async (req) => {
       prompt += `\nThey were served by ${review.serverName}.`;
     }
 
-    prompt += `\n\nGenerate a sequence of 3 personalized voucher suggestions that would be effective for this customer. Consider their spending habits, review sentiment, and create a progression of offers that would encourage repeat visits.
+    prompt += `\n\nProvide exactly 3 voucher suggestions in a valid JSON array format. Each suggestion should be an object with these exact fields:
+    - "title": A short, compelling offer title
+    - "description": A brief description of the offer
+    - "timing": When to send this voucher
 
-    For each voucher suggestion, provide:
-    1. A compelling title
-    2. A brief description
-    3. Recommended timing for sending the voucher
+    Format your entire response as a JSON array like this:
+    [
+      {
+        "title": "Example Title",
+        "description": "Example Description",
+        "timing": "Example Timing"
+      }
+    ]
 
-    Format the response as a JSON array with objects containing 'title', 'description', and 'timing' fields.`;
+    Only respond with the JSON array, no other text.`;
 
     console.log("Sending prompt to OpenAI:", prompt);
 
@@ -63,7 +70,7 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are a marketing expert specializing in restaurant customer retention. Generate personalized voucher suggestions in JSON format.",
+          content: "You are a marketing expert that only responds with valid JSON arrays containing voucher suggestions. Never include any explanatory text outside the JSON structure.",
         },
         {
           role: "user",
@@ -78,13 +85,24 @@ serve(async (req) => {
 
     let suggestions;
     try {
-      suggestions = JSON.parse(content);
+      // Clean the response to ensure it's valid JSON
+      const cleanedContent = content.trim().replace(/```json\n?|\n?```/g, '');
+      suggestions = JSON.parse(cleanedContent);
+      
       if (!Array.isArray(suggestions)) {
         throw new Error('Response is not an array');
       }
+
+      // Validate the structure of each suggestion
+      suggestions.forEach((suggestion, index) => {
+        if (!suggestion.title || !suggestion.description || !suggestion.timing) {
+          throw new Error(`Suggestion at index ${index} is missing required fields`);
+        }
+      });
     } catch (error) {
       console.error("Error parsing OpenAI response:", error);
-      throw new Error('Failed to parse suggestions from OpenAI response');
+      console.error("Raw content:", content);
+      throw new Error(`Failed to parse suggestions from OpenAI response: ${error.message}`);
     }
 
     console.log("Generated suggestions:", suggestions);
