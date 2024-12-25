@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
 import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
 import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
+import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -146,7 +147,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Analytics Section - Always visible */}
+          {/* Email Management Section */}
+          <EmailManagementSection />
+
+          {/* Analytics Section */}
           <div className="bg-white rounded-xl shadow-lg">
             <ReviewPageAnalytics reviewPageId={reviewPageId || ''} />
           </div>
