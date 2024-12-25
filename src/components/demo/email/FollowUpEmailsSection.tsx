@@ -110,38 +110,28 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         <h3 className="text-lg font-semibold">Follow-up Emails</h3>
       </div>
 
-      <div className="grid gap-6">
-        {reviews?.map((review) => {
-          // Parse the receipt_data if it exists
-          const parsedReceiptData = review.receipt_data ? 
-            (typeof review.receipt_data === 'string' ? 
-              JSON.parse(review.receipt_data) : 
-              review.receipt_data) : 
-            null;
+      <div className="grid gap-4">
+        {reviews?.map((review) => (
+          <div key={review.id} className="space-y-4">
+            <ReviewCard
+              review={review}
+              onGenerateFollowUp={handleGenerateFollowUp}
+              isGenerating={generatingReviewId === review.id}
+              selectedReviewId={selectedReviewId}
+              onTogglePreview={() => toggleEmailPreview(review.id)}
+              showPreview={visibleEmailPreviews.has(review.id)}
+            />
 
-          return (
-            <div key={review.id} className="space-y-4">
-              <ReviewCard
-                review={review}
-                onGenerateFollowUp={handleGenerateFollowUp}
-                isGenerating={generatingReviewId === review.id}
-                selectedReviewId={selectedReviewId}
-                onTogglePreview={() => toggleEmailPreview(review.id)}
-                showPreview={visibleEmailPreviews.has(review.id)}
+            {visibleEmailPreviews.has(review.id) && followUpEmails?.map((email) => (
+              <EmailPreviewCard
+                key={email.id}
+                email={email}
+                onSendEmail={handleSendEmail}
+                restaurantInfo={restaurantInfo}
               />
-
-              {visibleEmailPreviews.has(review.id) && followUpEmails?.map((email) => (
-                <EmailPreviewCard
-                  key={email.id}
-                  email={email}
-                  onSendEmail={handleSendEmail}
-                  restaurantInfo={restaurantInfo}
-                  receiptData={parsedReceiptData}
-                />
-              ))}
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        ))}
 
         {!reviews?.length && (
           <div className="text-center py-8 text-muted-foreground">

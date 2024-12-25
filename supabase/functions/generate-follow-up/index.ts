@@ -31,15 +31,6 @@ serve(async (req) => {
 
     if (reviewError) throw reviewError;
 
-    // Format receipt items for the prompt if available
-    let receiptContext = '';
-    if (review.receipt_data) {
-      const items = review.receipt_data.items.map((item: any) => 
-        `${item.name} ($${item.price})`
-      ).join(', ');
-      receiptContext = `\nThe customer ordered: ${items}\nTotal spent: $${review.receipt_data.total_amount}`;
-    }
-
     // Generate follow-up email content using OpenAI
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -48,25 +39,15 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           {
             role: 'system',
-            content: 'You are an expert at creating personalized follow-up emails and special offers for restaurant customers based on their reviews and order history. Create warm, engaging emails that reference specific items they ordered and their experience.'
+            content: 'You are an expert at creating personalized follow-up emails and special offers for restaurant customers based on their reviews.'
           },
           {
             role: 'user',
-            content: `Generate a follow-up email for a customer who left this review: "${review.review_text}"${receiptContext}
-            ${review.server_name ? `\nTheir server was: ${review.server_name}` : ''}
-            
-            Include:
-            1. A personalized subject line
-            2. A warm greeting
-            3. References to specific items they ordered (if available)
-            4. A thank you for their visit
-            5. An invitation to return
-            
-            Format the response with "Subject:" on the first line, followed by the email content.`
+            content: `Generate a follow-up email and special offer for a customer who left this review: "${review.review_text}". Include both a subject line and email content. Make the offer personalized based on their review.`
           }
         ],
       }),
@@ -77,15 +58,13 @@ serve(async (req) => {
 
     // Parse the generated content
     const subjectMatch = generatedContent.match(/Subject: (.*?)(?=\n|$)/i);
-    const emailSubject = subjectMatch ? subjectMatch[1].trim() : "Thank you for your visit";
+    const emailSubject = subjectMatch ? subjectMatch[1].trim() : "Thank you for your review";
     const emailContent = generatedContent.replace(/Subject: .*?\n/i, '').trim();
 
     // Generate voucher details
     const voucherDetails = {
       code: `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-      title: review.receipt_data ? 
-        `${Math.round(review.receipt_data.total_amount * 0.2)}% off your next visit` :
-        "20% off your next visit",
+      discount: "20% off",
       validDays: 30,
     };
 
