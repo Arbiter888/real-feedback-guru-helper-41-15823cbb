@@ -20,8 +20,19 @@ serve(async (req) => {
       throw new Error('Review data is required');
     }
 
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    if (!openAIApiKey) {
+      throw new Error('OpenAI API key is not configured');
+    }
+
+    console.log("Processing review:", {
+      text: review.text,
+      receiptTotal: review.receiptData?.total_amount,
+      serverName: review.serverName
+    });
+
     const configuration = new Configuration({
-      apiKey: Deno.env.get('OPENAI_API_KEY'),
+      apiKey: openAIApiKey,
     });
     const openai = new OpenAIApi(configuration);
 
@@ -52,16 +63,29 @@ serve(async (req) => {
       messages: [
         {
           role: "system",
-          content: "You are a marketing expert specializing in restaurant customer retention.",
+          content: "You are a marketing expert specializing in restaurant customer retention. Generate personalized voucher suggestions in JSON format.",
         },
         {
           role: "user",
           content: prompt,
         },
       ],
+      temperature: 0.7,
     });
 
-    const suggestions = JSON.parse(completion.data.choices[0].message?.content || "[]");
+    const content = completion.data.choices[0].message?.content || "[]";
+    console.log("Raw OpenAI response:", content);
+
+    let suggestions;
+    try {
+      suggestions = JSON.parse(content);
+      if (!Array.isArray(suggestions)) {
+        throw new Error('Response is not an array');
+      }
+    } catch (error) {
+      console.error("Error parsing OpenAI response:", error);
+      throw new Error('Failed to parse suggestions from OpenAI response');
+    }
 
     console.log("Generated suggestions:", suggestions);
 
@@ -72,9 +96,12 @@ serve(async (req) => {
       },
     );
   } catch (error) {
-    console.error("Error generating voucher suggestions:", error);
+    console.error("Error in generate-voucher-suggestions function:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
