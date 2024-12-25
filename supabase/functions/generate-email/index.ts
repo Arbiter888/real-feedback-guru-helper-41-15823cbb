@@ -12,7 +12,29 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    const { prompt, imageUrls, subjectOnly, contentOnly, htmlOnly } = await req.json();
+
+    let systemPrompt = "";
+    if (subjectOnly) {
+      systemPrompt = "You are an expert email marketer. Generate a compelling subject line based on the user's prompt.";
+    } else if (contentOnly) {
+      systemPrompt = "You are an expert email marketer. Generate engaging plain text email content based on the user's prompt. Do not include any HTML formatting.";
+    } else if (htmlOnly) {
+      systemPrompt = "You are an expert email marketer. Convert the given plain text email into responsive HTML format that looks good on all devices. Use modern email-safe HTML and CSS.";
+    } else {
+      systemPrompt = `You are an expert email marketer. Generate both a compelling subject line and engaging plain text email content based on the user's prompt.
+      
+      Your response should be in this format:
+      SUBJECT: [Your generated subject line here]
+      
+      CONTENT:
+      [Your generated plain text email content here]`;
+    }
+
+    let imageContext = "";
+    if (imageUrls && imageUrls.length > 0) {
+      imageContext = "Based on the provided images: " + imageUrls.join(", ");
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -21,47 +43,36 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
-          { 
-            role: 'system', 
-            content: `You are an expert email marketer. Generate both a subject line and email content based on the user's prompt.
-            The response should be in HTML format and should be well-formatted for email viewing.
-            Make sure to include both a subject line and the email content.
-            Keep the tone professional but friendly.`
-          },
-          { 
-            role: 'user', 
-            content: `Generate an email with the following requirements:
-            ${prompt}
-            
-            Format your response exactly like this:
-            SUBJECT: [Your subject line here]
-            
-            CONTENT:
-            [Your HTML email content here]` 
-          }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: `${imageContext}\n\n${prompt}` }
         ],
       }),
     });
 
     const data = await response.json();
-    console.log('OpenAI response:', data);
-
     const generatedText = data.choices[0].message.content;
-    
-    // Extract subject and content using regex
-    const subjectMatch = generatedText.match(/SUBJECT:\s*(.*?)(?=\s*CONTENT:|$)/s);
-    const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*?)$/);
 
-    const subject = subjectMatch ? subjectMatch[1].trim() : "Generated Email";
-    const content = contentMatch ? contentMatch[1].trim() : generatedText;
+    let result;
+    if (subjectOnly) {
+      result = { subject: generatedText.trim() };
+    } else if (contentOnly || htmlOnly) {
+      result = { content: generatedText.trim() };
+    } else {
+      const subjectMatch = generatedText.match(/SUBJECT:\s*(.*?)(?=\s*CONTENT:|$)/s);
+      const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*?)$/);
 
-    console.log('Extracted subject:', subject);
-    console.log('Extracted content length:', content.length);
+      result = {
+        subject: subjectMatch ? subjectMatch[1].trim() : "Generated Email",
+        content: contentMatch ? contentMatch[1].trim() : generatedText
+      };
+    }
+
+    console.log('Generated result:', result);
 
     return new Response(
-      JSON.stringify({ subject, content }),
+      JSON.stringify(result),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
