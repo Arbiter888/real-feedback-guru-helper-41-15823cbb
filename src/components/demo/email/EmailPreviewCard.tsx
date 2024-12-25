@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Send, Eye, EyeOff } from "lucide-react";
+import { Send, Eye, EyeOff, Receipt, Clock } from "lucide-react";
 import QRCode from "qrcode";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -21,9 +23,13 @@ interface EmailPreviewCardProps {
   };
   onSendEmail: () => void;
   restaurantInfo: RestaurantInfo;
+  receiptData?: {
+    total_amount: number;
+    items: Array<{ name: string; price: number }>;
+  };
 }
 
-export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPreviewCardProps) => {
+export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo, receiptData }: EmailPreviewCardProps) => {
   const [showPreview, setShowPreview] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
@@ -50,39 +56,42 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
   }, [email.voucher_details?.code]);
 
   const renderEmailFooter = () => (
-    <div style={{ marginTop: '30px', padding: '20px 0', borderTop: '1px solid #eee' }}>
-      <h2 style={{ fontSize: '24px', marginBottom: '16px', color: '#333' }}>
+    <div className="mt-8 pt-6 border-t border-gray-200">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
         {restaurantInfo?.restaurantName || 'Our Restaurant'}
       </h2>
-      <div style={{ marginBottom: '20px' }}>
+      <div className="space-y-3 mb-6">
         {restaurantInfo?.phoneNumber && (
-          <p style={{ margin: '8px 0' }}>
-            <a href={`tel:${restaurantInfo.phoneNumber}`} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
-              📞 {restaurantInfo.phoneNumber}
-            </a>
-          </p>
+          <a href={`tel:${restaurantInfo.phoneNumber}`} 
+             className="flex items-center text-primary hover:text-primary-dark transition-colors">
+            <span className="mr-2">📞</span>
+            {restaurantInfo.phoneNumber}
+          </a>
         )}
         {restaurantInfo?.googleMapsUrl && (
-          <p style={{ margin: '8px 0' }}>
-            <a href={restaurantInfo.googleMapsUrl} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
-              📍 Find us on Google Maps
-            </a>
-          </p>
+          <a href={restaurantInfo.googleMapsUrl} 
+             className="flex items-center text-primary hover:text-primary-dark transition-colors">
+            <span className="mr-2">📍</span>
+            Find us on Google Maps
+          </a>
         )}
       </div>
-      <div style={{ marginTop: '16px' }}>
+      <div className="flex flex-wrap gap-4">
         {restaurantInfo?.websiteUrl && (
-          <a href={restaurantInfo.websiteUrl} style={{ color: '#E94E87', textDecoration: 'none', marginRight: '16px', fontWeight: 500 }}>
+          <a href={restaurantInfo.websiteUrl} 
+             className="text-primary hover:text-primary-dark transition-colors">
             🌐 Visit our Website
           </a>
         )}
         {restaurantInfo?.facebookUrl && (
-          <a href={restaurantInfo.facebookUrl} style={{ color: '#E94E87', textDecoration: 'none', marginRight: '16px', fontWeight: 500 }}>
+          <a href={restaurantInfo.facebookUrl} 
+             className="text-primary hover:text-primary-dark transition-colors">
             👥 Follow us on Facebook
           </a>
         )}
         {restaurantInfo?.instagramUrl && (
-          <a href={restaurantInfo.instagramUrl} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
+          <a href={restaurantInfo.instagramUrl} 
+             className="text-primary hover:text-primary-dark transition-colors">
             📸 Follow us on Instagram
           </a>
         )}
@@ -91,34 +100,63 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
   );
 
   return (
-    <Card className="mt-4 p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Follow-up Email</h3>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setShowPreview(!showPreview)}
-        >
-          {showPreview ? (
-            <EyeOff className="h-4 w-4 mr-2" />
-          ) : (
-            <Eye className="h-4 w-4 mr-2" />
-          )}
-          {showPreview ? "Hide Preview" : "Show Preview"}
-        </Button>
+    <Card className="mt-4 overflow-hidden">
+      <div className="bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 p-6">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h3 className="text-lg font-semibold">Follow-up Email</h3>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Clock className="h-4 w-4" />
+              <span>Scheduled to send in 24 hours</span>
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowPreview(!showPreview)}
+          >
+            {showPreview ? (
+              <EyeOff className="h-4 w-4 mr-2" />
+            ) : (
+              <Eye className="h-4 w-4 mr-2" />
+            )}
+            {showPreview ? "Hide Preview" : "Show Preview"}
+          </Button>
+        </div>
       </div>
 
       {showPreview && (
-        <div className="space-y-6">
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="font-medium">Subject: {email.email_subject}</h3>
+        <div className="p-6 space-y-6">
+          <div className="bg-muted/30 p-4 rounded-lg">
+            <h3 className="font-medium text-primary">Subject: {email.email_subject}</h3>
           </div>
           
-          <div className="prose max-w-none bg-white p-6 rounded-lg shadow-sm">
-            <div className="whitespace-pre-wrap text-left">{email.email_content}</div>
+          <div className="prose max-w-none space-y-6">
+            <div className="whitespace-pre-wrap">{email.email_content}</div>
+
+            {receiptData && (
+              <div className="bg-muted/20 rounded-xl p-6 space-y-4 not-prose">
+                <div className="flex items-center gap-2 text-primary font-medium">
+                  <Receipt className="h-5 w-5" />
+                  <h4>Visit Details</h4>
+                </div>
+                <div className="space-y-3">
+                  <p className="text-lg font-medium">
+                    Total Spent: ${receiptData.total_amount.toFixed(2)}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {receiptData.items.map((item, index) => (
+                      <Badge key={index} variant="secondary" className="text-sm">
+                        {item.name}: ${item.price.toFixed(2)}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {email.voucher_details && (
-              <div className="my-8 bg-pink-50/50 rounded-xl p-6 space-y-4 border border-pink-100">
+              <div className="bg-primary/5 rounded-xl p-6 space-y-4 not-prose border border-primary/10">
                 <h4 className="text-primary font-medium text-lg">Special Offer</h4>
                 <div className="flex items-center gap-6">
                   {qrCodeUrl && (
@@ -128,8 +166,8 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
                   )}
                   <div className="space-y-2">
                     <p className="text-lg font-medium">{email.voucher_details.title}</p>
-                    <p className="text-sm text-gray-600">Code: {email.voucher_details.code}</p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-muted-foreground">Code: {email.voucher_details.code}</p>
+                    <p className="text-sm text-muted-foreground">
                       Valid for: {email.voucher_details.validDays} days
                     </p>
                   </div>
@@ -140,10 +178,12 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
             {renderEmailFooter()}
           </div>
 
+          <Separator />
+
           <div className="flex justify-end">
-            <Button onClick={onSendEmail}>
+            <Button onClick={onSendEmail} className="w-full sm:w-auto">
               <Send className="w-4 h-4 mr-2" />
-              Send Email
+              Schedule Email
             </Button>
           </div>
         </div>

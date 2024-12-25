@@ -110,7 +110,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         <h3 className="text-lg font-semibold">Follow-up Emails</h3>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {reviews?.map((review) => (
           <div key={review.id} className="space-y-4">
             <ReviewCard
@@ -128,6 +128,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
                 email={email}
                 onSendEmail={handleSendEmail}
                 restaurantInfo={restaurantInfo}
+                receiptData={review.receipt_data}
               />
             ))}
           </div>
