@@ -1,9 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { Mail } from "lucide-react";
+import { Mail, Calendar } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
 
 type DbReview = Database['public']['Tables']['reviews']['Row'];
@@ -29,6 +29,8 @@ interface VoucherEmail {
   sent_at: string | null;
   created_at: string;
   status: string;
+  recipient_email?: string;
+  scheduled_for?: string | null;
 }
 
 export const ReviewVoucherSection = () => {
@@ -45,7 +47,6 @@ export const ReviewVoucherSection = () => {
 
       if (error) throw error;
 
-      // Transform the data to match our Review interface
       return (data as DbReview[]).map(review => ({
         ...review,
         receipt_data: review.receipt_data as Review['receipt_data']
@@ -56,13 +57,38 @@ export const ReviewVoucherSection = () => {
   const { data: voucherEmails, isLoading: isLoadingVouchers } = useQuery({
     queryKey: ["voucher_emails"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: voucherData, error: voucherError } = await supabase
         .from("review_voucher_emails")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as VoucherEmail[];
+      if (voucherError) throw voucherError;
+
+      // Fetch associated email contacts for each review
+      const emailPromises = voucherData.map(async (voucher) => {
+        const { data: reviewData } = await supabase
+          .from("reviews")
+          .select("review_page_id")
+          .eq("id", voucher.review_id)
+          .single();
+
+        if (reviewData?.review_page_id) {
+          const { data: emailData } = await supabase
+            .from("email_contacts")
+            .select("email")
+            .eq("list_id", reviewData.review_page_id)
+            .single();
+
+          return {
+            ...voucher,
+            recipient_email: emailData?.email || null
+          };
+        }
+        return voucher;
+      });
+
+      const vouchersWithEmails = await Promise.all(emailPromises);
+      return vouchersWithEmails as VoucherEmail[];
     },
   });
 
@@ -90,13 +116,15 @@ export const ReviewVoucherSection = () => {
           email_subject: data.subject,
           email_content: data.content,
           voucher_code: voucherCode,
+          status: 'scheduled',
+          scheduled_for: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // Schedule for next week
         });
 
       if (insertError) throw insertError;
 
       toast({
         title: "Voucher email generated",
-        description: "The voucher email has been created successfully.",
+        description: "The voucher email has been scheduled for the next weekly email.",
       });
     } catch (error) {
       console.error("Error generating voucher email:", error);
@@ -155,11 +183,24 @@ export const ReviewVoucherSection = () => {
               key={email.id}
               className="border rounded-lg p-4 space-y-2 hover:bg-gray-50"
             >
-              <p className="font-medium">{email.email_subject}</p>
+              <div className="flex justify-between items-center">
+                <p className="font-medium">{email.email_subject}</p>
+                {email.recipient_email && (
+                  <p className="text-sm text-gray-600">
+                    To: {email.recipient_email}
+                  </p>
+                )}
+              </div>
               <p className="text-sm text-gray-600">
                 Voucher Code: {email.voucher_code}
               </p>
               <p className="text-sm">{email.email_content}</p>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Calendar className="w-4 h-4" />
+                {email.scheduled_for 
+                  ? `Scheduled for: ${new Date(email.scheduled_for).toLocaleDateString()}`
+                  : 'Not scheduled'}
+              </div>
               <p className="text-xs text-gray-500">
                 Created: {new Date(email.created_at).toLocaleDateString()}
                 {email.sent_at && ` • Sent: ${new Date(email.sent_at).toLocaleDateString()}`}
