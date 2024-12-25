@@ -117,12 +117,12 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
       return;
     }
 
-    const imageHtml = uploadedImages.map(url => 
-      `<img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
-    ).join('\n');
-
     const formattedContent = emailContent.split('\n').map(paragraph => 
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
+    ).join('\n');
+
+    const imageHtml = uploadedImages.map(url => 
+      `<img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
     ).join('\n');
 
     const newHtmlContent = `
@@ -160,6 +160,16 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
       />
 
       <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
+        <EmailHeader 
+          emailSubject={emailSubject}
+          setEmailSubject={setEmailSubject}
+        />
+
+        <EmailContent 
+          emailContent={emailContent}
+          setEmailContent={setEmailContent}
+        />
+
         <div>
           <Label>Upload Images</Label>
           <div className="mt-2 space-y-2">
@@ -202,16 +212,6 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
             </div>
           )}
         </div>
-
-        <EmailHeader 
-          emailSubject={emailSubject}
-          setEmailSubject={setEmailSubject}
-        />
-
-        <EmailContent 
-          emailContent={emailContent}
-          setEmailContent={setEmailContent}
-        />
       </div>
 
       <VoucherSection onVoucherGenerated={handleVoucherGenerated} />

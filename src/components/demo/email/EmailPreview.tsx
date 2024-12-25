@@ -20,8 +20,14 @@ interface RestaurantInfo {
 export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo }: EmailPreviewProps) => {
   if (!showPreview) return null;
 
+  // Replace **text** with bold text
+  const formattedContent = htmlContent.replace(
+    /\*\*(.*?)\*\*/g,
+    '<strong style="font-weight: 600;">$1</strong>'
+  );
+
   const footerHtml = `
-    <div style="margin-top: 30px; padding: 20px 0;">
+    <div style="margin-top: 30px; padding: 20px 0; border-top: 1px solid #eee;">
       <h2 style="font-size: 24px; margin-bottom: 16px; color: #333;">${restaurantInfo.restaurantName}</h2>
       <div style="margin-bottom: 20px;">
         ${restaurantInfo.phoneNumber ? `
@@ -34,7 +40,7 @@ export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restauran
         ${restaurantInfo.googleMapsUrl ? `
           <p style="margin: 8px 0;">
             <a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
-              📍 Find us
+              📍 Find us on Google Maps
             </a>
           </p>
         ` : ''}
@@ -59,14 +65,6 @@ export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restauran
     </div>
   `;
 
-  // Replace **text** with bold text
-  const formattedContent = htmlContent.replace(
-    /\*\*(.*?)\*\*/g,
-    '<strong style="font-weight: 600;">$1</strong>'
-  );
-
-  const fullHtmlContent = formattedContent + footerHtml;
-
   return (
     <div className="mt-6 space-y-4">
       <Label>Email Preview</Label>
@@ -75,7 +73,7 @@ export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restauran
           <h3 className="font-medium text-left">Subject: {emailSubject}</h3>
         </div>
         <div className="prose max-w-none text-left">
-          <div dangerouslySetInnerHTML={{ __html: fullHtmlContent }} />
+          <div dangerouslySetInnerHTML={{ __html: formattedContent + footerHtml }} />
         </div>
       </div>
     </div>
