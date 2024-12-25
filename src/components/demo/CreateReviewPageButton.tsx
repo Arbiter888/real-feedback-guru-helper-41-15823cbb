@@ -93,7 +93,6 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
       }
 
       const uniqueSlug = generateUniqueSlug(restaurantName);
-      // Properly format the base URL by removing any trailing slashes and ensuring no colon is present
       const baseUrl = window.location.origin.replace(/:\/*$/, '').replace(/\/$/, '');
       const fullUrl = `${baseUrl}/${uniqueSlug}`;
 
@@ -105,8 +104,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             google_maps_url: googleMapsUrl,
             contact_email: contactEmail,
             slug: uniqueSlug,
-            server_names: serverNames || [],
-            full_url: fullUrl // Store the properly formatted URL
+            server_names: serverNames || []
           }
         ])
         .select()
