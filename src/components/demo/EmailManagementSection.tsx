@@ -126,6 +126,5 @@ export const EmailManagementSection = () => {
         </div>
       )}
     </div>
-  </div>
   );
 };
