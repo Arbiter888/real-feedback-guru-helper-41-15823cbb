@@ -2,11 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload, Wand2 } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { EmailSubjectInput } from "./EmailSubjectInput";
-import { EmailContentInput } from "./EmailContentInput";
+import { AiPromptSection } from "./AiPromptSection";
 import { VoucherSection } from "./VoucherSection";
 
 interface EmailCompositionFormProps {
@@ -20,8 +19,6 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
   const [emailContent, setEmailContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [prompt, setPrompt] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>("");
 
@@ -36,43 +33,6 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
       setShowPreview(false);
     } finally {
       setIsSending(false);
-    }
-  };
-
-  const handleGenerateEmail = async () => {
-    if (!prompt) {
-      toast({
-        title: "Prompt required",
-        description: "Please enter a prompt to generate the email.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-email', {
-        body: { prompt },
-      });
-
-      if (error) throw error;
-
-      setEmailSubject(data.subject || '');
-      setEmailContent(data.content || '');
-      
-      toast({
-        title: "Email generated",
-        description: "Your email has been generated based on the prompt.",
-      });
-    } catch (error) {
-      console.error('Generation error:', error);
-      toast({
-        title: "Generation failed",
-        description: "Failed to generate email content.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
     }
   };
 
@@ -125,36 +85,14 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
 
   return (
     <div className="space-y-4">
-      <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <Label htmlFor="prompt">AI Generation Prompt</Label>
-            <Input
-              id="prompt"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the email you want to generate..."
-            />
-          </div>
-          <Button
-            onClick={handleGenerateEmail}
-            disabled={isGenerating || !prompt}
-            className="mt-6"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Wand2 className="mr-2 h-4 w-4" />
-                Generate
-              </>
-            )}
-          </Button>
-        </div>
+      <AiPromptSection 
+        onEmailGenerated={(subject, content) => {
+          setEmailSubject(subject);
+          setEmailContent(content);
+        }}
+      />
 
+      <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
         <div>
           <Label>Upload Images</Label>
           <div className="mt-2">
@@ -188,20 +126,28 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
             </div>
           )}
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="emailSubject">Email Subject</Label>
+          <Input
+            id="emailSubject"
+            value={emailSubject}
+            onChange={(e) => setEmailSubject(e.target.value)}
+            placeholder="Enter email subject"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="emailContent">Email Content</Label>
+          <textarea
+            id="emailContent"
+            value={emailContent}
+            onChange={(e) => setEmailContent(e.target.value)}
+            placeholder="Enter your email content"
+            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
       </div>
-
-      <EmailSubjectInput
-        value={emailSubject}
-        onChange={setEmailSubject}
-        prompt={prompt}
-      />
-
-      <EmailContentInput
-        value={emailContent}
-        onChange={setEmailContent}
-        prompt={prompt}
-        onGenerateHtml={setHtmlContent}
-      />
 
       <VoucherSection onVoucherGenerated={handleVoucherGenerated} />
 
