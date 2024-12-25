@@ -21,16 +21,19 @@ interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
   disabled?: boolean;
   restaurantInfo: RestaurantInfo;
+  showPreview: boolean;
+  onTogglePreview: () => void;
 }
 
 export const EmailCompositionForm = ({
   onSend,
   disabled,
   restaurantInfo,
+  showPreview,
+  onTogglePreview,
 }: EmailCompositionFormProps) => {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailContent, setEmailContent] = useState("");
-  const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch scheduled voucher emails for the next campaign
@@ -56,7 +59,6 @@ export const EmailCompositionForm = ({
 
     setIsSubmitting(true);
     try {
-      // Append scheduled voucher emails to the content if they exist
       let finalContent = emailContent;
       if (scheduledVouchers?.length) {
         finalContent += "\n\n--- Special Offers ---\n\n";
@@ -68,7 +70,6 @@ export const EmailCompositionForm = ({
       await onSend(emailSubject, finalContent);
       setEmailSubject("");
       setEmailContent("");
-      setShowPreview(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -100,7 +101,7 @@ export const EmailCompositionForm = ({
         <Button
           type="button"
           variant="outline"
-          onClick={() => setShowPreview(!showPreview)}
+          onClick={onTogglePreview}
         >
           {showPreview ? "Hide Preview" : "Show Preview"}
         </Button>

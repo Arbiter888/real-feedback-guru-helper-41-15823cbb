@@ -26,6 +26,7 @@ interface EmailManagementSectionProps {
 export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectionProps) => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   const { data: emailContacts, isLoading } = useQuery({
     queryKey: ["emailContacts"],
@@ -51,7 +52,6 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
         throw new Error("No email list found");
       }
 
-      // Fetch scheduled voucher emails
       const { data: scheduledVouchers } = await supabase
         .from("review_voucher_emails")
         .select("*")
@@ -74,7 +74,6 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
         throw new Error(response.error.message);
       }
 
-      // Update voucher emails as sent
       if (scheduledVouchers?.length) {
         const { error: updateError } = await supabase
           .from("review_voucher_emails")
@@ -164,7 +163,6 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
   };
 
   const handleEmailGenerated = (subject: string, content: string) => {
-    // Set the generated email in the composition form
     const compositionForm = document.querySelector('form');
     if (compositionForm) {
       const subjectInput = compositionForm.querySelector('input[type="text"]') as HTMLInputElement;
@@ -174,11 +172,14 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
         subjectInput.value = subject;
         contentTextarea.value = content;
         
-        // Trigger change events
         subjectInput.dispatchEvent(new Event('change', { bubbles: true }));
         contentTextarea.dispatchEvent(new Event('change', { bubbles: true }));
       }
     }
+  };
+
+  const togglePreview = () => {
+    setShowPreview(!showPreview);
   };
 
   return (
@@ -196,6 +197,8 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
           onSend={handleSendEmail}
           disabled={!emailContacts?.length}
           restaurantInfo={restaurantInfo}
+          showPreview={showPreview}
+          onTogglePreview={togglePreview}
         />
       </div>
 
