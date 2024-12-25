@@ -1,14 +1,13 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { Mail, Calendar } from "lucide-react";
 import { Database } from "@/integrations/supabase/types";
+import { ReviewList } from "./vouchers/ReviewList";
+import { VoucherEmailList } from "./vouchers/VoucherEmailList";
 
 type DbReview = Database['public']['Tables']['reviews']['Row'];
 
-interface Review {
+export interface Review {
   id: string;
   review_text: string;
   refined_review: string | null;
@@ -20,7 +19,7 @@ interface Review {
   server_name: string | null;
 }
 
-interface VoucherEmail {
+export interface VoucherEmail {
   id: string;
   review_id: string;
   email_subject: string;
@@ -35,7 +34,6 @@ interface VoucherEmail {
 
 export const ReviewVoucherSection = () => {
   const { toast } = useToast();
-  const [selectedReview, setSelectedReview] = useState<string | null>(null);
 
   const { data: reviews, isLoading: isLoadingReviews } = useQuery({
     queryKey: ["reviews"],
@@ -64,7 +62,6 @@ export const ReviewVoucherSection = () => {
 
       if (voucherError) throw voucherError;
 
-      // Fetch associated email contacts for each review
       const emailPromises = voucherData.map(async (voucher) => {
         const { data: reviewData } = await supabase
           .from("reviews")
@@ -144,70 +141,15 @@ export const ReviewVoucherSection = () => {
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Review-Based Vouchers</h2>
-        <div className="space-y-4">
-          {reviews?.map((review) => (
-            <div
-              key={review.id}
-              className="border rounded-lg p-4 space-y-2 hover:bg-gray-50"
-            >
-              <p className="text-sm text-gray-600">
-                {new Date(review.created_at).toLocaleDateString()}
-                {review.server_name && ` • Served by ${review.server_name}`}
-              </p>
-              <p className="font-medium">{review.review_text}</p>
-              {review.receipt_data && (
-                <p className="text-sm text-gray-600">
-                  Total spent: ${review.receipt_data.total_amount}
-                </p>
-              )}
-              <div className="flex justify-between items-center mt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => generateVoucherEmail(review)}
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Generate Voucher Email
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ReviewList 
+          reviews={reviews || []} 
+          onGenerateVoucher={generateVoucherEmail}
+        />
       </div>
 
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Generated Voucher Emails</h2>
-        <div className="space-y-4">
-          {voucherEmails?.map((email) => (
-            <div
-              key={email.id}
-              className="border rounded-lg p-4 space-y-2 hover:bg-gray-50"
-            >
-              <div className="flex justify-between items-center">
-                <p className="font-medium">{email.email_subject}</p>
-                {email.recipient_email && (
-                  <p className="text-sm text-gray-600">
-                    To: {email.recipient_email}
-                  </p>
-                )}
-              </div>
-              <p className="text-sm text-gray-600">
-                Voucher Code: {email.voucher_code}
-              </p>
-              <p className="text-sm">{email.email_content}</p>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Calendar className="w-4 h-4" />
-                {email.scheduled_for 
-                  ? `Scheduled for: ${new Date(email.scheduled_for).toLocaleDateString()}`
-                  : 'Not scheduled'}
-              </div>
-              <p className="text-xs text-gray-500">
-                Created: {new Date(email.created_at).toLocaleDateString()}
-                {email.sent_at && ` • Sent: ${new Date(email.sent_at).toLocaleDateString()}`}
-              </p>
-            </div>
-          ))}
-        </div>
+        <VoucherEmailList voucherEmails={voucherEmails || []} />
       </div>
     </div>
   );
