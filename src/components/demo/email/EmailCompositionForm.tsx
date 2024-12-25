@@ -176,14 +176,19 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
       </div>
 
       {showPreview && (htmlContent || emailContent) && (
-        <div className="mt-6">
+        <div className="mt-6 space-y-4">
           <Label>Email Preview</Label>
-          <div className="mt-2 p-4 border rounded-lg bg-white">
-            {htmlContent ? (
-              <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
-            ) : (
-              <pre className="whitespace-pre-wrap font-mono text-sm">{emailContent}</pre>
-            )}
+          <div className="p-6 border rounded-lg bg-white space-y-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <h3 className="font-medium">Subject: {emailSubject}</h3>
+            </div>
+            <div className="prose max-w-none">
+              {htmlContent ? (
+                <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+              ) : (
+                <div className="whitespace-pre-wrap">{emailContent}</div>
+              )}
+            </div>
           </div>
         </div>
       )}
