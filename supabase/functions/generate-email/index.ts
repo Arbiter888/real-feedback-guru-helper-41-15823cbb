@@ -1,6 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,9 +14,14 @@ serve(async (req) => {
   try {
     const { prompt, imageUrls } = await req.json();
 
-    const systemPrompt = `You are an expert email marketer. Generate engaging HTML email content based on the user's prompt.
+    const systemPrompt = `You are an expert email marketer. Generate both a compelling subject line and engaging HTML email content based on the user's prompt.
     Create responsive, well-formatted HTML that looks good on all devices. Include placeholders for images where relevant.
-    Focus on creating compelling subject lines and content that drives engagement.`;
+    
+    Your response should be in this format:
+    SUBJECT: [Your generated subject line here]
+    
+    CONTENT:
+    [Your generated HTML email content here]`;
 
     let imageContext = "";
     if (imageUrls && imageUrls.length > 0) {
@@ -40,13 +44,20 @@ serve(async (req) => {
     });
 
     const data = await response.json();
-    const generatedEmail = data.choices[0].message.content;
+    const generatedText = data.choices[0].message.content;
+
+    // Extract subject and content using regex
+    const subjectMatch = generatedText.match(/SUBJECT:\s*(.*?)(?=\s*CONTENT:|$)/s);
+    const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*?)$/);
+
+    const subject = subjectMatch ? subjectMatch[1].trim() : "Generated Email";
+    const content = contentMatch ? contentMatch[1].trim() : generatedText;
+
+    console.log('Generated subject:', subject);
+    console.log('Generated content length:', content.length);
 
     return new Response(
-      JSON.stringify({ 
-        subject: generatedEmail.match(/<subject>(.*?)<\/subject>/s)?.[1] || "Generated Email",
-        content: generatedEmail.replace(/<subject>.*?<\/subject>/s, '').trim()
-      }),
+      JSON.stringify({ subject, content }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
