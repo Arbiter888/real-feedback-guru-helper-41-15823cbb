@@ -5,7 +5,23 @@ import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
 import { EmailDatabaseTable } from "./email/EmailDatabaseTable";
 
-export const EmailManagementSection = () => {
+interface RestaurantInfo {
+  restaurantName: string;
+  googleMapsUrl: string;
+  contactEmail: string;
+  websiteUrl: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  phoneNumber: string;
+  bookingUrl: string;
+  preferredBookingMethod: 'phone' | 'website';
+}
+
+interface EmailManagementSectionProps {
+  restaurantInfo: RestaurantInfo;
+}
+
+export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectionProps) => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
 
@@ -38,6 +54,7 @@ export const EmailManagementSection = () => {
           listId: lists[0].id,
           subject: params.subject,
           htmlContent: params.content,
+          restaurantInfo: restaurantInfo, // Pass restaurant info to the email function
         },
       });
 
@@ -127,6 +144,7 @@ export const EmailManagementSection = () => {
         <EmailCompositionForm
           onSend={handleSendEmail}
           disabled={!emailContacts?.length}
+          restaurantInfo={restaurantInfo}
         />
       </div>
 
