@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Mail } from "lucide-react";
+import { Database } from "@/integrations/supabase/types";
+
+type DbReview = Database['public']['Tables']['reviews']['Row'];
 
 interface Review {
   id: string;
@@ -41,7 +44,12 @@ export const ReviewVoucherSection = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Review[];
+
+      // Transform the data to match our Review interface
+      return (data as DbReview[]).map(review => ({
+        ...review,
+        receipt_data: review.receipt_data as Review['receipt_data']
+      })) as Review[];
     },
   });
 
