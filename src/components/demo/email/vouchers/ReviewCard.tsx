@@ -1,7 +1,8 @@
-import { Calendar, Receipt, Star, ThumbsUp, ThumbsDown, Heart, Meh, User } from "lucide-react";
+import { Calendar, Receipt, Star, ThumbsUp, ThumbsDown, Heart, Meh, User, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Review } from "../ReviewVoucherSection";
+import { useState } from "react";
 
 interface ReviewCardProps {
   review: Review;
@@ -26,6 +27,7 @@ const getSentimentInfo = (review: string) => {
 };
 
 export const ReviewCard = ({ review, customerEmail }: ReviewCardProps) => {
+  const [isReceiptExpanded, setIsReceiptExpanded] = useState(false);
   const sentiment = getSentimentInfo(review.review_text);
   const SentimentIcon = sentiment.icon;
 
@@ -58,7 +60,7 @@ export const ReviewCard = ({ review, customerEmail }: ReviewCardProps) => {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <h4 className="text-sm font-medium text-gray-700">Original Review</h4>
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 min-h-[100px]">
             <p className="text-sm">{review.review_text}</p>
           </div>
         </div>
@@ -66,7 +68,7 @@ export const ReviewCard = ({ review, customerEmail }: ReviewCardProps) => {
         {review.refined_review && (
           <div className="space-y-2">
             <h4 className="text-sm font-medium text-gray-700">EatUP! Enhanced Review</h4>
-            <div className="bg-pink-50 rounded-lg p-4">
+            <div className="bg-pink-50 rounded-lg p-4 min-h-[100px]">
               <p className="text-sm">{review.refined_review}</p>
             </div>
           </div>
@@ -75,26 +77,47 @@ export const ReviewCard = ({ review, customerEmail }: ReviewCardProps) => {
 
       {/* Receipt Data Summary */}
       {review.receipt_data && (
-        <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+        <div className="space-y-2">
+          <button
+            onClick={() => setIsReceiptExpanded(!isReceiptExpanded)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-700 w-full bg-gray-50 p-4 rounded-lg hover:bg-gray-100 transition-colors"
+          >
             <Receipt className="h-4 w-4" />
             <span>Receipt Summary</span>
-          </div>
-          <div className="text-sm space-y-1">
-            <p>Total spent: ${review.receipt_data.total_amount}</p>
-            {review.receipt_data.items && review.receipt_data.items.length > 0 && (
-              <div>
-                <p className="font-medium">Items ordered:</p>
-                <ul className="list-disc list-inside">
-                  {review.receipt_data.items.map((item, index) => (
-                    <li key={index}>
-                      {item.name} - ${item.price}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            {isReceiptExpanded ? (
+              <ChevronUp className="h-4 w-4 ml-auto" />
+            ) : (
+              <ChevronDown className="h-4 w-4 ml-auto" />
             )}
-          </div>
+          </button>
+          
+          {isReceiptExpanded && (
+            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium">Total Spent:</span>
+                <span className="text-green-600 font-semibold">
+                  ${review.receipt_data.total_amount.toFixed(2)}
+                </span>
+              </div>
+              
+              {review.receipt_data.items && review.receipt_data.items.length > 0 && (
+                <div>
+                  <p className="font-medium text-sm mb-2">Items Ordered:</p>
+                  <div className="space-y-2">
+                    {review.receipt_data.items.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between text-sm bg-white p-2 rounded"
+                      >
+                        <span>{item.name}</span>
+                        <span className="font-medium">${item.price.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </Card>
