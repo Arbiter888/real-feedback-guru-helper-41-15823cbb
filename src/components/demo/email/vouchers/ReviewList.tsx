@@ -6,9 +6,10 @@ import { Review } from "../../email/ReviewVoucherSection";
 
 interface ReviewListProps {
   reviews: Review[];
+  onGenerateVoucher: (review: Review) => Promise<void>;
 }
 
-export const ReviewList = ({ reviews }: ReviewListProps) => {
+export const ReviewList = ({ reviews, onGenerateVoucher }: ReviewListProps) => {
   return (
     <div className="space-y-4">
       {reviews?.map((review) => (
@@ -41,7 +42,7 @@ export const ReviewList = ({ reviews }: ReviewListProps) => {
             </div>
 
             {/* Voucher Generation Section */}
-            <VoucherSuggestions review={review} />
+            <VoucherSuggestions review={review} onGenerateVoucher={onGenerateVoucher} />
           </div>
         </Card>
       ))}

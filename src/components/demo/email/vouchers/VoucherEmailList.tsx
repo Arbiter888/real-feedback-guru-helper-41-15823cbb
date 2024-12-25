@@ -4,13 +4,22 @@ import { Calendar, Eye, Mail } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { EmailPreview } from "../EmailPreview";
 import { useState } from "react";
-import { VoucherEmail } from "../../email/ReviewVoucherSection";
+import { VoucherEmail } from "../ReviewVoucherSection";
 
 interface VoucherEmailListProps {
   voucherEmails: VoucherEmail[];
+  restaurantInfo?: {
+    restaurantName: string;
+    websiteUrl: string;
+    facebookUrl: string;
+    instagramUrl: string;
+    phoneNumber: string;
+    bookingUrl: string;
+    googleMapsUrl: string;
+  };
 }
 
-export const VoucherEmailList = ({ voucherEmails }: VoucherEmailListProps) => {
+export const VoucherEmailList = ({ voucherEmails, restaurantInfo }: VoucherEmailListProps) => {
   const [selectedEmail, setSelectedEmail] = useState<VoucherEmail | null>(null);
 
   const getStatusColor = (status: string) => {
@@ -68,11 +77,12 @@ export const VoucherEmailList = ({ voucherEmails }: VoucherEmailListProps) => {
                 <DialogHeader>
                   <DialogTitle>Email Preview</DialogTitle>
                 </DialogHeader>
-                {selectedEmail && (
+                {selectedEmail && restaurantInfo && (
                   <EmailPreview
                     emailSubject={selectedEmail.email_subject}
                     htmlContent={selectedEmail.email_content}
                     showPreview={true}
+                    restaurantInfo={restaurantInfo}
                   />
                 )}
               </DialogContent>
