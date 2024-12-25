@@ -12,16 +12,24 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, imageUrls } = await req.json();
+    const { prompt, imageUrls, subjectOnly, contentOnly, htmlOnly } = await req.json();
 
-    const systemPrompt = `You are an expert email marketer. Generate both a compelling subject line and engaging HTML email content based on the user's prompt.
-    Create responsive, well-formatted HTML that looks good on all devices. Include placeholders for images where relevant.
-    
-    Your response should be in this format:
-    SUBJECT: [Your generated subject line here]
-    
-    CONTENT:
-    [Your generated HTML email content here]`;
+    let systemPrompt = "";
+    if (subjectOnly) {
+      systemPrompt = "You are an expert email marketer. Generate a compelling subject line based on the user's prompt.";
+    } else if (contentOnly) {
+      systemPrompt = "You are an expert email marketer. Generate engaging plain text email content based on the user's prompt. Do not include any HTML formatting.";
+    } else if (htmlOnly) {
+      systemPrompt = "You are an expert email marketer. Convert the given plain text email into responsive HTML format that looks good on all devices. Use modern email-safe HTML and CSS.";
+    } else {
+      systemPrompt = `You are an expert email marketer. Generate both a compelling subject line and engaging plain text email content based on the user's prompt.
+      
+      Your response should be in this format:
+      SUBJECT: [Your generated subject line here]
+      
+      CONTENT:
+      [Your generated plain text email content here]`;
+    }
 
     let imageContext = "";
     if (imageUrls && imageUrls.length > 0) {
@@ -38,7 +46,7 @@ serve(async (req) => {
         model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `${imageContext}\n\nGenerate an email: ${prompt}` }
+          { role: 'user', content: `${imageContext}\n\n${prompt}` }
         ],
       }),
     });
@@ -46,18 +54,25 @@ serve(async (req) => {
     const data = await response.json();
     const generatedText = data.choices[0].message.content;
 
-    // Extract subject and content using regex
-    const subjectMatch = generatedText.match(/SUBJECT:\s*(.*?)(?=\s*CONTENT:|$)/s);
-    const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*?)$/);
+    let result;
+    if (subjectOnly) {
+      result = { subject: generatedText.trim() };
+    } else if (contentOnly || htmlOnly) {
+      result = { content: generatedText.trim() };
+    } else {
+      const subjectMatch = generatedText.match(/SUBJECT:\s*(.*?)(?=\s*CONTENT:|$)/s);
+      const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*?)$/);
 
-    const subject = subjectMatch ? subjectMatch[1].trim() : "Generated Email";
-    const content = contentMatch ? contentMatch[1].trim() : generatedText;
+      result = {
+        subject: subjectMatch ? subjectMatch[1].trim() : "Generated Email",
+        content: contentMatch ? contentMatch[1].trim() : generatedText
+      };
+    }
 
-    console.log('Generated subject:', subject);
-    console.log('Generated content length:', content.length);
+    console.log('Generated result:', result);
 
     return new Response(
-      JSON.stringify({ subject, content }),
+      JSON.stringify(result),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
