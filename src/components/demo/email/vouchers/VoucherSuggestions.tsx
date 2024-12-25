@@ -15,52 +15,69 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggest
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ["voucher-suggestions", review.id],
     queryFn: async () => {
-      // First, try to get existing suggestions
-      const { data: existingSuggestions, error } = await supabase
-        .from("review_voucher_suggestions")
-        .select("*")
-        .eq("review_id", review.id)
-        .maybeSingle();
+      try {
+        // First, try to get existing suggestions
+        const { data: existingSuggestions, error } = await supabase
+          .from("review_voucher_suggestions")
+          .select("*")
+          .eq("review_id", review.id)
+          .maybeSingle();
 
-      if (error) {
-        console.error("Error fetching suggestions:", error);
-        return null;
-      }
+        if (error) {
+          console.error("Error fetching suggestions:", error);
+          return null;
+        }
 
-      if (existingSuggestions) {
-        return existingSuggestions.suggested_vouchers;
-      }
+        if (existingSuggestions) {
+          return existingSuggestions.suggested_vouchers;
+        }
 
-      // If no suggestions exist, generate new ones
-      const { data, error: genError } = await supabase.functions.invoke("generate-voucher-suggestions", {
-        body: {
-          review: {
-            text: review.review_text,
-            receiptData: review.receipt_data,
-            serverName: review.server_name,
+        console.log("Generating new suggestions for review:", review.id);
+
+        // If no suggestions exist, generate new ones
+        const { data, error: genError } = await supabase.functions.invoke("generate-voucher-suggestions", {
+          body: {
+            review: {
+              text: review.review_text,
+              receiptData: review.receipt_data,
+              serverName: review.server_name,
+            },
           },
-        },
-      });
-
-      if (genError) {
-        console.error("Error generating suggestions:", genError);
-        throw genError;
-      }
-
-      // Store the generated suggestions
-      const { error: insertError } = await supabase
-        .from("review_voucher_suggestions")
-        .insert({
-          review_id: review.id,
-          suggested_vouchers: data.suggestions,
         });
 
-      if (insertError) {
-        console.error("Error storing suggestions:", insertError);
-        throw insertError;
-      }
+        if (genError) {
+          console.error("Error generating suggestions:", genError);
+          throw genError;
+        }
 
-      return data.suggestions;
+        if (!data?.suggestions) {
+          console.error("No suggestions returned from function");
+          return null;
+        }
+
+        // Store the generated suggestions
+        const { error: insertError } = await supabase
+          .from("review_voucher_suggestions")
+          .insert({
+            review_id: review.id,
+            suggested_vouchers: data.suggestions,
+          });
+
+        if (insertError) {
+          console.error("Error storing suggestions:", insertError);
+          throw insertError;
+        }
+
+        return data.suggestions;
+      } catch (error) {
+        console.error("Error in voucher suggestions flow:", error);
+        toast({
+          title: "Error generating suggestions",
+          description: "Failed to generate voucher suggestions. Please try again.",
+          variant: "destructive",
+        });
+        return null;
+      }
     },
   });
 

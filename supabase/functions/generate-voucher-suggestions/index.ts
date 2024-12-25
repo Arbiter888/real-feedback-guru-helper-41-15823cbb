@@ -1,22 +1,27 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { Configuration, OpenAIApi } from "https://esm.sh/openai@3.2.1";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { review } = await req.json();
 
+    if (!review) {
+      throw new Error('Review data is required');
+    }
+
     const configuration = new Configuration({
-      apiKey: Deno.env.get("OPENAI_API_KEY"),
+      apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
     const openai = new OpenAIApi(configuration);
 
@@ -40,6 +45,8 @@ serve(async (req) => {
 
     Format the response as a JSON array with objects containing 'title', 'description', and 'timing' fields.`;
 
+    console.log("Sending prompt to OpenAI:", prompt);
+
     const completion = await openai.createChatCompletion({
       model: "gpt-4o-mini",
       messages: [
@@ -56,10 +63,12 @@ serve(async (req) => {
 
     const suggestions = JSON.parse(completion.data.choices[0].message?.content || "[]");
 
+    console.log("Generated suggestions:", suggestions);
+
     return new Response(
       JSON.stringify({ suggestions }),
       {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
     );
   } catch (error) {
@@ -68,7 +77,7 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       {
         status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       },
     );
   }
