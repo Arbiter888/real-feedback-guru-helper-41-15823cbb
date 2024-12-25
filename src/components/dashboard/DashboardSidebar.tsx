@@ -1,4 +1,4 @@
-import { Building2, Mail, ChartBar, Gift, Plus } from "lucide-react";
+import { Building2, Mail, ChartBar, Gift } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,27 +14,22 @@ const menuItems = [
   {
     title: "Business Setup",
     icon: Building2,
-    href: "/dashboard",
-  },
-  {
-    title: "Create Review Page",
-    icon: Plus,
-    href: "/dashboard/create-review-page",
+    href: "#business-setup",
   },
   {
     title: "Review Vouchers",
     icon: Gift,
-    href: "/dashboard/review-vouchers",
+    href: "#review-vouchers",
   },
   {
     title: "Email Campaigns",
     icon: Mail,
-    href: "/dashboard/email-campaigns",
+    href: "#email-campaigns",
   },
   {
     title: "Analytics",
     icon: ChartBar,
-    href: "/dashboard/analytics",
+    href: "#analytics",
   },
 ];
 

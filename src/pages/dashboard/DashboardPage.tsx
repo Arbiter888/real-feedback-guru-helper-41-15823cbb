@@ -8,6 +8,9 @@ import { useToast } from "@/hooks/use-toast";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { BusinessSetupSection } from "@/components/dashboard/sections/BusinessSetupSection";
+import { VoucherManagementSection } from "@/components/demo/email/vouchers/VoucherManagementSection";
+import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
+import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -75,8 +78,25 @@ export default function DashboardPage() {
               </Button>
             </div>
 
-            {/* Business Setup Section */}
+            {/* Section 1: Business Setup */}
             <BusinessSetupSection />
+
+            {/* Section 2: Review Vouchers */}
+            <section id="review-vouchers" className="space-y-8">
+              <VoucherManagementSection />
+            </section>
+
+            {/* Section 3: Email Campaigns */}
+            <section id="email-campaigns" className="space-y-8">
+              <EmailManagementSection restaurantInfo={restaurantInfo} />
+            </section>
+
+            {/* Section 4: Analytics */}
+            <section id="analytics" className="space-y-8">
+              <div className="bg-white rounded-xl shadow-lg">
+                <ReviewPageAnalytics reviewPageId="" />
+              </div>
+            </section>
           </div>
         </main>
       </div>
