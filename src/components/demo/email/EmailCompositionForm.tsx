@@ -21,6 +21,7 @@ interface EmailCompositionFormProps {
     instagramUrl: string;
     phoneNumber: string;
     bookingUrl: string;
+    googleMapsUrl: string;
   };
 }
 
@@ -250,6 +251,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           instagramUrl: "",
           phoneNumber: "",
           bookingUrl: "",
+          googleMapsUrl: "",
         }}
       />
     </div>
