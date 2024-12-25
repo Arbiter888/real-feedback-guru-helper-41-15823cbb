@@ -11,6 +11,12 @@ import { EmailHeader } from "./EmailHeader";
 import { EmailContent } from "./EmailContent";
 import { EmailPreview } from "./EmailPreview";
 
+interface UploadedImage {
+  url: string;
+  title: string;
+  added: boolean;
+}
+
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
   disabled?: boolean;
@@ -31,8 +37,9 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [emailContent, setEmailContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>("");
+  const [currentImageTitle, setCurrentImageTitle] = useState<string>("");
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -87,11 +94,15 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           .from('email_images')
           .getPublicUrl(filePath);
 
-        return publicUrl;
+        return {
+          url: publicUrl,
+          title: "",
+          added: false
+        };
       });
 
-      const urls = await Promise.all(uploadPromises);
-      setUploadedImages(prev => [...prev, ...urls]);
+      const newImages = await Promise.all(uploadPromises);
+      setUploadedImages(prev => [...prev, ...newImages]);
       
       toast({
         title: "Images uploaded successfully",
@@ -107,30 +118,44 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     }
   };
 
-  const insertImagesIntoContent = () => {
-    if (uploadedImages.length === 0) {
+  const handleAddImageToEmail = (index: number) => {
+    if (!uploadedImages[index].title) {
       toast({
-        title: "No images to add",
-        description: "Please upload images first.",
+        title: "Missing image title",
+        description: "Please provide a title for the image before adding it to the email.",
         variant: "destructive",
       });
       return;
     }
 
+    const updatedImages = [...uploadedImages];
+    updatedImages[index] = { ...updatedImages[index], added: true };
+    setUploadedImages(updatedImages);
+
+    const imageHtml = `
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="${uploadedImages[index].url}" alt="${uploadedImages[index].title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+        <p style="margin: 10px 0; font-style: italic; color: #666;">${uploadedImages[index].title}</p>
+      </div>
+    `;
+
     const formattedContent = emailContent.split('\n').map(paragraph => 
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
     ).join('\n');
 
-    const imageHtml = uploadedImages.map(url => 
-      `<div style="text-align: center; margin: 20px 0;">
-        <img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; border-radius: 8px;" />
-       </div>`
-    ).join('\n');
+    const addedImages = uploadedImages
+      .filter(img => img.added)
+      .map(img => `
+        <div style="text-align: center; margin: 20px 0;">
+          <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+          <p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>
+        </div>
+      `).join('\n');
 
     const newHtmlContent = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
         ${formattedContent}
-        ${imageHtml}
+        ${addedImages}
       </div>
     `;
 
@@ -138,11 +163,25 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     setShowPreview(true);
   };
 
+  const handleImageTitleChange = (index: number, title: string) => {
+    const updatedImages = [...uploadedImages];
+    updatedImages[index] = { ...updatedImages[index], title };
+    setUploadedImages(updatedImages);
+  };
+
   const handleVoucherGenerated = (voucherHtml: string) => {
     const baseHtml = `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
       ${emailContent.split('\n').map(paragraph => 
         paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
       ).join('\n')}
+      ${uploadedImages
+        .filter(img => img.added)
+        .map(img => `
+          <div style="text-align: center; margin: 20px 0;">
+            <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+            <p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>
+          </div>
+        `).join('\n')}
       ${voucherHtml}
     </div>`;
     
@@ -189,25 +228,33 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
               <Upload className="mr-2 h-4 w-4" />
               Choose Images
             </Button>
-            {uploadedImages.length > 0 && (
-              <Button
-                variant="secondary"
-                onClick={insertImagesIntoContent}
-                className="w-full"
-              >
-                Add Images to Email
-              </Button>
-            )}
           </div>
           {uploadedImages.length > 0 && (
-            <div className="mt-2 flex gap-2 flex-wrap">
-              {uploadedImages.map((url, index) => (
-                <img
-                  key={index}
-                  src={url}
-                  alt={`Uploaded image ${index + 1}`}
-                  className="h-16 w-16 object-cover rounded-md"
-                />
+            <div className="mt-4 space-y-4">
+              {uploadedImages.map((image, index) => (
+                <div key={index} className="flex items-center gap-2 p-2 border rounded-md">
+                  <img
+                    src={image.url}
+                    alt={`Uploaded image ${index + 1}`}
+                    className="h-16 w-16 object-cover rounded-md"
+                  />
+                  <div className="flex-1">
+                    <Input
+                      placeholder="Enter image title"
+                      value={image.title}
+                      onChange={(e) => handleImageTitleChange(index, e.target.value)}
+                      className="mb-2"
+                    />
+                    <Button
+                      size="sm"
+                      variant={image.added ? "secondary" : "default"}
+                      onClick={() => handleAddImageToEmail(index)}
+                      disabled={image.added}
+                    >
+                      {image.added ? "Added to Email" : "Add to Email"}
+                    </Button>
+                  </div>
+                </div>
               ))}
             </div>
           )}
