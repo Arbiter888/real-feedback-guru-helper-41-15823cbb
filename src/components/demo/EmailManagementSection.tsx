@@ -1,27 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { EmailCompositionForm } from "./email/EmailCompositionForm";
+import { EmailDatabaseTable } from "./email/EmailDatabaseTable";
 
 export const EmailManagementSection = () => {
   const { toast } = useToast();
   const [isExporting, setIsExporting] = useState(false);
-  const [emailSubject, setEmailSubject] = useState("");
-  const [emailContent, setEmailContent] = useState("");
-  const [isSending, setIsSending] = useState(false);
 
   const { data: emailContacts, isLoading } = useQuery({
     queryKey: ["emailContacts"],
@@ -37,7 +23,7 @@ export const EmailManagementSection = () => {
   });
 
   const sendEmailMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (params: { subject: string; content: string }) => {
       const { data: lists } = await supabase
         .from("email_lists")
         .select("id")
@@ -50,8 +36,8 @@ export const EmailManagementSection = () => {
       const response = await supabase.functions.invoke("send-bulk-email", {
         body: {
           listId: lists[0].id,
-          subject: emailSubject,
-          htmlContent: emailContent,
+          subject: params.subject,
+          htmlContent: params.content,
         },
       });
 
@@ -66,8 +52,6 @@ export const EmailManagementSection = () => {
         title: "Emails sent successfully",
         description: `${data.successCount} emails sent. ${data.errorCount} failed.`,
       });
-      setEmailSubject("");
-      setEmailContent("");
     },
     onError: (error) => {
       toast({
@@ -90,7 +74,6 @@ export const EmailManagementSection = () => {
 
     setIsExporting(true);
     try {
-      // Convert data to CSV format
       const headers = ["Email", "First Name", "Last Name", "Created At"];
       const csvContent = [
         headers.join(","),
@@ -104,7 +87,6 @@ export const EmailManagementSection = () => {
         ),
       ].join("\n");
 
-      // Create and download the CSV file
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const link = document.createElement("a");
       const url = URL.createObjectURL(blob);
@@ -133,22 +115,8 @@ export const EmailManagementSection = () => {
     }
   };
 
-  const handleSendEmail = async () => {
-    if (!emailSubject.trim() || !emailContent.trim()) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both subject and content for the email.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSending(true);
-    try {
-      await sendEmailMutation.mutateAsync();
-    } finally {
-      setIsSending(false);
-    }
+  const handleSendEmail = async (subject: string, content: string) => {
+    await sendEmailMutation.mutateAsync({ subject, content });
   };
 
   return (
@@ -156,86 +124,22 @@ export const EmailManagementSection = () => {
       {/* Email Composition Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-6">Send Email Campaign</h2>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="emailSubject">Email Subject</Label>
-            <Input
-              id="emailSubject"
-              value={emailSubject}
-              onChange={(e) => setEmailSubject(e.target.value)}
-              placeholder="Enter email subject"
-            />
-          </div>
-          <div>
-            <Label htmlFor="emailContent">Email Content (HTML)</Label>
-            <Textarea
-              id="emailContent"
-              value={emailContent}
-              onChange={(e) => setEmailContent(e.target.value)}
-              placeholder="Enter your email content (HTML supported)"
-              className="min-h-[200px] font-mono"
-            />
-          </div>
-          <Button
-            onClick={handleSendEmail}
-            disabled={isSending || !emailContacts?.length}
-            className="w-full"
-          >
-            {isSending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              "Send Email Campaign"
-            )}
-          </Button>
-        </div>
+        <EmailCompositionForm
+          onSend={handleSendEmail}
+          disabled={!emailContacts?.length}
+        />
       </div>
 
       {/* Email Database Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Email Database</h2>
-          <Button
-            onClick={handleExport}
-            disabled={isExporting || !emailContacts?.length}
-          >
-            {isExporting ? "Exporting..." : "Export to CSV"}
-          </Button>
-        </div>
-
         {isLoading ? (
           <div className="text-center py-8">Loading email database...</div>
-        ) : !emailContacts?.length ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No emails in database yet.
-          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>First Name</TableHead>
-                  <TableHead>Last Name</TableHead>
-                  <TableHead>Date Added</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {emailContacts.map((contact) => (
-                  <TableRow key={contact.id}>
-                    <TableCell>{contact.email}</TableCell>
-                    <TableCell>{contact.first_name || "-"}</TableCell>
-                    <TableCell>{contact.last_name || "-"}</TableCell>
-                    <TableCell>
-                      {new Date(contact.created_at).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <EmailDatabaseTable
+            contacts={emailContacts || []}
+            onExport={handleExport}
+            isExporting={isExporting}
+          />
         )}
       </div>
     </div>
