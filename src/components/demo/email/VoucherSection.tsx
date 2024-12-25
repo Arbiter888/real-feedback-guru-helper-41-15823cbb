@@ -5,6 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
 import QRCode from "qrcode";
 import { nanoid } from "nanoid";
+import { Wand2, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface VoucherSectionProps {
   onVoucherGenerated: (voucherHtml: string) => void;
@@ -15,6 +18,8 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
   const [offerDescription, setOfferDescription] = useState("");
   const [voucherCode, setVoucherCode] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [isGeneratingSuggestion, setIsGeneratingSuggestion] = useState(false);
+  const { toast } = useToast();
 
   const generateVoucher = async () => {
     if (!offerTitle || !offerDescription) return;
@@ -38,6 +43,32 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
     `;
 
     onVoucherGenerated(voucherHtml);
+  };
+
+  const generateSuggestion = async () => {
+    setIsGeneratingSuggestion(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-voucher');
+      
+      if (error) throw error;
+
+      setOfferTitle(data.title);
+      setOfferDescription(data.description);
+
+      toast({
+        title: "Suggestion generated",
+        description: "AI has suggested a new voucher offer.",
+      });
+    } catch (error) {
+      console.error('Suggestion error:', error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate voucher suggestion.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingSuggestion(false);
+    }
   };
 
   return (
@@ -74,13 +105,32 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
         </div>
       )}
 
-      <Button 
-        onClick={generateVoucher}
-        className="w-full"
-        disabled={!offerTitle || !offerDescription}
-      >
-        Generate Voucher
-      </Button>
+      <div className="flex gap-2">
+        <Button 
+          onClick={generateVoucher}
+          className="flex-1"
+          disabled={!offerTitle || !offerDescription}
+        >
+          Generate Voucher
+        </Button>
+        <Button
+          onClick={generateSuggestion}
+          variant="outline"
+          disabled={isGeneratingSuggestion}
+        >
+          {isGeneratingSuggestion ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Suggesting...
+            </>
+          ) : (
+            <>
+              <Wand2 className="mr-2 h-4 w-4" />
+              AI Suggest
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
