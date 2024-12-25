@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
 import { EmailDatabaseTable } from "./email/EmailDatabaseTable";
-import { VoucherManagementSection } from "./email/vouchers/VoucherManagementSection";
+import { AiPromptSection } from "./email/AiPromptSection";
+import { ReviewVoucherSection } from "./email/ReviewVoucherSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -50,17 +51,42 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
         throw new Error("No email list found");
       }
 
+      // Fetch scheduled voucher emails
+      const { data: scheduledVouchers } = await supabase
+        .from("review_voucher_emails")
+        .select("*")
+        .eq("status", "scheduled")
+        .is("sent_at", null)
+        .not("scheduled_for", "is", null)
+        .order("scheduled_for", { ascending: true });
+
       const response = await supabase.functions.invoke("send-bulk-email", {
         body: {
           listId: lists[0].id,
           subject: params.subject,
           htmlContent: params.content,
-          restaurantInfo: restaurantInfo, // Pass restaurant info to the email function
+          restaurantInfo: restaurantInfo,
+          scheduledVouchers: scheduledVouchers || [],
         },
       });
 
       if (response.error) {
         throw new Error(response.error.message);
+      }
+
+      // Update voucher emails as sent
+      if (scheduledVouchers?.length) {
+        const { error: updateError } = await supabase
+          .from("review_voucher_emails")
+          .update({ 
+            sent_at: new Date().toISOString(),
+            status: "sent"
+          })
+          .in("id", scheduledVouchers.map(v => v.id));
+
+        if (updateError) {
+          console.error("Error updating voucher status:", updateError);
+        }
       }
 
       return response.data;
@@ -137,8 +163,32 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
     await sendEmailMutation.mutateAsync({ subject, content });
   };
 
+  const handleEmailGenerated = (subject: string, content: string) => {
+    // Set the generated email in the composition form
+    const compositionForm = document.querySelector('form');
+    if (compositionForm) {
+      const subjectInput = compositionForm.querySelector('input[type="text"]') as HTMLInputElement;
+      const contentTextarea = compositionForm.querySelector('textarea') as HTMLTextAreaElement;
+      
+      if (subjectInput && contentTextarea) {
+        subjectInput.value = subject;
+        contentTextarea.value = content;
+        
+        // Trigger change events
+        subjectInput.dispatchEvent(new Event('change', { bubbles: true }));
+        contentTextarea.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  };
+
   return (
     <div className="space-y-8">
+      {/* AI Email Generator Section */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-6">AI Email Generator</h2>
+        <AiPromptSection onEmailGenerated={handleEmailGenerated} />
+      </div>
+
       {/* Email Composition Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-6">Send Email Campaign</h2>
@@ -149,8 +199,11 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
         />
       </div>
 
-      {/* Voucher Management Section */}
-      <VoucherManagementSection />
+      {/* Review Voucher Section */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold mb-6">Review-Based Vouchers</h2>
+        <ReviewVoucherSection restaurantInfo={restaurantInfo} />
+      </div>
 
       {/* Email Database Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
