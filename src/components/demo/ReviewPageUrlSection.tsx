@@ -21,8 +21,8 @@ export const ReviewPageUrlSection = ({
   const [copied, setCopied] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
-  // Ensure proper URL formatting
-  const baseUrl = window.location.origin.replace(/:\/*$/, '').replace(/\/$/, '');
+  // Remove any trailing slashes and ensure proper URL formatting
+  const baseUrl = window.location.origin.replace(/\/+$/, '');
   const fullUrl = generatedUrl ? `${baseUrl}${generatedUrl}` : '';
 
   const handleCopyUrl = async () => {
