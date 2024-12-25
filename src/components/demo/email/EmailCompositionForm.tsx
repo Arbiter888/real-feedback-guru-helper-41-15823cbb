@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { AiPromptSection } from "./AiPromptSection";
-import { VoucherSection } from "./VoucherSection";
 
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
@@ -18,19 +17,18 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
   const [emailSubject, setEmailSubject] = useState("");
   const [emailContent, setEmailContent] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [prompt, setPrompt] = useState("");
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const [htmlContent, setHtmlContent] = useState<string>("");
 
   const handleSend = async () => {
     setIsSending(true);
     try {
-      await onSend(emailSubject, htmlContent || emailContent);
+      await onSend(emailSubject, emailContent);
       setEmailSubject("");
       setEmailContent("");
-      setHtmlContent("");
       setUploadedImages([]);
-      setShowPreview(false);
     } finally {
       setIsSending(false);
     }
@@ -75,24 +73,77 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
     }
   };
 
-  const handleVoucherGenerated = (voucherHtml: string) => {
-    setHtmlContent(prevHtml => {
-      const content = prevHtml || emailContent;
-      return `${content}\n\n${voucherHtml}`;
-    });
-    setShowPreview(true);
+  const generateEmail = async () => {
+    if (!prompt.trim()) {
+      toast({
+        title: "Please enter a prompt",
+        description: "Describe what kind of email you want to generate.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const response = await supabase.functions.invoke('generate-email', {
+        body: { prompt, imageUrls: uploadedImages },
+      });
+
+      if (response.error) throw new Error(response.error.message);
+      
+      const { subject, content } = response.data;
+      setEmailSubject(subject);
+      setEmailContent(content);
+      
+      toast({
+        title: "Email generated successfully",
+        description: "Your AI-generated email is ready for review.",
+      });
+    } catch (error) {
+      console.error('Generation error:', error);
+      toast({
+        title: "Generation failed",
+        description: "There was an error generating your email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
     <div className="space-y-4">
-      <AiPromptSection 
-        onEmailGenerated={(subject, content) => {
-          setEmailSubject(subject);
-          setEmailContent(content);
-        }}
-      />
-
       <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
+        <div>
+          <Label htmlFor="prompt">AI Generation Prompt</Label>
+          <div className="flex gap-2">
+            <Input
+              id="prompt"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe the email you want to generate..."
+              className="flex-1"
+            />
+            <Button
+              onClick={generateEmail}
+              disabled={isGenerating || !prompt.trim()}
+              variant="secondary"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="mr-2 h-4 w-4" />
+                  Generate
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
         <div>
           <Label>Upload Images</Label>
           <div className="mt-2">
@@ -126,30 +177,28 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
             </div>
           )}
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="emailSubject">Email Subject</Label>
-          <Input
-            id="emailSubject"
-            value={emailSubject}
-            onChange={(e) => setEmailSubject(e.target.value)}
-            placeholder="Enter email subject"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="emailContent">Email Content</Label>
-          <textarea
-            id="emailContent"
-            value={emailContent}
-            onChange={(e) => setEmailContent(e.target.value)}
-            placeholder="Enter your email content"
-            className="min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
       </div>
 
-      <VoucherSection onVoucherGenerated={handleVoucherGenerated} />
+      <div>
+        <Label htmlFor="emailSubject">Email Subject</Label>
+        <Input
+          id="emailSubject"
+          value={emailSubject}
+          onChange={(e) => setEmailSubject(e.target.value)}
+          placeholder="Enter email subject"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="emailContent">Email Content (HTML)</Label>
+        <Textarea
+          id="emailContent"
+          value={emailContent}
+          onChange={(e) => setEmailContent(e.target.value)}
+          placeholder="Enter your email content (HTML supported)"
+          className="min-h-[200px] font-mono"
+        />
+      </div>
 
       <div className="flex gap-4">
         <Button
@@ -169,26 +218,17 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
         <Button
           variant="outline"
           onClick={() => setShowPreview(!showPreview)}
-          disabled={!emailContent.trim() && !htmlContent.trim()}
+          disabled={!emailContent.trim()}
         >
           {showPreview ? "Hide Preview" : "Show Preview"}
         </Button>
       </div>
 
-      {showPreview && (htmlContent || emailContent) && (
-        <div className="mt-6 space-y-4">
+      {showPreview && emailContent && (
+        <div className="mt-6">
           <Label>Email Preview</Label>
-          <div className="p-6 border rounded-lg bg-white space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="font-medium">Subject: {emailSubject}</h3>
-            </div>
-            <div className="prose max-w-none">
-              {htmlContent ? (
-                <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
-              ) : (
-                <div className="whitespace-pre-wrap">{emailContent}</div>
-              )}
-            </div>
+          <div className="mt-2 p-4 border rounded-lg bg-white">
+            <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: emailContent }} />
           </div>
         </div>
       )}
