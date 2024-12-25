@@ -29,6 +29,7 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
+  const [reviewPageId, setReviewPageId] = useState<string | null>(null);
   const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>({
     restaurantName: "",
     googleMapsUrl: "",
