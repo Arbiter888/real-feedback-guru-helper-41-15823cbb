@@ -3,20 +3,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Review } from "../ReviewVoucherSection";
+import { CheckCircle, ArrowRight } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 interface VoucherSuggestionsProps {
   review: Review;
   onGenerateVoucher: (review: Review) => void;
+  sentiment: {
+    icon: LucideIcon;
+    label: string;
+    color: string;
+  };
 }
 
-export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggestionsProps) => {
+export const VoucherSuggestions = ({ review, onGenerateVoucher, sentiment }: VoucherSuggestionsProps) => {
   const { toast } = useToast();
 
   const { data: suggestions, isLoading } = useQuery({
     queryKey: ["voucher-suggestions", review.id],
     queryFn: async () => {
       try {
-        // First, try to get existing suggestions
         const { data: existingSuggestions, error } = await supabase
           .from("review_voucher_suggestions")
           .select("*")
@@ -34,7 +40,6 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggest
 
         console.log("Generating new suggestions for review:", review.id);
 
-        // If no suggestions exist, generate new ones
         const { data, error: genError } = await supabase.functions.invoke("generate-voucher-suggestions", {
           body: {
             review: {
@@ -55,7 +60,6 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggest
           return null;
         }
 
-        // Store the generated suggestions
         const { error: insertError } = await supabase
           .from("review_voucher_suggestions")
           .insert({
@@ -91,12 +95,24 @@ export const VoucherSuggestions = ({ review, onGenerateVoucher }: VoucherSuggest
 
   return (
     <div className="space-y-4 mt-4">
-      <h4 className="text-sm font-medium text-gray-700">Suggested Voucher Sequence:</h4>
+      <div className="flex items-center gap-2">
+        <h4 className="text-sm font-medium text-gray-700">Suggested Voucher Sequence</h4>
+        <ArrowRight className="h-4 w-4 text-gray-400" />
+        <div className="flex items-center gap-1 text-sm text-gray-600">
+          <CheckCircle className="h-4 w-4 text-green-500" />
+          Matches customer sentiment
+        </div>
+      </div>
       <div className="space-y-2">
         {suggestions.map((suggestion: any, index: number) => (
           <div
             key={index}
-            className="bg-pink-50/50 p-4 rounded-lg border border-pink-100"
+            className={`p-4 rounded-lg border ${
+              sentiment.color.includes('green') ? 'border-green-200 bg-green-50/50' :
+              sentiment.color.includes('red') ? 'border-red-200 bg-red-50/50' :
+              sentiment.color.includes('yellow') ? 'border-yellow-200 bg-yellow-50/50' :
+              'border-pink-200 bg-pink-50/50'
+            }`}
           >
             <div className="flex justify-between items-start gap-4">
               <div>

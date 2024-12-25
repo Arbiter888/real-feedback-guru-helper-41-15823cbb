@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Eye, Mail } from "lucide-react";
+import { Calendar, Eye, Mail, ThumbsUp, ThumbsDown, Heart, Meh } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { EmailPreview } from "../EmailPreview";
 import { useState } from "react";
