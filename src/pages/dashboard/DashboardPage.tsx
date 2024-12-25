@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
@@ -12,16 +12,46 @@ import { VoucherManagementSection } from "@/components/demo/email/vouchers/Vouch
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 
+interface RestaurantInfo {
+  restaurantName: string;
+  googleMapsUrl: string;
+  contactEmail: string;
+  websiteUrl: string;
+  facebookUrl: string;
+  instagramUrl: string;
+  phoneNumber: string;
+  bookingUrl: string;
+  preferredBookingMethod: 'phone' | 'website';
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>({
+    restaurantName: "",
+    googleMapsUrl: "",
+    contactEmail: "",
+    websiteUrl: "",
+    facebookUrl: "",
+    instagramUrl: "",
+    phoneNumber: "",
+    bookingUrl: "",
+    preferredBookingMethod: "phone"
+  });
 
   useEffect(() => {
     if (!user) {
       navigate("/auth/login");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    const savedInfo = localStorage.getItem('restaurantInfo');
+    if (savedInfo) {
+      setRestaurantInfo(JSON.parse(savedInfo));
+    }
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -58,7 +88,7 @@ export default function DashboardPage() {
 
             {/* Section 3: Email Campaigns */}
             <section id="email-campaigns" className="space-y-8">
-              <EmailManagementSection />
+              <EmailManagementSection restaurantInfo={restaurantInfo} />
             </section>
 
             {/* Section 4: Analytics */}
