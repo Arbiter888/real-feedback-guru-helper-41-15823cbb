@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
 import { EmailDatabaseTable } from "./email/EmailDatabaseTable";
-import { ReviewVoucherSection } from "./email/ReviewVoucherSection";
+import { VoucherManagementSection } from "./email/vouchers/VoucherManagementSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -149,8 +149,8 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
         />
       </div>
 
-      {/* Review Voucher Section */}
-      <ReviewVoucherSection restaurantInfo={restaurantInfo} />
+      {/* Voucher Management Section */}
+      <VoucherManagementSection />
 
       {/* Email Database Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
