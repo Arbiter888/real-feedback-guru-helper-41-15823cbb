@@ -150,7 +150,7 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
       </div>
 
       {/* Review Voucher Section */}
-      <ReviewVoucherSection />
+      <ReviewVoucherSection restaurantInfo={restaurantInfo} />
 
       {/* Email Database Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">

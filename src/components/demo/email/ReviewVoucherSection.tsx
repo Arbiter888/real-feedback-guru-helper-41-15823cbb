@@ -32,7 +32,19 @@ export interface VoucherEmail {
   scheduled_for?: string | null;
 }
 
-export const ReviewVoucherSection = () => {
+interface ReviewVoucherSectionProps {
+  restaurantInfo?: {
+    restaurantName: string;
+    websiteUrl: string;
+    facebookUrl: string;
+    instagramUrl: string;
+    phoneNumber: string;
+    bookingUrl: string;
+    googleMapsUrl: string;
+  };
+}
+
+export const ReviewVoucherSection = ({ restaurantInfo }: ReviewVoucherSectionProps) => {
   const { toast } = useToast();
 
   const { data: reviews, isLoading: isLoadingReviews } = useQuery({
@@ -149,7 +161,10 @@ export const ReviewVoucherSection = () => {
 
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Generated Voucher Emails</h2>
-        <VoucherEmailList voucherEmails={voucherEmails || []} />
+        <VoucherEmailList 
+          voucherEmails={voucherEmails || []} 
+          restaurantInfo={restaurantInfo}
+        />
       </div>
     </div>
   );
