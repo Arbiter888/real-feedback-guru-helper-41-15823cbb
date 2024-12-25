@@ -188,6 +188,7 @@ export type Database = {
       }
       email_campaigns: {
         Row: {
+          campaign_type: string | null
           created_at: string
           email_copy: string
           id: string
@@ -195,11 +196,15 @@ export type Database = {
           offer_id: string | null
           promo_photos: string[] | null
           restaurant_id: string | null
+          scheduled_for: string | null
           sent_at: string | null
           status: string | null
+          target_sentiment: string | null
           unique_code: string
+          voucher_sequence_position: number | null
         }
         Insert: {
+          campaign_type?: string | null
           created_at?: string
           email_copy: string
           id?: string
@@ -207,11 +212,15 @@ export type Database = {
           offer_id?: string | null
           promo_photos?: string[] | null
           restaurant_id?: string | null
+          scheduled_for?: string | null
           sent_at?: string | null
           status?: string | null
+          target_sentiment?: string | null
           unique_code: string
+          voucher_sequence_position?: number | null
         }
         Update: {
+          campaign_type?: string | null
           created_at?: string
           email_copy?: string
           id?: string
@@ -219,9 +228,12 @@ export type Database = {
           offer_id?: string | null
           promo_photos?: string[] | null
           restaurant_id?: string | null
+          scheduled_for?: string | null
           sent_at?: string | null
           status?: string | null
+          target_sentiment?: string | null
           unique_code?: string
+          voucher_sequence_position?: number | null
         }
         Relationships: [
           {
@@ -823,6 +835,50 @@ export type Database = {
           value?: string
         }
         Relationships: []
+      }
+      voucher_sequences: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          restaurant_id: string | null
+          schedule_config: Json | null
+          sequence_order: number[] | null
+          status: string | null
+          target_sentiment: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          restaurant_id?: string | null
+          schedule_config?: Json | null
+          sequence_order?: number[] | null
+          status?: string | null
+          target_sentiment: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          restaurant_id?: string | null
+          schedule_config?: Json | null
+          sequence_order?: number[] | null
+          status?: string | null
+          target_sentiment?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voucher_sequences_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
