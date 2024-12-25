@@ -22,19 +22,17 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
     const uniqueCode = nanoid(8).toUpperCase();
     setVoucherCode(uniqueCode);
 
-    // Generate QR code
     const qrData = await QRCode.toDataURL(uniqueCode);
     setQrCodeUrl(qrData);
 
-    // Generate voucher HTML with the new design and QR code placement
     const voucherHtml = `
       <div style="margin: 2rem 0; text-align: center;">
-        <div style="background-color: #FFF5F8; padding: 2rem; border-radius: 12px; max-width: 500px; margin: 0 auto;">
-          <h2 style="color: #E94E87; font-size: 1.5rem; margin-bottom: 1rem;">Special Reward for Your Next Visit!</h2>
-          <p style="font-size: 1.5rem; margin: 1rem 0; color: #333;">${offerTitle}</p>
-          <p style="color: #666; font-size: 1.25rem; margin: 1rem 0;">Show code: ${uniqueCode}</p>
-          ${qrData ? `<img src="${qrData}" alt="QR Code" style="width: 150px; height: 150px; margin: 1rem auto; display: block;" />` : ''}
-          <p style="font-size: 1rem; color: #666; margin-top: 1rem;">${offerDescription}</p>
+        <div style="background-color: #FFF5F8; padding: 2rem; border-radius: 12px; max-width: 300px; margin: 0 auto;">
+          <h2 style="color: #E94E87; font-size: 1.25rem; margin-bottom: 1rem;">Special Reward for Your Next Visit!</h2>
+          <p style="font-size: 1.125rem; margin: 0.75rem 0; color: #333;">${offerTitle}</p>
+          <p style="color: #666; font-size: 1rem; margin: 0.75rem 0;">Show code: ${uniqueCode}</p>
+          ${qrData ? `<img src="${qrData}" alt="QR Code" style="width: 120px; height: 120px; margin: 0.75rem auto; display: block;" />` : ''}
+          <p style="font-size: 0.875rem; color: #666; margin-top: 0.75rem;">${offerDescription}</p>
         </div>
       </div>
     `;
@@ -62,7 +60,7 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
           id="offerDescription"
           value={offerDescription}
           onChange={(e) => setOfferDescription(e.target.value)}
-          placeholder="Enter the details and terms of your offer"
+          placeholder="e.g., Weekdays only"
         />
       </div>
 
@@ -71,7 +69,7 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
           <h3 className="text-primary font-medium text-lg">Special Reward for Your Next Visit!</h3>
           <p className="text-lg">{offerTitle}</p>
           <p className="text-gray-600">Show code: {voucherCode}</p>
-          <img src={qrCodeUrl} alt="Voucher QR Code" className="w-32 h-32 mx-auto my-4" />
+          <img src={qrCodeUrl} alt="Voucher QR Code" className="w-32 h-32 mx-auto my-3" />
           <p className="text-sm text-gray-600">{offerDescription}</p>
         </div>
       )}

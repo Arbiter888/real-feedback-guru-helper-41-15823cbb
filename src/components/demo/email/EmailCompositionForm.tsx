@@ -139,14 +139,14 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   };
 
   const handleVoucherGenerated = (voucherHtml: string) => {
-    setHtmlContent(prevHtml => {
-      const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-        ${emailContent.split('\n').map(paragraph => 
-          paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
-        ).join('\n')}
-      </div>`;
-      return baseHtml.replace('</div>', `${voucherHtml}</div>`);
-    });
+    const baseHtml = `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+      ${emailContent.split('\n').map(paragraph => 
+        paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
+      ).join('\n')}
+      ${voucherHtml}
+    </div>`;
+    
+    setHtmlContent(baseHtml);
     setShowPreview(true);
   };
 
