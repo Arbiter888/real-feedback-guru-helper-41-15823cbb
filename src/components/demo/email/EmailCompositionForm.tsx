@@ -23,6 +23,15 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
   const [htmlContent, setHtmlContent] = useState<string>("");
 
   const handleSend = async () => {
+    if (!emailSubject.trim() || !emailContent.trim()) {
+      toast({
+        title: "Missing content",
+        description: "Please provide both subject and content for the email.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSending(true);
     try {
       await onSend(emailSubject, htmlContent || emailContent);
@@ -31,6 +40,17 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
       setHtmlContent("");
       setUploadedImages([]);
       setShowPreview(false);
+      toast({
+        title: "Email sent successfully",
+        description: "Your email campaign has been sent.",
+      });
+    } catch (error) {
+      console.error('Send error:', error);
+      toast({
+        title: "Failed to send email",
+        description: "There was an error sending your email campaign.",
+        variant: "destructive",
+      });
     } finally {
       setIsSending(false);
     }
@@ -45,7 +65,7 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
         const fileExt = file.name.split('.').pop();
         const filePath = `${crypto.randomUUID()}.${fileExt}`;
         
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('email_images')
           .upload(filePath, file);
 
@@ -75,10 +95,45 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
     }
   };
 
+  const insertImagesIntoContent = () => {
+    if (uploadedImages.length === 0) {
+      toast({
+        title: "No images to add",
+        description: "Please upload images first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const imageHtml = uploadedImages.map(url => 
+      `<img src="${url}" alt="Email content image" style="max-width: 100%; height: auto; margin: 10px 0;" />`
+    ).join('\n');
+
+    const formattedContent = emailContent.split('\n').map(paragraph => 
+      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6;">${paragraph}</p>` : ''
+    ).join('\n');
+
+    const newHtmlContent = `
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+        ${formattedContent}
+        <div style="margin: 20px 0;">
+          ${imageHtml}
+        </div>
+      </div>
+    `;
+
+    setHtmlContent(newHtmlContent);
+    setShowPreview(true);
+  };
+
   const handleVoucherGenerated = (voucherHtml: string) => {
     setHtmlContent(prevHtml => {
-      const content = prevHtml || emailContent;
-      return `${content}\n\n${voucherHtml}`;
+      const baseHtml = prevHtml || `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+        ${emailContent.split('\n').map(paragraph => 
+          paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6;">${paragraph}</p>` : ''
+        ).join('\n')}
+      </div>`;
+      return baseHtml.replace('</div>', `${voucherHtml}</div>`);
     });
     setShowPreview(true);
   };
@@ -95,7 +150,7 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
       <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
         <div>
           <Label>Upload Images</Label>
-          <div className="mt-2">
+          <div className="mt-2 space-y-2">
             <Input
               type="file"
               accept="image/*"
@@ -112,6 +167,15 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
               <Upload className="mr-2 h-4 w-4" />
               Choose Images
             </Button>
+            {uploadedImages.length > 0 && (
+              <Button
+                variant="secondary"
+                onClick={insertImagesIntoContent}
+                className="w-full"
+              >
+                Add Images to Email
+              </Button>
+            )}
           </div>
           {uploadedImages.length > 0 && (
             <div className="mt-2 flex gap-2 flex-wrap">
@@ -186,7 +250,7 @@ export const EmailCompositionForm = ({ onSend, disabled }: EmailCompositionFormP
               {htmlContent ? (
                 <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
               ) : (
-                <div className="whitespace-pre-wrap">{emailContent}</div>
+                <div style={{ whiteSpace: 'pre-wrap' }}>{emailContent}</div>
               )}
             </div>
           </div>
