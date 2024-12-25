@@ -12,21 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, imageUrls } = await req.json();
-
-    const systemPrompt = `You are an expert email marketer. Generate both a compelling subject line and engaging HTML email content based on the user's prompt.
-    Create responsive, well-formatted HTML that looks good on all devices. Include placeholders for images where relevant.
-    
-    Your response should be in this format:
-    SUBJECT: [Your generated subject line here]
-    
-    CONTENT:
-    [Your generated HTML email content here]`;
-
-    let imageContext = "";
-    if (imageUrls && imageUrls.length > 0) {
-      imageContext = "Based on the provided images: " + imageUrls.join(", ");
-    }
+    const { prompt } = await req.json();
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -35,17 +21,35 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `${imageContext}\n\nGenerate an email: ${prompt}` }
+          { 
+            role: 'system', 
+            content: `You are an expert email marketer. Generate both a subject line and email content based on the user's prompt.
+            The response should be in HTML format and should be well-formatted for email viewing.
+            Make sure to include both a subject line and the email content.
+            Keep the tone professional but friendly.`
+          },
+          { 
+            role: 'user', 
+            content: `Generate an email with the following requirements:
+            ${prompt}
+            
+            Format your response exactly like this:
+            SUBJECT: [Your subject line here]
+            
+            CONTENT:
+            [Your HTML email content here]` 
+          }
         ],
       }),
     });
 
     const data = await response.json();
-    const generatedText = data.choices[0].message.content;
+    console.log('OpenAI response:', data);
 
+    const generatedText = data.choices[0].message.content;
+    
     // Extract subject and content using regex
     const subjectMatch = generatedText.match(/SUBJECT:\s*(.*?)(?=\s*CONTENT:|$)/s);
     const contentMatch = generatedText.match(/CONTENT:\s*([\s\S]*?)$/);
@@ -53,8 +57,8 @@ serve(async (req) => {
     const subject = subjectMatch ? subjectMatch[1].trim() : "Generated Email";
     const content = contentMatch ? contentMatch[1].trim() : generatedText;
 
-    console.log('Generated subject:', subject);
-    console.log('Generated content length:', content.length);
+    console.log('Extracted subject:', subject);
+    console.log('Extracted content length:', content.length);
 
     return new Response(
       JSON.stringify({ subject, content }),
