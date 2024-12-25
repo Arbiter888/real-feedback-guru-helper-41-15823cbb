@@ -33,7 +33,7 @@ export const EmailCompositionForm = ({
   const [showPreview, setShowPreview] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch scheduled voucher emails
+  // Fetch scheduled voucher emails for the next campaign
   const { data: scheduledVouchers } = useQuery({
     queryKey: ["scheduled_vouchers"],
     queryFn: async () => {
@@ -42,6 +42,7 @@ export const EmailCompositionForm = ({
         .select("*")
         .eq("status", "scheduled")
         .is("sent_at", null)
+        .not("scheduled_for", "is", null)
         .order("scheduled_for", { ascending: true });
 
       if (error) throw error;

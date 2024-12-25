@@ -641,6 +641,7 @@ export type Database = {
           email_subject: string
           id: string
           review_id: string
+          scheduled_for: string | null
           sent_at: string | null
           status: string | null
           voucher_code: string
@@ -651,6 +652,7 @@ export type Database = {
           email_subject: string
           id?: string
           review_id: string
+          scheduled_for?: string | null
           sent_at?: string | null
           status?: string | null
           voucher_code: string
@@ -661,6 +663,7 @@ export type Database = {
           email_subject?: string
           id?: string
           review_id?: string
+          scheduled_for?: string | null
           sent_at?: string | null
           status?: string | null
           voucher_code?: string
