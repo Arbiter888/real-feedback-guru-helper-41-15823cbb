@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Send, Eye, EyeOff } from "lucide-react";
 import QRCode from "qrcode";
-import { RestaurantInfo } from "@/components/demo/RestaurantInfo";
+
+interface RestaurantInfo {
+  restaurantName: string;
+  websiteUrl?: string;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  phoneNumber?: string;
+  googleMapsUrl?: string;
+}
 
 interface EmailPreviewCardProps {
   email: {
@@ -12,57 +20,49 @@ interface EmailPreviewCardProps {
     voucher_details: any;
   };
   onSendEmail: () => void;
-  restaurantInfo: {
-    restaurantName: string;
-    websiteUrl?: string;
-    facebookUrl?: string;
-    instagramUrl?: string;
-    phoneNumber?: string;
-    googleMapsUrl?: string;
-  };
+  restaurantInfo: RestaurantInfo;
 }
 
 export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPreviewCardProps) => {
   const [showPreview, setShowPreview] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
-  const generateQRCode = async () => {
-    if (email.voucher_details?.code) {
-      try {
-        const qrDataUrl = await QRCode.toDataURL(email.voucher_details.code, {
-          width: 200,
-          margin: 2,
-          color: {
-            dark: "#000000",
-            light: "#FFFFFF",
-          },
-        });
-        setQrCodeUrl(qrDataUrl);
-      } catch (error) {
-        console.error('Error generating QR code:', error);
+  useEffect(() => {
+    const generateQRCode = async () => {
+      if (email.voucher_details?.code) {
+        try {
+          const qrDataUrl = await QRCode.toDataURL(email.voucher_details.code, {
+            width: 200,
+            margin: 2,
+            color: {
+              dark: "#000000",
+              light: "#FFFFFF",
+            },
+          });
+          setQrCodeUrl(qrDataUrl);
+        } catch (error) {
+          console.error('Error generating QR code:', error);
+        }
       }
-    }
-  };
+    };
 
-  // Generate QR code when voucher details are available
-  useState(() => {
     generateQRCode();
   }, [email.voucher_details?.code]);
 
   const renderEmailFooter = () => (
     <div style={{ marginTop: '30px', padding: '20px 0', borderTop: '1px solid #eee' }}>
       <h2 style={{ fontSize: '24px', marginBottom: '16px', color: '#333' }}>
-        {restaurantInfo.restaurantName}
+        {restaurantInfo?.restaurantName || 'Our Restaurant'}
       </h2>
       <div style={{ marginBottom: '20px' }}>
-        {restaurantInfo.phoneNumber && (
+        {restaurantInfo?.phoneNumber && (
           <p style={{ margin: '8px 0' }}>
             <a href={`tel:${restaurantInfo.phoneNumber}`} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
               📞 {restaurantInfo.phoneNumber}
             </a>
           </p>
         )}
-        {restaurantInfo.googleMapsUrl && (
+        {restaurantInfo?.googleMapsUrl && (
           <p style={{ margin: '8px 0' }}>
             <a href={restaurantInfo.googleMapsUrl} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
               📍 Find us on Google Maps
@@ -71,17 +71,17 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
         )}
       </div>
       <div style={{ marginTop: '16px' }}>
-        {restaurantInfo.websiteUrl && (
+        {restaurantInfo?.websiteUrl && (
           <a href={restaurantInfo.websiteUrl} style={{ color: '#E94E87', textDecoration: 'none', marginRight: '16px', fontWeight: 500 }}>
             🌐 Visit our Website
           </a>
         )}
-        {restaurantInfo.facebookUrl && (
+        {restaurantInfo?.facebookUrl && (
           <a href={restaurantInfo.facebookUrl} style={{ color: '#E94E87', textDecoration: 'none', marginRight: '16px', fontWeight: 500 }}>
             👥 Follow us on Facebook
           </a>
         )}
-        {restaurantInfo.instagramUrl && (
+        {restaurantInfo?.instagramUrl && (
           <a href={restaurantInfo.instagramUrl} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
             📸 Follow us on Instagram
           </a>

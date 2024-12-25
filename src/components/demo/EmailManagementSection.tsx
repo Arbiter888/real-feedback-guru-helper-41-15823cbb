@@ -151,7 +151,7 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
 
       {/* Follow-up Emails Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <FollowUpEmailsSection />
+        <FollowUpEmailsSection restaurantInfo={restaurantInfo} />
       </div>
 
       {/* Email Database Section */}
