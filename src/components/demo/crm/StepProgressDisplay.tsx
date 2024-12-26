@@ -24,9 +24,9 @@ export const StepProgressDisplay = ({ steps, timestamps }: StepProgressDisplayPr
   ];
 
   return (
-    <div className="space-y-2">
-      <h4 className="font-medium text-sm text-gray-700">Review Progress</h4>
-      <div className="space-y-1">
+    <div className="bg-slate-50 p-4 rounded-lg">
+      <h4 className="font-medium text-sm mb-3">Review Progress</h4>
+      <div className="grid gap-2">
         {stepsList.map((step) => (
           <div key={step.key} className="flex items-center gap-2 text-sm">
             {steps[step.key as keyof typeof steps] ? (
@@ -38,8 +38,8 @@ export const StepProgressDisplay = ({ steps, timestamps }: StepProgressDisplayPr
               {step.label}
             </span>
             {step.timestamp && (
-              <span className="text-xs text-gray-500">
-                ({new Date(step.timestamp).toLocaleString()})
+              <span className="text-xs text-gray-500 ml-auto">
+                {new Date(step.timestamp).toLocaleString()}
               </span>
             )}
           </div>
