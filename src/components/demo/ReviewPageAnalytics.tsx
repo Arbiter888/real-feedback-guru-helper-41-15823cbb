@@ -4,7 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { MetricsOverview } from "./analytics/MetricsOverview";
 import { ReviewsTable } from "./analytics/ReviewsTable";
 import { AnalyticsChart } from "./analytics/AnalyticsChart";
-import { Json } from "@/integrations/supabase/types";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
 
 interface AnalyticsData {
   page_views: number;
@@ -18,17 +20,15 @@ interface AnalyticsData {
   last_viewed_at: string | null;
 }
 
-interface ReceiptData {
-  total_amount: number;
-  items: Array<{ name: string; price: number }>;
-}
-
 interface Review {
   id: string;
   review_text: string;
   created_at: string;
   refined_review?: string | null;
-  receipt_data?: ReceiptData | null;
+  receipt_data?: {
+    total_amount: number;
+    items: Array<{ name: string; price: number }>;
+  } | null;
   business_name: string;
   photo_url: string | null;
   server_name: string | null;
@@ -52,11 +52,13 @@ const defaultAnalytics: AnalyticsData = {
 export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) => {
   const [analytics, setAnalytics] = useState<AnalyticsData>(defaultAnalytics);
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       if (!reviewPageId) {
-        setAnalytics(defaultAnalytics);
+        setError("No review page ID provided");
         return;
       }
 
@@ -69,11 +71,12 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
           .maybeSingle();
 
         if (analyticsError) {
-          console.error('Error fetching analytics:', analyticsError);
-          return;
+          throw analyticsError;
         }
 
-        setAnalytics(analyticsData || defaultAnalytics);
+        if (analyticsData) {
+          setAnalytics(analyticsData);
+        }
 
         // Fetch reviews data
         const { data: reviewsData, error: reviewsError } = await supabase
@@ -83,45 +86,26 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
           .order('created_at', { ascending: false });
 
         if (reviewsError) {
-          console.error('Error fetching reviews:', reviewsError);
-          return;
+          throw reviewsError;
         }
 
-        // Parse receipt_data JSON for each review with proper type checking
-        const parsedReviews = (reviewsData || []).map(review => {
-          let parsedReceiptData: ReceiptData | null = null;
-          
-          if (review.receipt_data) {
-            // Type guard to ensure receipt_data has the correct structure
-            const receiptJson = review.receipt_data as { total_amount: number; items: Array<{ name: string; price: number }> };
-            if (
-              typeof receiptJson.total_amount === 'number' &&
-              Array.isArray(receiptJson.items) &&
-              receiptJson.items.every(item => 
-                typeof item.name === 'string' && 
-                typeof item.price === 'number'
-              )
-            ) {
-              parsedReceiptData = receiptJson;
-            }
-          }
-
-          return {
-            ...review,
-            receipt_data: parsedReceiptData
-          };
-        });
-
-        setReviews(parsedReviews);
+        setReviews(reviewsData || []);
+        setError(null);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Error fetching analytics:', error);
+        setError("Failed to load analytics data");
+        toast({
+          title: "Error loading analytics",
+          description: "Please try refreshing the page",
+          variant: "destructive",
+        });
       }
     };
 
     fetchAnalytics();
 
-    // Set up real-time subscription
-    const channel = supabase
+    // Set up real-time subscription for analytics updates
+    const analyticsChannel = supabase
       .channel('analytics_changes')
       .on(
         'postgres_changes',
@@ -140,10 +124,41 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
       )
       .subscribe();
 
+    // Set up real-time subscription for new reviews
+    const reviewsChannel = supabase
+      .channel('reviews_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'reviews',
+          filter: `review_page_id=eq.${reviewPageId}`,
+        },
+        (payload) => {
+          console.log('New review received:', payload);
+          if (payload.new) {
+            setReviews(prev => [payload.new as Review, ...prev]);
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(analyticsChannel);
+      supabase.removeChannel(reviewsChannel);
     };
-  }, [reviewPageId]);
+  }, [reviewPageId, toast]);
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <Card className="p-6">

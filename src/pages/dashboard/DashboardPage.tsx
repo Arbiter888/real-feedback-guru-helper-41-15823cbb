@@ -50,12 +50,18 @@ export default function DashboardPage() {
 
     // Load saved preferences if they exist
     const savedInfo = localStorage.getItem('restaurantInfo');
+    const savedReviewPageId = localStorage.getItem('reviewPageId');
+    
     if (savedInfo) {
       const parsed = JSON.parse(savedInfo);
       setRestaurantInfo(prev => ({
         ...prev,
         ...parsed
       }));
+    }
+    
+    if (savedReviewPageId) {
+      setReviewPageId(savedReviewPageId);
     }
   }, [user, navigate]);
 
@@ -119,9 +125,11 @@ export default function DashboardPage() {
           <CustomerCRMSection restaurantInfo={restaurantInfo} />
 
           {/* Analytics Section */}
-          <div className="bg-white rounded-xl shadow-lg">
-            <ReviewPageAnalytics reviewPageId={reviewPageId || ''} />
-          </div>
+          {reviewPageId && (
+            <div className="bg-white rounded-xl shadow-lg">
+              <ReviewPageAnalytics reviewPageId={reviewPageId} />
+            </div>
+          )}
         </div>
       </div>
     </div>
