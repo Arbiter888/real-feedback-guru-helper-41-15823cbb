@@ -16,20 +16,22 @@ export const RewardsSection = ({
   customRestaurantName 
 }: RewardsSectionProps) => {
   return (
-    <div className="space-y-8">
+    <section className="space-y-6">
       <GeneratedReward rewardCode={rewardCode} />
 
-      <div className="bg-gradient-to-br from-pink-50/80 via-white/50 to-pink-50/80 backdrop-blur-sm rounded-3xl p-8 border border-pink-100/20 shadow-xl">
-        <EmailCapture 
-          rewardCode={rewardCode} 
-          customGoogleMapsUrl={customGoogleMapsUrl}
-          customRestaurantName={customRestaurantName}
-        />
-        <RewardsList 
-          hasUploadedReceipt={hasUploadedReceipt}
-          customRestaurantName={customRestaurantName}
-        />
+      <div className="rounded-2xl overflow-hidden">
+        <div className="bg-gradient-to-br from-pink-50 via-white to-pink-50 p-4 sm:p-6">
+          <EmailCapture 
+            rewardCode={rewardCode} 
+            customGoogleMapsUrl={customGoogleMapsUrl}
+            customRestaurantName={customRestaurantName}
+          />
+          <RewardsList 
+            hasUploadedReceipt={hasUploadedReceipt}
+            customRestaurantName={customRestaurantName}
+          />
+        </div>
       </div>
-    </div>
+    </section>
   );
 };

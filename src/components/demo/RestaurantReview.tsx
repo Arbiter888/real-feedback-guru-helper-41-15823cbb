@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { RestaurantHeader } from "./RestaurantHeader";
 import { ReviewSection } from "./ReviewSection";
 import { supabase } from "@/integrations/supabase/client";
@@ -50,13 +49,9 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
     loadRestaurantReviewPage();
   }, [slug, navigate]);
 
-  const handleTakeAiSurvey = () => {
-    setShowAiSurvey(true);
-  };
-
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-[50vh]">
         <div className="animate-pulse text-gray-500">Loading...</div>
       </div>
     );
@@ -67,26 +62,21 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex-grow">
-        <Card className="max-w-2xl mx-auto">
-          <CardContent className="p-6">
-            <RestaurantHeader
-              name={preferences.restaurant_name}
-              isCustomDemo={true}
-            />
-            <ReviewSection 
-              customRestaurantName={preferences.restaurant_name}
-              customGoogleMapsUrl={preferences.google_maps_url}
-              hidePreferences={true}
-              onTakeAiSurvey={handleTakeAiSurvey}
-            />
-          </CardContent>
-        </Card>
+    <main className="min-h-screen flex flex-col bg-gray-50">
+      <div className="container max-w-2xl mx-auto px-4 py-6 flex-grow">
+        <RestaurantHeader
+          name={preferences.restaurant_name}
+          isCustomDemo={true}
+        />
+        <ReviewSection 
+          customRestaurantName={preferences.restaurant_name}
+          customGoogleMapsUrl={preferences.google_maps_url}
+          hidePreferences={true}
+          onTakeAiSurvey={() => setShowAiSurvey(true)}
+        />
       </div>
-      
       <AiSurveyWidget show={showAiSurvey} />
       <Footer />
-    </div>
+    </main>
   );
 };
