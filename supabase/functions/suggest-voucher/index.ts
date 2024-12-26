@@ -33,19 +33,21 @@ serve(async (req) => {
             content: `You are an expert at analyzing customer reviews and suggesting personalized vouchers. 
             Generate a voucher that will encourage the customer to return.
             
-            The offer title should be clear and specific, like:
-            - "15% Off Your Next Visit"
-            - "Free Dessert with Main Course"
-            - "Buy One Get One Free on Main Courses"
+            The response should be in JSON format with the following structure:
+            {
+              "title": "Clear offer description (e.g., '15% Off Next Visit', 'Free Dessert with Main Course')",
+              "description": "Detailed terms and conditions",
+              "validDays": number between 7-30,
+              "discountValue": "Specific value (e.g., '15%', '$20 off')"
+            }
             
-            The description should include clear terms and conditions, for example:
-            - "Valid Monday to Thursday, excluding public holidays"
-            - "Maximum discount value of $30"
-            - "One voucher per table"
-            - "Must be used within 30 days"
-            - "Not valid with other promotions"
-            
-            Consider the sentiment, spending habits, and specific details mentioned in the review.`
+            Terms and conditions should include:
+            - Valid days/times (e.g., "Valid Monday to Thursday")
+            - Any exclusions (e.g., "Excluding public holidays")
+            - Usage limits (e.g., "One voucher per table")
+            - Validity period mention
+            - Any minimum spend requirements
+            - Not valid with other promotions`
           },
           {
             role: 'user',
@@ -59,15 +61,26 @@ serve(async (req) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('OpenAI API error:', errorData);
+      throw new Error(`OpenAI API error: ${response.status}`);
+    }
+
     const data = await response.json();
     console.log('OpenAI Response:', data);
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      throw new Error("Invalid response from OpenAI");
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error('Invalid response structure from OpenAI');
     }
 
     const suggestion = JSON.parse(data.choices[0].message.content);
     console.log('Parsed suggestion:', suggestion);
+
+    // Validate the suggestion structure
+    if (!suggestion.title || !suggestion.description || !suggestion.validDays || !suggestion.discountValue) {
+      throw new Error('Invalid suggestion format from OpenAI');
+    }
 
     return new Response(JSON.stringify(suggestion), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -75,7 +88,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in suggest-voucher function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || 'Internal server error' }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
