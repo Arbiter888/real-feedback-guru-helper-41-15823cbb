@@ -4,7 +4,6 @@ import { Download, ChevronDown, ChevronUp, Mail, Loader2, MessageSquare, Receipt
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Customer, CustomerMetadata } from "@/types/customer";
-import { MetadataDisplay } from "./table/MetadataDisplay";
 
 interface CustomerListProps {
   customers: Customer[];
