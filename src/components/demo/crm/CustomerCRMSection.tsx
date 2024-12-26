@@ -41,7 +41,9 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
 
   const handleGenerateFollowUp = async (customerId: string) => {
     const customer = customers?.find(c => c.id === customerId);
-    const metadata = customer?.metadata as CustomerMetadata;
+    if (!customer) return;
+    
+    const metadata = customer.metadata as CustomerMetadata;
     
     if (!metadata?.initial_review) {
       toast({
@@ -56,7 +58,7 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { 
           reviewText: metadata.initial_review,
-          customerName: `${customer.first_name} ${customer.last_name}`,
+          customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
           receiptData: metadata.receipt_data,
           serverName: metadata.server_name
         },
