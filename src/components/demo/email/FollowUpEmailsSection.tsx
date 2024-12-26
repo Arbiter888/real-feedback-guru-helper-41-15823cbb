@@ -34,7 +34,20 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         .limit(5);
 
       if (error) throw error;
-      return data;
+
+      // Transform the receipt_data to ensure it matches the expected type
+      return data.map(review => ({
+        ...review,
+        receipt_data: review.receipt_data ? {
+          total_amount: review.receipt_data.total_amount || 0,
+          items: Array.isArray(review.receipt_data.items) 
+            ? review.receipt_data.items.map((item: any) => ({
+                name: item.name || '',
+                price: item.price || 0
+              }))
+            : []
+        } : undefined
+      }));
     },
   });
 
@@ -129,7 +142,6 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
               review={review}
               onGenerateFollowUp={handleGenerateFollowUp}
               isGenerating={generatingReviewId === review.id}
-              selectedReviewId={selectedReviewId}
               onTogglePreview={() => toggleEmailPreview(review.id)}
               showPreview={visibleEmailPreviews.has(review.id)}
             />
