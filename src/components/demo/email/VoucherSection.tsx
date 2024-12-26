@@ -48,7 +48,12 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
   const generateSuggestion = async () => {
     setIsGeneratingSuggestion(true);
     try {
-      const { data, error } = await supabase.functions.invoke('suggest-voucher');
+      const { data, error } = await supabase.functions.invoke('suggest-voucher', {
+        body: {
+          customerName: "Customer", // You can customize this if you have customer info
+          reviewText: "Positive review", // You can pass actual review text if available
+        }
+      });
       
       if (error) throw error;
 
@@ -59,7 +64,7 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
         title: "Suggestion generated",
         description: "AI has suggested a new voucher offer.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Suggestion error:', error);
       toast({
         title: "Generation failed",
@@ -73,7 +78,27 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
 
   return (
     <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
-      <h3 className="font-semibold text-lg">Voucher Details</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-lg">Voucher Details</h3>
+        <Button
+          onClick={generateSuggestion}
+          variant="outline"
+          size="sm"
+          disabled={isGeneratingSuggestion}
+        >
+          {isGeneratingSuggestion ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Suggesting...
+            </>
+          ) : (
+            <>
+              <Wand2 className="mr-2 h-4 w-4" />
+              AI Suggest
+            </>
+          )}
+        </Button>
+      </div>
       
       <div className="space-y-2">
         <Label htmlFor="offerTitle">Offer Title</Label>
@@ -105,32 +130,13 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
         </div>
       )}
 
-      <div className="flex gap-2">
-        <Button 
-          onClick={generateVoucher}
-          className="flex-1"
-          disabled={!offerTitle || !offerDescription}
-        >
-          Generate Voucher
-        </Button>
-        <Button
-          onClick={generateSuggestion}
-          variant="outline"
-          disabled={isGeneratingSuggestion}
-        >
-          {isGeneratingSuggestion ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Suggesting...
-            </>
-          ) : (
-            <>
-              <Wand2 className="mr-2 h-4 w-4" />
-              AI Suggest
-            </>
-          )}
-        </Button>
-      </div>
+      <Button 
+        onClick={generateVoucher}
+        className="w-full"
+        disabled={!offerTitle || !offerDescription}
+      >
+        Generate Voucher
+      </Button>
     </div>
   );
 };
