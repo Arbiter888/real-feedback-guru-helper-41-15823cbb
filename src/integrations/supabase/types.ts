@@ -314,6 +314,42 @@ export type Database = {
         }
         Relationships: []
       }
+      email_provider_connections: {
+        Row: {
+          access_token: string
+          created_at: string
+          email: string
+          expires_at: string | null
+          id: string
+          provider: string
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string
+          email: string
+          expires_at?: string | null
+          id?: string
+          provider: string
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string
+          email?: string
+          expires_at?: string | null
+          id?: string
+          provider?: string
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       follow_up_emails: {
         Row: {
           created_at: string

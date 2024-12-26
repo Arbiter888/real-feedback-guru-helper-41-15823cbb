@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
+import { EmailProviderConnection } from "./email/EmailProviderConnection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -78,8 +79,33 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
     await sendEmailMutation.mutateAsync({ subject, content });
   };
 
+  // Helper function to normalize URLs
+  function normalizeUrl(url: string): string {
+    if (!url) return '';
+    
+    try {
+      // Remove any trailing colons that might be causing issues
+      url = url.replace(/:+$/, '');
+      
+      // If the URL doesn't start with http:// or https://, add https://
+      if (!url.match(/^https?:\/\//i)) {
+        url = 'https://' + url;
+      }
+      
+      // Create URL object to validate and normalize
+      const urlObject = new URL(url);
+      return urlObject.toString();
+    } catch (error) {
+      console.warn('Invalid URL:', url);
+      return '';
+    }
+  }
+
   return (
     <div className="space-y-8">
+      {/* Email Provider Connection Section */}
+      <EmailProviderConnection />
+
       {/* Email Composition Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-6">Send Email Campaign</h2>
@@ -91,25 +117,3 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
     </div>
   );
 };
-
-// Helper function to normalize URLs
-function normalizeUrl(url: string): string {
-  if (!url) return '';
-  
-  try {
-    // Remove any trailing colons that might be causing issues
-    url = url.replace(/:+$/, '');
-    
-    // If the URL doesn't start with http:// or https://, add https://
-    if (!url.match(/^https?:\/\//i)) {
-      url = 'https://' + url;
-    }
-    
-    // Create URL object to validate and normalize
-    const urlObject = new URL(url);
-    return urlObject.toString();
-  } catch (error) {
-    console.warn('Invalid URL:', url);
-    return '';
-  }
-}
