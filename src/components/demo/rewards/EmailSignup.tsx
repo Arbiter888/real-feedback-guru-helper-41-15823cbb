@@ -34,27 +34,29 @@ export const EmailSignup = ({
 
     setIsLoading(true);
     try {
-      // Get the review data from localStorage
       const reviewDataString = localStorage.getItem('reviewData');
-      console.log('Raw review data:', reviewDataString); // Debug log
+      console.log('Raw review data:', reviewDataString);
 
       if (!reviewDataString) {
         throw new Error('No review data found');
       }
 
       const reviewInfo = JSON.parse(reviewDataString);
-      console.log('Parsed review info:', reviewInfo); // Debug log
+      console.log('Parsed review info:', reviewInfo);
 
       const { reviewText, refinedReview, analysisResult, serverName } = reviewInfo;
 
-      // Check if reviewText exists and is not empty after trimming
-      if (!reviewText?.trim()) {
+      // Check if either the initial review or refined review exists
+      if (!reviewText?.trim() && !refinedReview?.trim()) {
         throw new Error('Please complete your review before signing up');
       }
 
+      // Use refined review if available, otherwise use initial review
+      const finalReviewText = refinedReview?.trim() || reviewText?.trim();
+
       // Format the metadata according to our ReviewMetadata type
       const metadata: ReviewMetadata = {
-        initial_review: reviewText.trim(),
+        initial_review: reviewText?.trim() || null,
         refined_review: refinedReview?.trim() || null,
         receipt_analysis: analysisResult ? {
           total_amount: analysisResult.total_amount || 0,
@@ -98,7 +100,7 @@ export const EmailSignup = ({
       const { error: reviewError } = await supabase
         .from('reviews')
         .insert({
-          review_text: reviewText.trim(),
+          review_text: finalReviewText,
           refined_review: refinedReview?.trim() || '',
           receipt_data: analysisResult || null,
           server_name: serverName?.trim() || null,
