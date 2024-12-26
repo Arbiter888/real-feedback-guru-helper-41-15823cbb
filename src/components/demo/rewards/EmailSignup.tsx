@@ -35,22 +35,27 @@ export const EmailSignup = ({
     setIsLoading(true);
     try {
       // Get the review data from localStorage
-      const reviewData = localStorage.getItem('reviewData');
-      if (!reviewData) {
+      const reviewDataString = localStorage.getItem('reviewData');
+      console.log('Raw review data:', reviewDataString); // Debug log
+
+      if (!reviewDataString) {
         throw new Error('No review data found');
       }
 
-      const reviewInfo = JSON.parse(reviewData);
+      const reviewInfo = JSON.parse(reviewDataString);
+      console.log('Parsed review info:', reviewInfo); // Debug log
+
       const { reviewText, refinedReview, analysisResult, serverName } = reviewInfo;
 
-      if (!reviewText) {
+      // Check if reviewText exists and is not empty after trimming
+      if (!reviewText?.trim()) {
         throw new Error('Please complete your review before signing up');
       }
 
       // Format the metadata according to our ReviewMetadata type
       const metadata: ReviewMetadata = {
-        initial_review: reviewText,
-        refined_review: refinedReview || null,
+        initial_review: reviewText.trim(),
+        refined_review: refinedReview?.trim() || null,
         receipt_analysis: analysisResult ? {
           total_amount: analysisResult.total_amount || 0,
           items: analysisResult.items?.map((item: any) => ({
@@ -58,7 +63,7 @@ export const EmailSignup = ({
             price: Number(item.price || 0)
           })) || []
         } : null,
-        server_name: serverName || null,
+        server_name: serverName?.trim() || null,
         reward_code: rewardCode || null,
         google_maps_url: customGoogleMapsUrl || null,
         restaurant_name: customRestaurantName || null,
@@ -93,10 +98,10 @@ export const EmailSignup = ({
       const { error: reviewError } = await supabase
         .from('reviews')
         .insert({
-          review_text: reviewText,
-          refined_review: refinedReview || '',
+          review_text: reviewText.trim(),
+          refined_review: refinedReview?.trim() || '',
           receipt_data: analysisResult || null,
-          server_name: serverName || null,
+          server_name: serverName?.trim() || null,
           business_name: customRestaurantName || "The Local Kitchen & Bar",
           unique_code: rewardCode || '',
           status: 'submitted'
