@@ -88,16 +88,44 @@ export const EmailSignup = ({
       // Convert ReviewMetadata to Json type before inserting
       const jsonMetadata = metadata as unknown as Json;
 
-      // Add the email to the list with review data in metadata
-      const { error: contactError } = await supabase
+      // Check if email already exists in the list
+      const { data: existingContact } = await supabase
         .from('email_contacts')
-        .insert({
-          list_id: listData,
-          email: email,
-          metadata: jsonMetadata
-        });
+        .select('id')
+        .eq('list_id', listData)
+        .eq('email', email)
+        .single();
 
-      if (contactError) throw contactError;
+      if (existingContact) {
+        // Update existing contact with new review data
+        const { error: updateError } = await supabase
+          .from('email_contacts')
+          .update({ metadata: jsonMetadata })
+          .eq('id', existingContact.id);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Review Updated",
+          description: "Your review has been updated successfully.",
+        });
+      } else {
+        // Add new email contact
+        const { error: contactError } = await supabase
+          .from('email_contacts')
+          .insert({
+            list_id: listData,
+            email: email,
+            metadata: jsonMetadata
+          });
+
+        if (contactError) throw contactError;
+
+        toast({
+          title: "Success!",
+          description: "Thank you for signing up! Your review has been submitted.",
+        });
+      }
 
       // Create a review entry that will show up in the Latest Reviews section
       const { error: reviewError } = await supabase
@@ -113,11 +141,6 @@ export const EmailSignup = ({
         });
 
       if (reviewError) throw reviewError;
-
-      toast({
-        title: "Success!",
-        description: "Thank you for signing up! Your review has been submitted.",
-      });
 
       // Clear the form
       setEmail("");
