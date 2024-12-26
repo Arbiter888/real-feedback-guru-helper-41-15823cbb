@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CustomerList } from "./CustomerList";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { Customer, CustomerMetadata } from "@/types/customer";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -34,13 +35,15 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
         .order("created_at", { ascending: false });
 
       if (emailError) throw emailError;
-      return emailContacts;
+      return emailContacts as Customer[];
     },
   });
 
   const handleGenerateFollowUp = async (customerId: string) => {
     const customer = customers?.find(c => c.id === customerId);
-    if (!customer?.metadata?.initial_review) {
+    const metadata = customer?.metadata as CustomerMetadata;
+    
+    if (!metadata?.initial_review) {
       toast({
         title: "Cannot generate follow-up",
         description: "No review data available for this customer.",
@@ -52,10 +55,10 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
     try {
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { 
-          reviewText: customer.metadata.initial_review,
-          customerName: `${customer.firstName} ${customer.lastName}`,
-          receiptData: customer.metadata.receipt_data,
-          serverName: customer.metadata.server_name
+          reviewText: metadata.initial_review,
+          customerName: `${customer.first_name} ${customer.last_name}`,
+          receiptData: metadata.receipt_data,
+          serverName: metadata.server_name
         },
       });
 
