@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Gift, Mail } from "lucide-react";
-import { useEffect, useState } from "react";
-import { constructEmailBody, getEmailSubject } from "@/utils/emailUtils";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface EmailSignupProps {
   rewardCode: string | null;
@@ -15,50 +16,58 @@ export const EmailSignup = ({
   customRestaurantName 
 }: EmailSignupProps) => {
   const [restaurantName, setRestaurantName] = useState(customRestaurantName || "The Local Kitchen & Bar");
-  const [googleMapsUrl, setGoogleMapsUrl] = useState(customGoogleMapsUrl || "https://maps.app.goo.gl/Nx23mQHet4TBfctJ6");
-  const [contactEmail, setContactEmail] = useState("");
-  const [selectedServer, setSelectedServer] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
-    
-    if (savedRestaurantInfo) {
-      const { 
-        restaurantName: savedRestaurantName,
-        googleMapsUrl: savedGoogleMapsUrl,
-        contactEmail: savedContactEmail,
-        selectedServer: savedServer
-      } = JSON.parse(savedRestaurantInfo);
-      
-      if (!customRestaurantName) setRestaurantName(savedRestaurantName);
-      if (!customGoogleMapsUrl) setGoogleMapsUrl(savedGoogleMapsUrl);
-      if (savedContactEmail) setContactEmail(savedContactEmail);
-      if (savedServer) setSelectedServer(savedServer);
+  const handleEmailSignup = async () => {
+    setIsLoading(true);
+    try {
+      // First, get or create the restaurant's email list
+      const { data: listData, error: listError } = await supabase
+        .rpc('get_or_create_restaurant_email_list', {
+          restaurant_name: restaurantName
+        });
+
+      if (listError) throw listError;
+
+      // Get the email from localStorage (saved during review submission)
+      const reviewData = localStorage.getItem('reviewData');
+      const email = reviewData ? JSON.parse(reviewData).email : null;
+
+      if (!email) {
+        toast({
+          title: "Error",
+          description: "No email found. Please try submitting your review again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Add the email to the list
+      const { error: contactError } = await supabase
+        .from('email_contacts')
+        .insert({
+          list_id: listData,
+          email: email
+        });
+
+      if (contactError) throw contactError;
+
+      toast({
+        title: "Success!",
+        description: "You've been added to the mailing list.",
+      });
+
+    } catch (error: any) {
+      console.error('Error signing up for email:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to sign up for the mailing list. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, [customRestaurantName, customGoogleMapsUrl]);
-
-  const handleEmailClick = () => {
-    const analysisResult = localStorage.getItem('receiptAnalysis');
-    const reviewText = localStorage.getItem('reviewText');
-    const refinedReview = localStorage.getItem('refinedReview');
-    
-    const recipients = ['rewards@eatup.co'];
-    if (contactEmail) {
-      recipients.push(contactEmail);
-    }
-
-    const emailBody = constructEmailBody(
-      restaurantName,
-      googleMapsUrl,
-      rewardCode,
-      reviewText || undefined,
-      refinedReview || undefined,
-      analysisResult,
-      selectedServer
-    );
-    
-    const mailtoLink = `mailto:${recipients.join(',')}?subject=${encodeURIComponent(getEmailSubject(restaurantName))}&body=${encodeURIComponent(emailBody)}`;
-    window.location.href = mailtoLink;
   };
 
   return (
@@ -75,11 +84,12 @@ export const EmailSignup = ({
           Sign up to our mailing list and EatUP! rewards to receive exclusive offers and updates
         </p>
         <Button 
-          onClick={handleEmailClick}
+          onClick={handleEmailSignup}
+          disabled={isLoading}
           className="w-full h-12 px-8 bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] hover:opacity-90 text-white rounded-xl text-lg font-semibold flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
         >
           <Mail className="h-5 w-5" />
-          <span>Sign Up to Our Mailing List</span>
+          <span>{isLoading ? "Signing up..." : "Sign Up to Our Mailing List"}</span>
         </Button>
       </div>
     </div>

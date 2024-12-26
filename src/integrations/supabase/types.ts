@@ -935,6 +935,12 @@ export type Database = {
         }
         Returns: string
       }
+      get_or_create_restaurant_email_list: {
+        Args: {
+          restaurant_name: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       audit_status: "pending" | "in_progress" | "completed" | "cancelled"
