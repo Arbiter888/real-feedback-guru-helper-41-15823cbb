@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { CustomerList } from "./CustomerList";
-import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Customer, CustomerMetadata } from "@/types/customer";
+import { Card } from "@/components/ui/card";
+import { CustomerList } from "./CustomerList";
+import { EmailPreviewCard } from "../email/EmailPreviewCard";
+import { Customer } from "@/types/customer";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -24,6 +25,7 @@ interface CustomerCRMSectionProps {
 
 export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [generatedEmail, setGeneratedEmail] = useState<any>(null);
   const { toast } = useToast();
 
   const { data: customers, isLoading } = useQuery({
@@ -43,7 +45,7 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
     const customer = customers?.find(c => c.id === customerId);
     if (!customer) return;
     
-    const metadata = customer.metadata as CustomerMetadata;
+    const metadata = customer.metadata as any;
     
     if (!metadata?.initial_review) {
       toast({
@@ -74,16 +76,17 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
       });
 
       if (error) throw error;
-
+      
+      setGeneratedEmail(data);
       toast({
-        title: "Follow-up email generated",
-        description: "The follow-up email has been scheduled.",
+        title: "Email generated",
+        description: "The thank you email has been generated.",
       });
     } catch (error) {
       console.error("Error generating follow-up:", error);
       toast({
         title: "Generation failed",
-        description: "Failed to generate follow-up email.",
+        description: "Failed to generate thank you email.",
         variant: "destructive",
       });
     }
@@ -96,10 +99,24 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold">Customer Database</h2>
             <p className="text-sm text-muted-foreground">
-              View customer history and generate personalized follow-ups
+              View customer history and generate personalized thank you emails
             </p>
           </div>
         </div>
+
+        {generatedEmail && (
+          <EmailPreviewCard
+            email={generatedEmail}
+            onSendEmail={() => {
+              toast({
+                title: "Email scheduled",
+                description: "The thank you email has been scheduled to be sent.",
+              });
+              setGeneratedEmail(null);
+            }}
+            restaurantInfo={restaurantInfo}
+          />
+        )}
 
         <CustomerList
           customers={customers || []}

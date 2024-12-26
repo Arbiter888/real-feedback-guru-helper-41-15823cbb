@@ -1,10 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatDistanceToNow, parseISO } from "date-fns";
-import { Mail, Star, Loader2, MessageSquare, Receipt, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Download, ChevronDown, ChevronUp, Mail, Loader2, MessageSquare, Receipt, Bot } from "lucide-react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { StepProgressDisplay } from "./StepProgressDisplay";
 import { Customer, CustomerMetadata } from "@/types/customer";
+import { MetadataDisplay } from "./table/MetadataDisplay";
 
 interface CustomerListProps {
   customers: Customer[];
@@ -21,6 +21,18 @@ export const CustomerList = ({
   selectedCustomerId,
   onGenerateFollowUp
 }: CustomerListProps) => {
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+
+  const toggleRow = (id: string) => {
+    const newExpandedRows = new Set(expandedRows);
+    if (newExpandedRows.has(id)) {
+      newExpandedRows.delete(id);
+    } else {
+      newExpandedRows.add(id);
+    }
+    setExpandedRows(newExpandedRows);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -31,8 +43,8 @@ export const CustomerList = ({
 
   const formatDate = (dateString: string) => {
     try {
-      const date = parseISO(dateString);
-      return formatDistanceToNow(date, { addSuffix: true });
+      const date = new Date(dateString);
+      return date.toLocaleDateString();
     } catch (error) {
       console.error("Error formatting date:", error);
       return "Invalid date";
@@ -75,7 +87,7 @@ export const CustomerList = ({
                   size="sm"
                 >
                   <Mail className="mr-2 h-4 w-4" />
-                  Generate Follow-up
+                  Generate Thank You Email
                 </Button>
               </div>
 
@@ -124,22 +136,6 @@ export const CustomerList = ({
                       <p className="text-sm">{metadata.refined_review}</p>
                     </div>
                   )}
-
-                  {/* Progress Steps */}
-                  <StepProgressDisplay 
-                    steps={metadata.review_steps_completed || {
-                      initial_thoughts: false,
-                      receipt_uploaded: false,
-                      review_enhanced: false,
-                      copied_to_google: false
-                    }}
-                    timestamps={{
-                      initial_thoughts: metadata.review_steps_completed?.initial_thoughts_at,
-                      receipt_uploaded: metadata.review_steps_completed?.receipt_uploaded_at,
-                      review_enhanced: metadata.review_steps_completed?.review_enhanced_at,
-                      review_copied: metadata.review_steps_completed?.copied_to_google_at
-                    }}
-                  />
                 </div>
               )}
             </div>
