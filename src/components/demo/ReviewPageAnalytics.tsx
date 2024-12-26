@@ -7,6 +7,9 @@ import { AnalyticsChart } from "./analytics/AnalyticsChart";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
+import { Database } from "@/integrations/supabase/types";
+
+type ReviewFromDB = Database['public']['Tables']['reviews']['Row'];
 
 interface AnalyticsData {
   page_views: number;
@@ -49,6 +52,41 @@ const defaultAnalytics: AnalyticsData = {
   last_viewed_at: null,
 };
 
+const transformReview = (review: ReviewFromDB): Review => {
+  let parsedReceiptData = null;
+  if (review.receipt_data) {
+    try {
+      // Ensure the receipt_data matches our expected format
+      const data = review.receipt_data as any;
+      if (data.total_amount && Array.isArray(data.items)) {
+        parsedReceiptData = {
+          total_amount: Number(data.total_amount),
+          items: data.items.map((item: any) => ({
+            name: String(item.name),
+            price: Number(item.price)
+          }))
+        };
+      }
+    } catch (error) {
+      console.error('Error parsing receipt data:', error);
+    }
+  }
+
+  return {
+    id: review.id,
+    review_text: review.review_text,
+    created_at: review.created_at,
+    refined_review: review.refined_review,
+    receipt_data: parsedReceiptData,
+    business_name: review.business_name,
+    photo_url: review.photo_url,
+    server_name: review.server_name,
+    status: review.status,
+    unique_code: review.unique_code,
+    review_page_id: review.review_page_id,
+  };
+};
+
 export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) => {
   const [analytics, setAnalytics] = useState<AnalyticsData>(defaultAnalytics);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -89,7 +127,9 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
           throw reviewsError;
         }
 
-        setReviews(reviewsData || []);
+        // Transform the reviews data to match our expected format
+        const transformedReviews = (reviewsData || []).map(transformReview);
+        setReviews(transformedReviews);
         setError(null);
       } catch (error) {
         console.error('Error fetching analytics:', error);
@@ -138,7 +178,8 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
         (payload) => {
           console.log('New review received:', payload);
           if (payload.new) {
-            setReviews(prev => [payload.new as Review, ...prev]);
+            const transformedReview = transformReview(payload.new as ReviewFromDB);
+            setReviews(prev => [transformedReview, ...prev]);
           }
         }
       )
