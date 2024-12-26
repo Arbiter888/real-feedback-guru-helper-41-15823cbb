@@ -25,6 +25,16 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
 
   const sendEmailMutation = useMutation({
     mutationFn: async (params: { subject: string; content: string }) => {
+      // Normalize URLs before sending
+      const normalizedRestaurantInfo = {
+        ...restaurantInfo,
+        websiteUrl: normalizeUrl(restaurantInfo.websiteUrl),
+        googleMapsUrl: normalizeUrl(restaurantInfo.googleMapsUrl),
+        facebookUrl: normalizeUrl(restaurantInfo.facebookUrl),
+        instagramUrl: normalizeUrl(restaurantInfo.instagramUrl),
+        bookingUrl: normalizeUrl(restaurantInfo.bookingUrl),
+      };
+
       const { data: lists } = await supabase
         .from("email_lists")
         .select("id")
@@ -39,7 +49,7 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
           listId: lists[0].id,
           subject: params.subject,
           htmlContent: params.content,
-          restaurantInfo: restaurantInfo,
+          restaurantInfo: normalizedRestaurantInfo,
         },
       });
 
@@ -81,3 +91,25 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
     </div>
   );
 };
+
+// Helper function to normalize URLs
+function normalizeUrl(url: string): string {
+  if (!url) return '';
+  
+  try {
+    // Remove any trailing colons that might be causing issues
+    url = url.replace(/:+$/, '');
+    
+    // If the URL doesn't start with http:// or https://, add https://
+    if (!url.match(/^https?:\/\//i)) {
+      url = 'https://' + url;
+    }
+    
+    // Create URL object to validate and normalize
+    const urlObject = new URL(url);
+    return urlObject.toString();
+  } catch (error) {
+    console.warn('Invalid URL:', url);
+    return '';
+  }
+}
