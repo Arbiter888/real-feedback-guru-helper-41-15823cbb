@@ -11,6 +11,8 @@ interface PDFGeneratorProps {
 
 export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorProps) => {
   const { toast } = useToast();
+  const EATUP_PINK = '#E94E87';
+  const EATUP_DARK = '#221F26';
 
   const downloadPDF = async () => {
     try {
@@ -30,61 +32,78 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         format: "a4",
       });
 
-      // Add gradient background
-      pdf.setFillColor(155, 135, 245); // Primary Purple
-      pdf.rect(0, 0, 210, 40, 'F');
-      pdf.setFillColor(217, 70, 239); // Magenta Pink
-      pdf.rect(0, 40, 210, 10, 'F');
+      // Add EatUP! logo
+      const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
+      pdf.addImage(logoUrl, 'PNG', 20, 20, 60, 20);
 
-      // Add "EatUP!" text in header
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(32);
-      pdf.setFont("helvetica", "bold");
-      pdf.text("EatUP!", 20, 25);
+      // Add decorative header bar
+      pdf.setFillColor(EATUP_PINK);
+      pdf.rect(0, 50, 210, 2, 'F');
 
-      // Add tagline
-      pdf.setFontSize(16);
-      pdf.text("Collect Reviews. Reward Customers.", 20, 35);
-
-      // Main heading with restaurant name
-      pdf.setTextColor(51, 51, 51);
+      // Restaurant name
+      pdf.setTextColor(EATUP_DARK);
       pdf.setFontSize(24);
       pdf.setFont("helvetica", "bold");
-      pdf.text(`Review ${restaurantName}`, 20, 70);
-      pdf.text("and get Rewarded!", 20, 80);
+      pdf.text(restaurantName, 20, 70);
+
+      // Subtitle
+      pdf.setFontSize(16);
+      pdf.setFont("helvetica", "normal");
+      pdf.text("Share Your Experience & Join Our Rewards Program", 20, 80);
+
+      // QR Code section with white background and border
+      pdf.setFillColor(255, 255, 255);
+      pdf.setDrawColor(EATUP_PINK);
+      pdf.roundedRect(20, 90, 90, 90, 3, 3, 'FD');
+      pdf.addImage(qrCodeUrl, "PNG", 25, 95, 80, 80);
 
       // Instructions section
       pdf.setFontSize(14);
-      pdf.setFont("helvetica", "normal");
-      pdf.text("Simply follow these steps:", 20, 100);
-      
-      // Steps with consistent spacing
+      pdf.setFont("helvetica", "bold");
+      pdf.text("How it works:", 120, 100);
+
+      // Steps with icons
       const steps = [
-        "1. Scan the QR code below",
-        "2. Share some positive words",
-        "3. Add a photo of your receipt",
-        "4. Share your review on Google",
-        "5. Sign up to get your tailored voucher for your next visit"
+        "📱 Scan the QR code",
+        "⭐ Share your experience",
+        "🧾 Add your receipt photo",
+        "💌 Join our rewards program"
       ];
 
       steps.forEach((step, index) => {
-        pdf.text(step, 25, 115 + (index * 10));
+        pdf.setFont("helvetica", "normal");
+        pdf.text(step, 120, 120 + (index * 10));
       });
 
-      // Add QR code with white background
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(20, 170, 80, 80, 'F');
-      pdf.addImage(qrCodeUrl, "PNG", 20, 170, 80, 80);
+      // Your EatUP! Journey section
+      pdf.setFillColor(248, 250, 252); // Light gray background
+      pdf.rect(20, 190, 170, 50, 'F');
+      
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(16);
+      pdf.text("Your EatUP! Journey", 30, 205);
 
-      // Add URL below QR code
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(12);
+      const journeyText = [
+        "• Share your dining experience today",
+        "• Receive a personalized thank you email with a special voucher",
+        "• Get exclusive weekly offers and rewards"
+      ];
+
+      journeyText.forEach((text, index) => {
+        pdf.text(text, 30, 220 + (index * 8));
+      });
+
+      // URL at the bottom
       pdf.setFontSize(10);
-      pdf.setTextColor(217, 70, 239); // Magenta Pink
-      pdf.text(url, 20, 260);
+      pdf.setTextColor(EATUP_PINK);
+      pdf.text(url, 20, 270);
 
-      // Add footer
+      // Footer
       pdf.setFontSize(8);
       pdf.setTextColor(128, 128, 128);
-      pdf.text("Powered by EatUP - The smart way to collect customer feedback", 20, 285);
+      pdf.text("Powered by EatUP! - The smart way to earn rewards", 20, 280);
 
       // Save the PDF
       pdf.save(`${restaurantName}-review-qr-code.pdf`);
