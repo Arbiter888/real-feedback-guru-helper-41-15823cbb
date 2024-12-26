@@ -21,13 +21,13 @@ export const EmailSignupForm = ({
       <div className="flex items-center justify-center gap-3">
         <Gift className="h-8 w-8 text-[#E94E87]" />
         <h3 className="font-bold text-2xl bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] text-transparent bg-clip-text">
-          Join Our Mailing List! 🎁
+          Join Our EatUP! Rewards Program! 🎁
         </h3>
       </div>
 
       <div className="space-y-6">
         <p className="text-center text-gray-600 text-lg">
-          Sign up to our mailing list and EatUP! rewards to receive exclusive offers and updates
+          Get personalized vouchers and exclusive weekly offers straight to your inbox
         </p>
         
         <div className="space-y-4">
@@ -50,12 +50,12 @@ export const EmailSignupForm = ({
             {isLoading ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                <span>Signing up...</span>
+                <span>Joining rewards program...</span>
               </>
             ) : (
               <>
-                <Mail className="h-5 w-5" />
-                <span>Sign Up to Our Mailing List</span>
+                <Gift className="h-5 w-5" />
+                <span>Join EatUP! Rewards</span>
               </>
             )}
           </Button>

@@ -15,8 +15,11 @@ export const RestaurantHeader = ({ name, isCustomDemo = false }: RestaurantHeade
           className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-full"
         />
         <h1 className="text-2xl md:text-4xl font-bold text-primary text-center">
-          Leave a Review for {name}
+          Join {name}'s EatUP! Rewards
         </h1>
+        <p className="text-muted-foreground text-center max-w-lg">
+          Share your experience and unlock personalized rewards plus exclusive weekly offers
+        </p>
       </div>
     );
   }
@@ -33,10 +36,10 @@ export const RestaurantHeader = ({ name, isCustomDemo = false }: RestaurantHeade
           Try EatUP! For Your Restaurant
         </h1>
         <p className="text-sm md:text-base text-muted-foreground mb-2">
-          See How EatUP! Works for Your Restaurant
+          Turn Reviews into a Thriving Loyalty Program
         </p>
         <p className="text-sm text-muted-foreground max-w-lg">
-          Customize the demo with your restaurant's name and Google Maps link to experience the process as your customers would. Watch how they write reviews, upload receipts for rewards, and share their feedback. EatUP! boosts positive reviews, encourages loyalty, and drives repeat visits with AI-powered tools.
+          See how EatUP! helps you collect reviews, build your mailing list, and keep customers coming back with AI-powered personalized rewards and weekly promotional campaigns.
         </p>
       </div>
     </div>
