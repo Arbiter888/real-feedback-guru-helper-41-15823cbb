@@ -1,4 +1,4 @@
-import { ReviewMetadata, isReceiptAnalysis } from "@/types/email";
+import { ReviewMetadata, isReceiptData } from "@/types/email";
 import { MessageSquare, Receipt, Bot } from "lucide-react";
 
 interface MetadataDisplayProps {
@@ -19,7 +19,7 @@ export const MetadataDisplay = ({ metadata, formatCurrency }: MetadataDisplayPro
         </div>
       )}
 
-      {metadata.receipt_analysis && isReceiptAnalysis(metadata.receipt_analysis) && (
+      {metadata.receipt_analysis && isReceiptData(metadata.receipt_analysis) && (
         <div className="bg-slate-50 p-4 rounded-lg">
           <div className="flex items-center gap-2 mb-2">
             <Receipt className="h-4 w-4 text-primary" />
