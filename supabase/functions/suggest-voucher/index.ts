@@ -14,6 +14,8 @@ serve(async (req) => {
   }
 
   try {
+    const { reviewText, refinedReview, receiptData, customerName } = await req.json();
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -21,15 +23,26 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
-            content: 'You are a marketing expert specializing in restaurant promotions and vouchers. Generate creative and enticing restaurant offers.'
+            content: `You are a marketing expert specializing in restaurant promotions and vouchers. 
+            Analyze customer data to generate personalized voucher suggestions that will encourage return visits.
+            Consider their spending habits, food preferences, and review sentiment.`
           },
           {
             role: 'user',
-            content: 'Generate a restaurant voucher offer with a title and description. Return it in JSON format with "title" and "description" fields.'
+            content: `Generate a personalized voucher suggestion for ${customerName}.
+            Their review: "${reviewText}"
+            ${refinedReview ? `Enhanced review: "${refinedReview}"` : ''}
+            ${receiptData ? `They spent $${receiptData.total_amount} and ordered: ${receiptData.items.map((item: any) => item.name).join(', ')}.` : ''}
+            
+            Return a JSON object with:
+            - title: catchy voucher title
+            - description: brief description of the offer
+            - validDays: number of days the voucher should be valid (between 7-30)
+            - discountValue: suggested discount (e.g., "15% off", "$10 off")`
           }
         ],
         response_format: { type: "json_object" }

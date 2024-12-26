@@ -41,7 +41,7 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
     },
   });
 
-  const handleGenerateFollowUp = async (customerId: string) => {
+  const handleGenerateFollowUp = async (customerId: string, voucherDetails?: any) => {
     const customer = customers?.find(c => c.id === customerId);
     if (!customer) return;
     
@@ -64,6 +64,7 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
           receiptData: metadata.receipt_data,
           serverName: metadata.server_name,
           customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+          voucherDetails,
           restaurantInfo: {
             restaurantName: restaurantInfo.restaurantName,
             websiteUrl: restaurantInfo.websiteUrl,
