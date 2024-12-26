@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Gift, Mail } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,43 +16,52 @@ export const EmailSignup = ({
   customGoogleMapsUrl,
   customRestaurantName 
 }: EmailSignupProps) => {
-  const [restaurantName, setRestaurantName] = useState(customRestaurantName || "The Local Kitchen & Bar");
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const handleEmailSignup = async () => {
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email address to sign up.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
+      // Get the review data from localStorage
+      const reviewData = localStorage.getItem('reviewData');
+      const reviewInfo = reviewData ? JSON.parse(reviewData) : {};
+
       // First, get or create the restaurant's email list
       const { data: listData, error: listError } = await supabase
         .rpc('get_or_create_restaurant_email_list', {
-          restaurant_name: restaurantName
+          restaurant_name: customRestaurantName || "The Local Kitchen & Bar"
         });
 
       if (listError) throw listError;
-
-      // Get the email from localStorage (saved during review submission)
-      const reviewData = localStorage.getItem('reviewData');
-      const email = reviewData ? JSON.parse(reviewData).email : null;
-
-      if (!email) {
-        toast({
-          title: "Error",
-          description: "No email found. Please try submitting your review again.",
-          variant: "destructive",
-        });
-        return;
-      }
 
       // Add the email to the list
       const { error: contactError } = await supabase
         .from('email_contacts')
         .insert({
           list_id: listData,
-          email: email
+          email: email,
+          // Add any additional contact info if available
+          first_name: reviewInfo.firstName,
+          last_name: reviewInfo.lastName
         });
 
       if (contactError) throw contactError;
+
+      // Store the email in localStorage for future use
+      localStorage.setItem('reviewData', JSON.stringify({
+        ...reviewInfo,
+        email: email
+      }));
 
       toast({
         title: "Success!",
@@ -79,18 +89,32 @@ export const EmailSignup = ({
         </h3>
       </div>
 
-      <div>
-        <p className="text-center text-gray-600 text-lg mb-6">
+      <div className="space-y-6">
+        <p className="text-center text-gray-600 text-lg">
           Sign up to our mailing list and EatUP! rewards to receive exclusive offers and updates
         </p>
-        <Button 
-          onClick={handleEmailSignup}
-          disabled={isLoading}
-          className="w-full h-12 px-8 bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] hover:opacity-90 text-white rounded-xl text-lg font-semibold flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
-        >
-          <Mail className="h-5 w-5" />
-          <span>{isLoading ? "Signing up..." : "Sign Up to Our Mailing List"}</span>
-        </Button>
+        
+        <div className="space-y-4">
+          <div className="relative">
+            <Input
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="pl-10"
+            />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          </div>
+
+          <Button 
+            onClick={handleEmailSignup}
+            disabled={isLoading || !email}
+            className="w-full h-12 px-8 bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] hover:opacity-90 text-white rounded-xl text-lg font-semibold flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
+          >
+            <Mail className="h-5 w-5" />
+            <span>{isLoading ? "Signing up..." : "Sign Up to Our Mailing List"}</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
