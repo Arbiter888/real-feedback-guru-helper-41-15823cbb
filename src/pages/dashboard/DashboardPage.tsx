@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +10,7 @@ import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
 import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 import { CustomerCRMSection } from "@/components/demo/crm/CustomerCRMSection";
 import { RestaurantInfoSection } from "./sections/RestaurantInfoSection";
+import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -112,6 +111,9 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
+
+          {/* Email Management Section */}
+          <EmailManagementSection restaurantInfo={restaurantInfo} />
 
           {/* Customer CRM Section */}
           <CustomerCRMSection restaurantInfo={restaurantInfo} />
