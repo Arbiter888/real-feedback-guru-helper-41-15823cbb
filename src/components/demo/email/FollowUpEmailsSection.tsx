@@ -14,6 +14,25 @@ interface RestaurantInfo {
   googleMapsUrl?: string;
 }
 
+interface ReceiptItem {
+  name: string;
+  price: number;
+}
+
+interface ReceiptData {
+  total_amount: number;
+  items: ReceiptItem[];
+}
+
+interface Review {
+  id: string;
+  review_text: string;
+  server_name: string | null;
+  created_at: string;
+  receipt_data: ReceiptData | null;
+  refined_review?: string;
+}
+
 interface FollowUpEmailsSectionProps {
   restaurantInfo: RestaurantInfo;
 }
@@ -35,19 +54,21 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
 
       if (error) throw error;
 
-      // Transform the receipt_data to ensure it matches the expected type
-      return data.map(review => ({
+      // Transform and type-check the receipt_data
+      return (data as any[]).map(review => ({
         ...review,
         receipt_data: review.receipt_data ? {
-          total_amount: review.receipt_data.total_amount || 0,
-          items: Array.isArray(review.receipt_data.items) 
+          total_amount: typeof review.receipt_data.total_amount === 'number' 
+            ? review.receipt_data.total_amount 
+            : 0,
+          items: Array.isArray(review.receipt_data.items)
             ? review.receipt_data.items.map((item: any) => ({
-                name: item.name || '',
-                price: item.price || 0
+                name: String(item.name || ''),
+                price: typeof item.price === 'number' ? item.price : 0
               }))
             : []
-        } : undefined
-      }));
+        } : null
+      })) as Review[];
     },
   });
 
