@@ -1,12 +1,13 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, parseISO } from "date-fns";
 import { Mail, Star, Loader2, MessageSquare, Receipt, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StepProgressDisplay } from "./StepProgressDisplay";
+import { Customer } from "@/types/customer";
 
 interface CustomerListProps {
-  customers: any[];
+  customers: Customer[];
   isLoading: boolean;
   onSelectCustomer: (id: string) => void;
   selectedCustomerId: string | null;
@@ -28,6 +29,16 @@ export const CustomerList = ({
     );
   }
 
+  const formatDate = (dateString: string) => {
+    try {
+      const date = parseISO(dateString);
+      return formatDistanceToNow(date, { addSuffix: true });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Invalid date";
+    }
+  };
+
   return (
     <div className="space-y-4">
       {customers.map((customer) => (
@@ -38,12 +49,12 @@ export const CustomerList = ({
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold">
-                    {customer.firstName && customer.lastName
-                      ? `${customer.firstName} ${customer.lastName}`
+                    {customer.first_name && customer.last_name
+                      ? `${customer.first_name} ${customer.last_name}`
                       : customer.email}
                   </h3>
                   <span className="text-sm text-muted-foreground">
-                    {formatDistanceToNow(new Date(customer.createdAt), { addSuffix: true })}
+                    {formatDate(customer.created_at)}
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">{customer.email}</p>
@@ -59,7 +70,7 @@ export const CustomerList = ({
             </div>
 
             {/* Review Details */}
-            {customer.metadata?.initial_review && (
+            {customer.metadata && typeof customer.metadata === 'object' && 'initial_review' in customer.metadata && (
               <div className="grid gap-4">
                 {/* Initial Review */}
                 <div className="bg-slate-50 p-4 rounded-lg">
