@@ -1,4 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { MessageSquare, Receipt, Bot } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface Review {
   id: string;
@@ -26,52 +28,75 @@ export const ReviewsTable = ({ reviews }: ReviewsTableProps) => {
     });
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
   return (
-    <div className="rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Date</TableHead>
-            <TableHead>Original Review</TableHead>
-            <TableHead>AI Enhanced Review</TableHead>
-            <TableHead>Receipt Data</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {reviews.map((review) => (
-            <TableRow key={review.id}>
-              <TableCell className="whitespace-nowrap">
-                {formatDate(review.created_at)}
-              </TableCell>
-              <TableCell className="max-w-xs truncate">
-                {review.review_text}
-              </TableCell>
-              <TableCell className="max-w-xs truncate">
-                {review.refined_review || 'Not enhanced'}
-              </TableCell>
-              <TableCell>
-                {review.receipt_data ? (
-                  <div className="text-sm">
-                    <p>Total: ${review.receipt_data.total_amount}</p>
-                    <p className="text-xs text-gray-500">
-                      {review.receipt_data.items.length} items
-                    </p>
-                  </div>
-                ) : (
-                  'No receipt'
-                )}
-              </TableCell>
-            </TableRow>
-          ))}
-          {reviews.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={4} className="text-center py-4 text-gray-500">
-                No reviews yet
-              </TableCell>
-            </TableRow>
+    <div className="space-y-6">
+      {reviews.map((review) => (
+        <Card key={review.id} className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Review from {formatDate(review.created_at)}</h3>
+          </div>
+
+          {/* Step 1: Initial Thoughts */}
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              <h4 className="font-medium">Step 1: Initial Thoughts</h4>
+            </div>
+            <div className="bg-secondary/5 rounded-lg p-4">
+              <p className="text-gray-700">{review.review_text}</p>
+            </div>
+          </div>
+
+          {/* Step 2: Receipt Analysis */}
+          {review.receipt_data && (
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Receipt className="h-5 w-5 text-primary" />
+                <h4 className="font-medium">Step 2: Receipt Analysis</h4>
+              </div>
+              <div className="bg-secondary/5 rounded-lg p-4">
+                <p className="font-medium mb-2">
+                  Total Amount: {formatCurrency(review.receipt_data.total_amount)}
+                </p>
+                <div className="space-y-1">
+                  {review.receipt_data.items.map((item, index) => (
+                    <div key={index} className="flex justify-between text-sm">
+                      <span>{item.name}</span>
+                      <span>{formatCurrency(item.price)}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
-        </TableBody>
-      </Table>
+
+          {/* Step 3: Enhanced Review */}
+          {review.refined_review && (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Bot className="h-5 w-5 text-primary" />
+                <h4 className="font-medium">Step 3: Enhanced Review</h4>
+              </div>
+              <div className="bg-secondary/5 rounded-lg p-4">
+                <p className="text-gray-700">{review.refined_review}</p>
+              </div>
+            </div>
+          )}
+        </Card>
+      ))}
+
+      {reviews.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          No reviews yet
+        </div>
+      )}
     </div>
   );
 };
