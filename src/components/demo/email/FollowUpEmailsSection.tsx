@@ -14,6 +14,20 @@ interface RestaurantInfo {
   googleMapsUrl?: string;
 }
 
+interface ReceiptData {
+  total_amount: number;
+  items: Array<{ name: string; price: number }>;
+}
+
+interface Review {
+  id: string;
+  review_text: string;
+  refined_review?: string;
+  created_at: string;
+  server_name?: string;
+  receipt_data?: ReceiptData;
+}
+
 interface FollowUpEmailsSectionProps {
   restaurantInfo: RestaurantInfo;
 }
@@ -34,7 +48,16 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         .limit(5);
 
       if (error) throw error;
-      return data;
+
+      // Transform the data to ensure it matches the Review interface
+      return data.map((review): Review => ({
+        id: review.id,
+        review_text: review.review_text,
+        refined_review: review.refined_review || undefined,
+        created_at: review.created_at,
+        server_name: review.server_name || undefined,
+        receipt_data: review.receipt_data as ReceiptData | undefined,
+      }));
     },
   });
 

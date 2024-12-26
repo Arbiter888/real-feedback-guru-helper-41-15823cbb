@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Mail, Loader2, MessageSquare, Receipt, Robot } from "lucide-react";
+import { ChevronDown, ChevronUp, Mail, Loader2, MessageSquare, Receipt, Bot } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useState } from "react";
 
@@ -101,7 +101,7 @@ export const ReviewCard = ({
             {review.refined_review && (
               <div className="bg-slate-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <Robot className="h-4 w-4 text-primary" />
+                  <Bot className="h-4 w-4 text-primary" />
                   <h4 className="font-medium">AI Enhanced Review</h4>
                 </div>
                 <p className="text-sm">{review.refined_review}</p>
