@@ -50,14 +50,34 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
       if (error) throw error;
 
       // Transform the data to ensure it matches the Review interface
-      return data.map((review): Review => ({
-        id: review.id,
-        review_text: review.review_text,
-        refined_review: review.refined_review || undefined,
-        created_at: review.created_at,
-        server_name: review.server_name || undefined,
-        receipt_data: review.receipt_data as ReceiptData | undefined,
-      }));
+      return data.map((review): Review => {
+        // Safely transform receipt_data
+        let parsedReceiptData: ReceiptData | undefined = undefined;
+        
+        if (review.receipt_data && 
+            typeof review.receipt_data === 'object' && 
+            'total_amount' in review.receipt_data && 
+            'items' in review.receipt_data) {
+          parsedReceiptData = {
+            total_amount: Number(review.receipt_data.total_amount),
+            items: Array.isArray(review.receipt_data.items) 
+              ? review.receipt_data.items.map(item => ({
+                  name: String(item.name || ''),
+                  price: Number(item.price || 0)
+                }))
+              : []
+          };
+        }
+
+        return {
+          id: review.id,
+          review_text: review.review_text,
+          refined_review: review.refined_review || undefined,
+          created_at: review.created_at,
+          server_name: review.server_name || undefined,
+          receipt_data: parsedReceiptData,
+        };
+      });
     },
   });
 
