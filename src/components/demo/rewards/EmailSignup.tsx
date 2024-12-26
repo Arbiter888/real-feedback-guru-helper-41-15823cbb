@@ -5,6 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewMetadata } from "@/types/email";
+import { Json } from "@/integrations/supabase/types";
 
 interface EmailSignupProps {
   rewardCode: string | null;
@@ -61,13 +62,16 @@ export const EmailSignup = ({
 
       if (listError) throw listError;
 
+      // Convert ReviewMetadata to Json type before inserting
+      const jsonMetadata: Json = metadata as Json;
+
       // Add the email to the list with review data in metadata
       const { error: contactError } = await supabase
         .from('email_contacts')
         .insert({
           list_id: listData,
           email: email,
-          metadata: metadata
+          metadata: jsonMetadata
         });
 
       if (contactError) throw contactError;
