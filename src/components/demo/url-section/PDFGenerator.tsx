@@ -32,9 +32,9 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         format: "a4",
       });
 
-      // Add EatUP! logo
+      // Add EatUP! logo with proper aspect ratio
       const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
-      pdf.addImage(logoUrl, 'PNG', 20, 20, 60, 20);
+      pdf.addImage(logoUrl, 'PNG', 20, 20, 40, 13.33); // Maintain 3:1 aspect ratio
 
       // Add decorative header bar
       pdf.setFillColor(EATUP_PINK);
@@ -57,26 +57,26 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.roundedRect(20, 90, 90, 90, 3, 3, 'FD');
       pdf.addImage(qrCodeUrl, "PNG", 25, 95, 80, 80);
 
-      // Instructions section
+      // Instructions section with proper font and spacing
       pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
       pdf.text("How it works:", 120, 100);
 
-      // Steps with icons
+      // Steps with proper font and spacing
+      pdf.setFont("helvetica", "normal");
       const steps = [
-        "📱 Scan the QR code",
-        "⭐ Share your experience",
-        "🧾 Add your receipt photo",
-        "💌 Join our rewards program"
+        "1. Scan the QR code",
+        "2. Share your experience",
+        "3. Add your receipt photo",
+        "4. Join our rewards program"
       ];
 
       steps.forEach((step, index) => {
-        pdf.setFont("helvetica", "normal");
-        pdf.text(step, 120, 120 + (index * 10));
+        pdf.text(step, 120, 115 + (index * 10));
       });
 
-      // Your EatUP! Journey section
-      pdf.setFillColor(248, 250, 252); // Light gray background
+      // Your EatUP! Journey section with updated content
+      pdf.setFillColor(248, 250, 252);
       pdf.rect(20, 190, 170, 50, 'F');
       
       pdf.setFont("helvetica", "bold");
@@ -86,9 +86,9 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(12);
       const journeyText = [
-        "• Share your dining experience today",
-        "• Receive a personalized thank you email with a special voucher",
-        "• Get exclusive weekly offers and rewards"
+        "• Share your dining experience from today's visit",
+        "• Receive a thank you email with a special voucher for your next visit",
+        "• Get exclusive weekly offers and rewards in your inbox"
       ];
 
       journeyText.forEach((text, index) => {
