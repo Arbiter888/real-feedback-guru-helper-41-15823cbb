@@ -35,13 +35,21 @@ export const EmailSignup = ({
     setIsLoading(true);
     try {
       // Get the review data from localStorage
-      const reviewData = localStorage.getItem('reviewData') || '{}';
+      const reviewData = localStorage.getItem('reviewData');
+      if (!reviewData) {
+        throw new Error('No review data found');
+      }
+
       const reviewInfo = JSON.parse(reviewData);
       const { reviewText, refinedReview, analysisResult, serverName } = reviewInfo;
 
+      if (!reviewText) {
+        throw new Error('Please complete your review before signing up');
+      }
+
       // Format the metadata according to our ReviewMetadata type
       const metadata: ReviewMetadata = {
-        initial_review: reviewText || null,
+        initial_review: reviewText,
         refined_review: refinedReview || null,
         receipt_analysis: analysisResult ? {
           total_amount: analysisResult.total_amount || 0,
@@ -56,6 +64,8 @@ export const EmailSignup = ({
         restaurant_name: customRestaurantName || null,
         submission_date: new Date().toISOString()
       };
+
+      console.log('Metadata being saved:', metadata);
 
       // First, get or create the restaurant's email list
       const { data: listData, error: listError } = await supabase
@@ -83,7 +93,7 @@ export const EmailSignup = ({
       const { error: reviewError } = await supabase
         .from('reviews')
         .insert({
-          review_text: reviewText || '',
+          review_text: reviewText,
           refined_review: refinedReview || '',
           receipt_data: analysisResult || null,
           server_name: serverName || null,
@@ -93,12 +103,6 @@ export const EmailSignup = ({
         });
 
       if (reviewError) throw reviewError;
-
-      // Store the email in localStorage for future use
-      localStorage.setItem('reviewData', JSON.stringify({
-        ...reviewInfo,
-        email: email
-      }));
 
       toast({
         title: "Success!",
