@@ -24,10 +24,10 @@ export const EmailProviderConnection = () => {
         .from('email_provider_connections')
         .select('provider, email')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as EmailConnection;
+      return data as EmailConnection | null;
     },
     enabled: !!user,
   });
@@ -66,6 +66,7 @@ export const EmailProviderConnection = () => {
       if (error) throw error;
       window.location.href = url;
     } catch (error: any) {
+      console.error('Google OAuth error:', error);
       toast({
         title: "Connection failed",
         description: error.message,
