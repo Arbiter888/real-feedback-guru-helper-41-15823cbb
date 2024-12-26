@@ -14,25 +14,6 @@ interface RestaurantInfo {
   googleMapsUrl?: string;
 }
 
-interface ReceiptItem {
-  name: string;
-  price: number;
-}
-
-interface ReceiptData {
-  total_amount: number;
-  items: ReceiptItem[];
-}
-
-interface Review {
-  id: string;
-  review_text: string;
-  server_name: string | null;
-  created_at: string;
-  receipt_data: ReceiptData | null;
-  refined_review?: string;
-}
-
 interface FollowUpEmailsSectionProps {
   restaurantInfo: RestaurantInfo;
 }
@@ -53,22 +34,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         .limit(5);
 
       if (error) throw error;
-
-      // Transform and type-check the receipt_data
-      return (data as any[]).map(review => ({
-        ...review,
-        receipt_data: review.receipt_data ? {
-          total_amount: typeof review.receipt_data.total_amount === 'number' 
-            ? review.receipt_data.total_amount 
-            : 0,
-          items: Array.isArray(review.receipt_data.items)
-            ? review.receipt_data.items.map((item: any) => ({
-                name: String(item.name || ''),
-                price: typeof item.price === 'number' ? item.price : 0
-              }))
-            : []
-        } : null
-      })) as Review[];
+      return data;
     },
   });
 
@@ -163,6 +129,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
               review={review}
               onGenerateFollowUp={handleGenerateFollowUp}
               isGenerating={generatingReviewId === review.id}
+              selectedReviewId={selectedReviewId}
               onTogglePreview={() => toggleEmailPreview(review.id)}
               showPreview={visibleEmailPreviews.has(review.id)}
             />
