@@ -32,7 +32,6 @@ export const EmailSignup = ({
       return;
     }
 
-    // Check if review is complete by verifying reward code exists
     if (!rewardCode) {
       toast({
         title: "Review not complete",
@@ -59,10 +58,12 @@ export const EmailSignup = ({
       // Use refined review if available, otherwise use initial review
       const finalReviewText = refinedReview?.trim() || reviewText?.trim();
 
-      // Format the metadata according to our ReviewMetadata type
+      // Enhanced metadata structure to include all review steps data
       const metadata: ReviewMetadata = {
+        // Step 1: Initial thoughts
         initial_review: reviewText?.trim() || null,
-        refined_review: refinedReview?.trim() || null,
+        
+        // Step 2: Receipt data
         receipt_analysis: analysisResult ? {
           total_amount: analysisResult.total_amount || 0,
           items: analysisResult.items?.map((item: any) => ({
@@ -70,11 +71,24 @@ export const EmailSignup = ({
             price: Number(item.price || 0)
           })) || []
         } : null,
+        
+        // Step 3: Enhanced review
+        refined_review: refinedReview?.trim() || null,
+        
+        // Additional context
         server_name: serverName?.trim() || null,
         reward_code: rewardCode,
         google_maps_url: customGoogleMapsUrl || null,
         restaurant_name: customRestaurantName || null,
-        submission_date: new Date().toISOString()
+        submission_date: new Date().toISOString(),
+        
+        // Additional review context
+        review_steps_completed: {
+          initial_thoughts: !!reviewText,
+          receipt_uploaded: !!analysisResult,
+          review_enhanced: !!refinedReview,
+          copied_to_google: true // Since rewardCode exists
+        }
       };
 
       // First, get or create the restaurant's email list

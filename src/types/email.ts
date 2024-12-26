@@ -1,17 +1,23 @@
 import { Json } from "@/integrations/supabase/types";
 
 export interface ReviewMetadata {
-  initial_review?: string;
-  refined_review?: string;
+  initial_review?: string | null;
+  refined_review?: string | null;
   receipt_analysis?: {
     total_amount: number;
     items: Array<{ name: string; price: number }>;
+  } | null;
+  server_name?: string | null;
+  reward_code?: string | null;
+  google_maps_url?: string | null;
+  restaurant_name?: string | null;
+  submission_date?: string | null;
+  review_steps_completed?: {
+    initial_thoughts: boolean;
+    receipt_uploaded: boolean;
+    review_enhanced: boolean;
+    copied_to_google: boolean;
   };
-  server_name?: string;
-  reward_code?: string;
-  google_maps_url?: string;
-  restaurant_name?: string;
-  submission_date?: string;
 }
 
 export interface EmailContact {
@@ -36,7 +42,8 @@ export const isReviewMetadata = (metadata: any): metadata is ReviewMetadata => {
       'reward_code' in metadata ||
       'google_maps_url' in metadata ||
       'restaurant_name' in metadata ||
-      'submission_date' in metadata
+      'submission_date' in metadata ||
+      'review_steps_completed' in metadata
     )
   );
 };
