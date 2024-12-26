@@ -45,7 +45,10 @@ export const EmailSignup = ({
         refined_review: refinedReview || null,
         receipt_analysis: analysisResult ? {
           total_amount: analysisResult.total_amount || 0,
-          items: analysisResult.items || []
+          items: analysisResult.items?.map((item: any) => ({
+            name: String(item.name || ''),
+            price: Number(item.price || 0)
+          })) || []
         } : null,
         server_name: serverName || null,
         reward_code: rewardCode || null,
@@ -63,7 +66,7 @@ export const EmailSignup = ({
       if (listError) throw listError;
 
       // Convert ReviewMetadata to Json type before inserting
-      const jsonMetadata: Json = metadata as Json;
+      const jsonMetadata = metadata as unknown as Json;
 
       // Add the email to the list with review data in metadata
       const { error: contactError } = await supabase
@@ -101,6 +104,9 @@ export const EmailSignup = ({
         title: "Success!",
         description: "Thank you for signing up! Your review has been submitted.",
       });
+
+      // Clear the form
+      setEmail("");
 
     } catch (error: any) {
       console.error('Error signing up:', error);
