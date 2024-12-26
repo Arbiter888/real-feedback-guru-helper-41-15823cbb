@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gift, Mail } from "lucide-react";
+import { Gift, Mail, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -33,8 +33,9 @@ export const EmailSignup = ({
     setIsLoading(true);
     try {
       // Get the review data from localStorage
-      const reviewData = localStorage.getItem('reviewData');
-      const reviewInfo = reviewData ? JSON.parse(reviewData) : {};
+      const reviewData = localStorage.getItem('reviewData') || '{}';
+      const reviewInfo = JSON.parse(reviewData);
+      const { reviewText, refinedReview, analysisResult, serverName } = reviewInfo;
 
       // First, get or create the restaurant's email list
       const { data: listData, error: listError } = await supabase
@@ -50,12 +51,24 @@ export const EmailSignup = ({
         .insert({
           list_id: listData,
           email: email,
-          // Add any additional contact info if available
-          first_name: reviewInfo.firstName,
-          last_name: reviewInfo.lastName
         });
 
       if (contactError) throw contactError;
+
+      // Create a review entry
+      const { error: reviewError } = await supabase
+        .from('reviews')
+        .insert({
+          review_text: reviewText || '',
+          refined_review: refinedReview || '',
+          receipt_data: analysisResult || null,
+          server_name: serverName || null,
+          business_name: customRestaurantName || "The Local Kitchen & Bar",
+          unique_code: rewardCode || '',
+          status: 'submitted'
+        });
+
+      if (reviewError) throw reviewError;
 
       // Store the email in localStorage for future use
       localStorage.setItem('reviewData', JSON.stringify({
@@ -65,14 +78,14 @@ export const EmailSignup = ({
 
       toast({
         title: "Success!",
-        description: "You've been added to the mailing list.",
+        description: "Thank you for signing up! Your review has been submitted.",
       });
 
     } catch (error: any) {
-      console.error('Error signing up for email:', error);
+      console.error('Error signing up:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to sign up for the mailing list. Please try again.",
+        description: error.message || "Failed to sign up. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -111,8 +124,17 @@ export const EmailSignup = ({
             disabled={isLoading || !email}
             className="w-full h-12 px-8 bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] hover:opacity-90 text-white rounded-xl text-lg font-semibold flex items-center justify-center gap-2 transform transition-all duration-300 hover:scale-[1.02]"
           >
-            <Mail className="h-5 w-5" />
-            <span>{isLoading ? "Signing up..." : "Sign Up to Our Mailing List"}</span>
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Signing up...</span>
+              </>
+            ) : (
+              <>
+                <Mail className="h-5 w-5" />
+                <span>Sign Up to Our Mailing List</span>
+              </>
+            )}
           </Button>
         </div>
       </div>
