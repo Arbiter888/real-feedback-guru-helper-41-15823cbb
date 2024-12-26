@@ -6,14 +6,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface GenerateFollowUpRequest {
+interface ReviewData {
   reviewText: string;
-  customerName: string;
+  refinedReview?: string;
   receiptData?: {
     total_amount: number;
     items: Array<{ name: string; price: number }>;
   };
   serverName?: string;
+  customerName: string;
+  restaurantInfo: {
+    restaurantName: string;
+    websiteUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    phoneNumber?: string;
+    googleMapsUrl?: string;
+  };
 }
 
 serve(async (req) => {
@@ -23,9 +32,9 @@ serve(async (req) => {
   }
 
   try {
-    const { reviewText, customerName, receiptData, serverName } = await req.json() as GenerateFollowUpRequest;
+    const { reviewText, refinedReview, receiptData, serverName, customerName, restaurantInfo } = await req.json() as ReviewData;
 
-    if (!reviewText || !customerName) {
+    if (!reviewText || !customerName || !restaurantInfo) {
       throw new Error("Missing required fields");
     }
 
@@ -43,19 +52,27 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: 'You are an expert at creating personalized follow-up emails and special offers for restaurant customers based on their reviews.'
+            content: `You are an expert at creating personalized follow-up emails for restaurant customers. 
+            Create warm, engaging content that references specific details from their visit and review.
+            The email should feel personal and genuine, maintaining a professional yet friendly tone.`
           },
           {
             role: 'user',
-            content: `Generate a follow-up email and special offer for ${customerName} who left this review: "${reviewText}". Include both a subject line and email content. Make the offer personalized based on their review.${
-              receiptData ? ` Consider that they spent $${receiptData.total_amount} on their visit.` : ''
-            }${serverName ? ` Their server was ${serverName}.` : ''}`
+            content: `Generate a follow-up email for ${customerName} who visited ${restaurantInfo.restaurantName}.
+            Their initial review: "${reviewText}"
+            ${refinedReview ? `Their enhanced review: "${refinedReview}"` : ''}
+            ${serverName ? `They were served by ${serverName}.` : ''}
+            ${receiptData ? `They spent $${receiptData.total_amount} and ordered: ${receiptData.items.map(item => item.name).join(', ')}.` : ''}
+            
+            Create both a subject line and email content. Make the content personal and reference specific details from their visit.
+            The email should thank them for their visit and review, and include a special offer based on their experience.`
           }
         ],
+        temperature: 0.7,
       }),
     });
 
@@ -64,21 +81,37 @@ serve(async (req) => {
 
     // Parse the generated content
     const subjectMatch = generatedContent.match(/Subject: (.*?)(?=\n|$)/i);
-    const emailSubject = subjectMatch ? subjectMatch[1].trim() : "Thank you for your review";
+    const emailSubject = subjectMatch ? subjectMatch[1].trim() : "Thank you for visiting us!";
     const emailContent = generatedContent.replace(/Subject: .*?\n/i, '').trim();
 
     // Generate voucher details
+    const voucherCode = `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const validDays = 30;
+    
+    // Create voucher details based on spend amount
+    let voucherTitle = "Special Thank You Offer";
+    let discountAmount = "10% off";
+    
+    if (receiptData?.total_amount) {
+      if (receiptData.total_amount >= 100) {
+        discountAmount = "20% off";
+      } else if (receiptData.total_amount >= 50) {
+        discountAmount = "15% off";
+      }
+    }
+
     const voucherDetails = {
-      code: `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-      discount: "20% off",
-      validDays: 30,
+      code: voucherCode,
+      title: voucherTitle,
+      description: `Enjoy ${discountAmount} on your next visit`,
+      validDays: validDays,
     };
 
     // Schedule the follow-up email for 24 hours from now
     const scheduledFor = new Date();
     scheduledFor.setHours(scheduledFor.getHours() + 24);
 
-    // Insert the follow-up email
+    // Insert the follow-up email with all components
     const { data: followUpEmail, error: insertError } = await supabaseClient
       .from('follow_up_emails')
       .insert({

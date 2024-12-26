@@ -58,9 +58,18 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { 
           reviewText: metadata.initial_review,
-          customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+          refinedReview: metadata.refined_review,
           receiptData: metadata.receipt_data,
-          serverName: metadata.server_name
+          serverName: metadata.server_name,
+          customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+          restaurantInfo: {
+            restaurantName: restaurantInfo.restaurantName,
+            websiteUrl: restaurantInfo.websiteUrl,
+            facebookUrl: restaurantInfo.facebookUrl,
+            instagramUrl: restaurantInfo.instagramUrl,
+            phoneNumber: restaurantInfo.phoneNumber,
+            googleMapsUrl: restaurantInfo.googleMapsUrl,
+          }
         },
       });
 
