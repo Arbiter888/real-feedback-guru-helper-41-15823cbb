@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { ReviewCard } from "./ReviewCard";
 import { EmailPreviewCard } from "./EmailPreviewCard";
+import { useEffect } from "react";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -38,7 +39,7 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
   const [visibleEmailPreviews, setVisibleEmailPreviews] = useState<Set<string>>(new Set());
 
-  const { data: reviews, isLoading: isLoadingReviews } = useQuery({
+  const { data: reviews, isLoading: isLoadingReviews, refetch: refetchReviews } = useQuery({
     queryKey: ["recentReviews"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -58,10 +59,11 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
             typeof review.receipt_data === 'object' && 
             'total_amount' in review.receipt_data && 
             'items' in review.receipt_data) {
+          const receiptData = review.receipt_data as Record<string, any>;
           parsedReceiptData = {
-            total_amount: Number(review.receipt_data.total_amount),
-            items: Array.isArray(review.receipt_data.items) 
-              ? review.receipt_data.items.map(item => ({
+            total_amount: Number(receiptData.total_amount),
+            items: Array.isArray(receiptData.items) 
+              ? receiptData.items.map((item: Record<string, any>) => ({
                   name: String(item.name || ''),
                   price: Number(item.price || 0)
                 }))
@@ -95,6 +97,33 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
     },
     enabled: !!selectedReviewId,
   });
+
+  // Set up real-time subscription for new reviews
+  useEffect(() => {
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'reviews'
+        },
+        () => {
+          // Refetch reviews when a new one is inserted
+          refetchReviews();
+          toast({
+            title: "New review received",
+            description: "A new review has been submitted.",
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refetchReviews, toast]);
 
   const handleGenerateFollowUp = async (reviewId: string) => {
     setGeneratingReviewId(reviewId);
