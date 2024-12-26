@@ -6,6 +6,10 @@ interface StepProgressDisplayProps {
     receipt_uploaded: boolean;
     review_enhanced: boolean;
     copied_to_google: boolean;
+    initial_thoughts_at?: string;
+    receipt_uploaded_at?: string;
+    review_enhanced_at?: string;
+    copied_to_google_at?: string;
   };
   timestamps?: {
     initial_thoughts?: string;
@@ -17,10 +21,26 @@ interface StepProgressDisplayProps {
 
 export const StepProgressDisplay = ({ steps, timestamps }: StepProgressDisplayProps) => {
   const stepsList = [
-    { key: 'initial_thoughts', label: 'Initial Thoughts', timestamp: timestamps?.initial_thoughts },
-    { key: 'receipt_uploaded', label: 'Receipt Upload', timestamp: timestamps?.receipt_uploaded },
-    { key: 'review_enhanced', label: 'Review Enhancement', timestamp: timestamps?.review_enhanced },
-    { key: 'copied_to_google', label: 'Copied to Google', timestamp: timestamps?.review_copied }
+    { 
+      key: 'initial_thoughts', 
+      label: 'Initial Thoughts', 
+      timestamp: steps.initial_thoughts_at || timestamps?.initial_thoughts 
+    },
+    { 
+      key: 'receipt_uploaded', 
+      label: 'Receipt Upload', 
+      timestamp: steps.receipt_uploaded_at || timestamps?.receipt_uploaded 
+    },
+    { 
+      key: 'review_enhanced', 
+      label: 'Review Enhancement', 
+      timestamp: steps.review_enhanced_at || timestamps?.review_enhanced 
+    },
+    { 
+      key: 'copied_to_google', 
+      label: 'Copied to Google', 
+      timestamp: steps.copied_to_google_at || timestamps?.review_copied 
+    }
   ];
 
   return (

@@ -17,6 +17,10 @@ export interface CustomerMetadata {
     receipt_uploaded: boolean;
     review_enhanced: boolean;
     copied_to_google: boolean;
+    initial_thoughts_at?: string;
+    receipt_uploaded_at?: string;
+    review_enhanced_at?: string;
+    copied_to_google_at?: string;
   };
 }
 
