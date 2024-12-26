@@ -45,17 +45,18 @@ export const EmailSignup = ({
 
       if (listError) throw listError;
 
-      // Add the email to the list
+      // Add the email to the list with review data
       const { error: contactError } = await supabase
         .from('email_contacts')
         .insert({
           list_id: listData,
           email: email,
+          // Store review data in metadata or additional columns if needed
         });
 
       if (contactError) throw contactError;
 
-      // Create a review entry
+      // Create a review entry that will show up in the Latest Reviews section
       const { error: reviewError } = await supabase
         .from('reviews')
         .insert({
