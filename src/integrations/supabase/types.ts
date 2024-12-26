@@ -260,6 +260,7 @@ export type Database = {
           id: string
           last_name: string | null
           list_id: string
+          metadata: Json | null
         }
         Insert: {
           created_at?: string
@@ -268,6 +269,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           list_id: string
+          metadata?: Json | null
         }
         Update: {
           created_at?: string
@@ -276,6 +278,7 @@ export type Database = {
           id?: string
           last_name?: string | null
           list_id?: string
+          metadata?: Json | null
         }
         Relationships: [
           {

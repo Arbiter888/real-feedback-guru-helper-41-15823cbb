@@ -11,6 +11,7 @@ interface Review {
     total_amount: number;
     items: Array<{ name: string; price: number }>;
   };
+  server_name?: string;
 }
 
 interface ReviewsTableProps {
@@ -40,7 +41,14 @@ export const ReviewsTable = ({ reviews }: ReviewsTableProps) => {
       {reviews.map((review) => (
         <Card key={review.id} className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Review from {formatDate(review.created_at)}</h3>
+            <h3 className="text-lg font-semibold">
+              Review from {formatDate(review.created_at)}
+              {review.server_name && (
+                <span className="ml-2 text-sm bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                  Server: {review.server_name}
+                </span>
+              )}
+            </h3>
           </div>
 
           {/* Step 1: Initial Thoughts */}

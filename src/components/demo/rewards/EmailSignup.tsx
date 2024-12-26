@@ -45,13 +45,22 @@ export const EmailSignup = ({
 
       if (listError) throw listError;
 
-      // Add the email to the list with review data
+      // Add the email to the list with review data in metadata
       const { error: contactError } = await supabase
         .from('email_contacts')
         .insert({
           list_id: listData,
           email: email,
-          // Store review data in metadata or additional columns if needed
+          metadata: {
+            initial_review: reviewText,
+            refined_review: refinedReview,
+            receipt_analysis: analysisResult,
+            server_name: serverName,
+            reward_code: rewardCode,
+            google_maps_url: customGoogleMapsUrl,
+            restaurant_name: customRestaurantName,
+            submission_date: new Date().toISOString()
+          }
         });
 
       if (contactError) throw contactError;
