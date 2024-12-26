@@ -1,12 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Mail, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Mail, Loader2, MessageSquare, Receipt, Robot } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 
 interface ReviewCardProps {
   review: {
     id: string;
     review_text: string;
+    refined_review?: string;
     created_at: string;
     server_name?: string;
     receipt_data?: {
@@ -28,6 +30,7 @@ export const ReviewCard = ({
   onTogglePreview,
   showPreview,
 }: ReviewCardProps) => {
+  const [showDetails, setShowDetails] = useState(false);
   const timeAgo = formatDistanceToNow(new Date(review.created_at), { addSuffix: true });
 
   return (
@@ -43,21 +46,67 @@ export const ReviewCard = ({
                 </span>
               )}
             </div>
-            <p className="text-sm">{review.review_text}</p>
           </div>
         </div>
 
-        {review.receipt_data && (
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <h4 className="text-sm font-medium">Receipt Details</h4>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">
-                Total Amount: ${review.receipt_data.total_amount}
-              </p>
-              <div className="text-sm text-muted-foreground">
-                {review.receipt_data.items.length} items ordered
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowDetails(!showDetails)}
+          className="w-full justify-between"
+        >
+          <span>Review Details</span>
+          {showDetails ? (
+            <ChevronUp className="h-4 w-4 ml-2" />
+          ) : (
+            <ChevronDown className="h-4 w-4 ml-2" />
+          )}
+        </Button>
+
+        {showDetails && (
+          <div className="grid gap-4 mt-4">
+            {/* Initial Thoughts Tile */}
+            <div className="bg-slate-50 p-4 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                <h4 className="font-medium">Initial Thoughts</h4>
               </div>
+              <p className="text-sm">{review.review_text}</p>
             </div>
+
+            {/* Receipt Analysis Tile */}
+            {review.receipt_data && (
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Receipt className="h-4 w-4 text-primary" />
+                  <h4 className="font-medium">Receipt Details</h4>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">
+                    Total Amount: ${review.receipt_data.total_amount}
+                  </p>
+                  <div className="space-y-1">
+                    {review.receipt_data.items.map((item, index) => (
+                      <div key={index} className="text-sm flex justify-between">
+                        <span>{item.name}</span>
+                        <span>${item.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* AI Enhanced Review Tile */}
+            {review.refined_review && (
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Robot className="h-4 w-4 text-primary" />
+                  <h4 className="font-medium">AI Enhanced Review</h4>
+                </div>
+                <p className="text-sm">{review.refined_review}</p>
+              </div>
+            )}
           </div>
         )}
 
