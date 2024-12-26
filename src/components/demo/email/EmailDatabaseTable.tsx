@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Download, ChevronDown, ChevronUp, MessageSquare, Receipt, Bot } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Json } from "@/integrations/supabase/types";
 
 interface EmailContact {
   id: string;
@@ -10,7 +11,8 @@ interface EmailContact {
   first_name: string | null;
   last_name: string | null;
   created_at: string;
-  metadata?: {
+  list_id: string;
+  metadata: {
     initial_review?: string;
     refined_review?: string;
     receipt_analysis?: {
@@ -22,7 +24,7 @@ interface EmailContact {
     google_maps_url?: string;
     restaurant_name?: string;
     submission_date?: string;
-  };
+  } | Json;
 }
 
 interface EmailDatabaseTableProps {
@@ -102,7 +104,7 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                     <TableCell colSpan={5}>
                       <Card className="p-4 space-y-4 bg-slate-50">
                         {/* Initial Thoughts */}
-                        {contact.metadata.initial_review && (
+                        {typeof contact.metadata === 'object' && 'initial_review' in contact.metadata && contact.metadata.initial_review && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <MessageSquare className="h-4 w-4 text-primary" />
@@ -113,7 +115,7 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                         )}
 
                         {/* Receipt Analysis */}
-                        {contact.metadata.receipt_analysis && (
+                        {typeof contact.metadata === 'object' && 'receipt_analysis' in contact.metadata && contact.metadata.receipt_analysis && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Receipt className="h-4 w-4 text-primary" />
@@ -136,7 +138,7 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                         )}
 
                         {/* Enhanced Review */}
-                        {contact.metadata.refined_review && (
+                        {typeof contact.metadata === 'object' && 'refined_review' in contact.metadata && contact.metadata.refined_review && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Bot className="h-4 w-4 text-primary" />
@@ -147,17 +149,19 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                         )}
 
                         {/* Additional Metadata */}
-                        <div className="text-sm text-gray-600 mt-4 pt-4 border-t">
-                          {contact.metadata.server_name && (
-                            <p>Server: {contact.metadata.server_name}</p>
-                          )}
-                          {contact.metadata.restaurant_name && (
-                            <p>Restaurant: {contact.metadata.restaurant_name}</p>
-                          )}
-                          {contact.metadata.reward_code && (
-                            <p>Reward Code: {contact.metadata.reward_code}</p>
-                          )}
-                        </div>
+                        {typeof contact.metadata === 'object' && (
+                          <div className="text-sm text-gray-600 mt-4 pt-4 border-t">
+                            {'server_name' in contact.metadata && contact.metadata.server_name && (
+                              <p>Server: {contact.metadata.server_name}</p>
+                            )}
+                            {'restaurant_name' in contact.metadata && contact.metadata.restaurant_name && (
+                              <p>Restaurant: {contact.metadata.restaurant_name}</p>
+                            )}
+                            {'reward_code' in contact.metadata && contact.metadata.reward_code && (
+                              <p>Reward Code: {contact.metadata.reward_code}</p>
+                            )}
+                          </div>
+                        )}
                       </Card>
                     </TableCell>
                   </TableRow>
