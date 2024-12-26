@@ -1,12 +1,15 @@
 import { Json } from "@/integrations/supabase/types";
 
+export interface ReceiptData {
+  total_amount: number;
+  items: Array<{ name: string; price: number }>;
+  customer_email?: string;
+}
+
 export interface ReviewMetadata {
   initial_review?: string | null;
   refined_review?: string | null;
-  receipt_analysis?: {
-    total_amount: number;
-    items: Array<{ name: string; price: number }>;
-  } | null;
+  receipt_analysis?: ReceiptData | null;
   server_name?: string | null;
   reward_code?: string | null;
   google_maps_url?: string | null;
@@ -48,7 +51,7 @@ export const isReviewMetadata = (metadata: any): metadata is ReviewMetadata => {
   );
 };
 
-export const isReceiptAnalysis = (value: any): value is { total_amount: number; items: Array<{ name: string; price: number }> } => {
+export const isReceiptData = (value: any): value is ReceiptData => {
   return (
     typeof value === 'object' &&
     value !== null &&

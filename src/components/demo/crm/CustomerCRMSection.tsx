@@ -5,6 +5,7 @@ import { CustomerList } from "./CustomerList";
 import { CustomerDetails } from "./CustomerDetails";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { isReceiptData } from "@/types/email";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -58,23 +59,15 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
       });
 
       reviews?.forEach(review => {
-        const metadata = review.receipt_data?.customer_email ? {
-          email: review.receipt_data.customer_email,
-          review: {
-            text: review.review_text,
-            refined: review.refined_review,
-            date: review.created_at
-          }
-        } : null;
-
-        if (metadata?.email) {
-          const existing = combinedCustomers.get(metadata.email);
+        if (review.receipt_data && isReceiptData(review.receipt_data) && review.receipt_data.customer_email) {
+          const email = review.receipt_data.customer_email;
+          const existing = combinedCustomers.get(email);
           if (existing) {
             existing.reviews = [...(existing.reviews || []), review];
           } else {
-            combinedCustomers.set(metadata.email, {
+            combinedCustomers.set(email, {
               id: review.id,
-              email: metadata.email,
+              email,
               reviews: [review],
               createdAt: review.created_at,
               type: 'reviewer'
