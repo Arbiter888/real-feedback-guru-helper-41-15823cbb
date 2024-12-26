@@ -31,13 +31,21 @@ serve(async (req) => {
           {
             role: 'system',
             content: `You are an expert at analyzing customer reviews and suggesting personalized vouchers. 
-            Consider the sentiment, spending habits, and specific details mentioned in the review.
-            Generate a voucher that will encourage the customer to return while addressing any specific preferences or concerns.
-            The response should be a JSON object with:
-            - title: A catchy, personalized voucher title
-            - description: Brief description of the offer
-            - validDays: Number of days the voucher should be valid (between 7-30)
-            - discountValue: Suggested discount (e.g., "15% off", "$10 off")`
+            Generate a voucher that will encourage the customer to return.
+            
+            The offer title should be clear and specific, like:
+            - "15% Off Your Next Visit"
+            - "Free Dessert with Main Course"
+            - "Buy One Get One Free on Main Courses"
+            
+            The description should include clear terms and conditions, for example:
+            - "Valid Monday to Thursday, excluding public holidays"
+            - "Maximum discount value of $30"
+            - "One voucher per table"
+            - "Must be used within 30 days"
+            - "Not valid with other promotions"
+            
+            Consider the sentiment, spending habits, and specific details mentioned in the review.`
           },
           {
             role: 'user',

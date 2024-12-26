@@ -39,7 +39,6 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [showPreview, setShowPreview] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>("");
-  const [currentImageTitle, setCurrentImageTitle] = useState<string>("");
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -118,6 +117,12 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     }
   };
 
+  const handleImageTitleChange = (index: number, title: string) => {
+    const updatedImages = [...uploadedImages];
+    updatedImages[index] = { ...updatedImages[index], title };
+    setUploadedImages(updatedImages);
+  };
+
   const handleAddImageToEmail = (index: number) => {
     if (!uploadedImages[index].title) {
       toast({
@@ -132,13 +137,10 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     updatedImages[index] = { ...updatedImages[index], added: true };
     setUploadedImages(updatedImages);
 
-    const imageHtml = `
-      <div style="text-align: center; margin: 20px 0;">
-        <img src="${uploadedImages[index].url}" alt="${uploadedImages[index].title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
-        <p style="margin: 10px 0; font-style: italic; color: #666;">${uploadedImages[index].title}</p>
-      </div>
-    `;
+    updateEmailContent();
+  };
 
+  const updateEmailContent = () => {
     const formattedContent = emailContent.split('\n').map(paragraph => 
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
     ).join('\n');
@@ -163,29 +165,10 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     setShowPreview(true);
   };
 
-  const handleImageTitleChange = (index: number, title: string) => {
-    const updatedImages = [...uploadedImages];
-    updatedImages[index] = { ...updatedImages[index], title };
-    setUploadedImages(updatedImages);
-  };
-
   const handleVoucherGenerated = (voucherHtml: string) => {
-    const baseHtml = `<div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-      ${emailContent.split('\n').map(paragraph => 
-        paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
-      ).join('\n')}
-      ${uploadedImages
-        .filter(img => img.added)
-        .map(img => `
-          <div style="text-align: center; margin: 20px 0;">
-            <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
-            <p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>
-          </div>
-        `).join('\n')}
-      ${voucherHtml}
-    </div>`;
-    
-    setHtmlContent(baseHtml);
+    updateEmailContent();
+    const updatedHtmlContent = htmlContent.replace('</div>', `${voucherHtml}</div>`);
+    setHtmlContent(updatedHtmlContent);
     setShowPreview(true);
   };
 
@@ -195,6 +178,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
         onEmailGenerated={(subject, content) => {
           setEmailSubject(subject);
           setEmailContent(content);
+          updateEmailContent();
         }}
       />
 
@@ -206,7 +190,10 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
         <EmailContent 
           emailContent={emailContent}
-          setEmailContent={setEmailContent}
+          setEmailContent={(content) => {
+            setEmailContent(content);
+            updateEmailContent();
+          }}
         />
 
         <div>
