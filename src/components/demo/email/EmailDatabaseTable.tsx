@@ -1,31 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download, ChevronDown, ChevronUp, MessageSquare, Receipt, Bot } from "lucide-react";
+import { Download, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Json } from "@/integrations/supabase/types";
-
-interface EmailContact {
-  id: string;
-  email: string;
-  first_name: string | null;
-  last_name: string | null;
-  created_at: string;
-  list_id: string;
-  metadata: {
-    initial_review?: string;
-    refined_review?: string;
-    receipt_analysis?: {
-      total_amount: number;
-      items: Array<{ name: string; price: number }>;
-    };
-    server_name?: string;
-    reward_code?: string;
-    google_maps_url?: string;
-    restaurant_name?: string;
-    submission_date?: string;
-  } | Json;
-}
+import { EmailContact, isReviewMetadata } from "@/types/email";
+import { MetadataDisplay } from "./table/MetadataDisplay";
 
 interface EmailDatabaseTableProps {
   contacts: EmailContact[];
@@ -51,20 +30,6 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
       style: 'currency',
       currency: 'USD'
     }).format(amount);
-  };
-
-  // Type guard for receipt analysis
-  const isReceiptAnalysis = (value: any): value is { total_amount: number; items: Array<{ name: string; price: number }> } => {
-    return value && 
-           typeof value === 'object' && 
-           'total_amount' in value && 
-           'items' in value &&
-           Array.isArray(value.items);
-  };
-
-  // Type guard for metadata object
-  const isMetadataObject = (value: Json): value is Record<string, unknown> => {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
   };
 
   return (
@@ -117,73 +82,11 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                   <TableRow>
                     <TableCell colSpan={5}>
                       <Card className="p-4 space-y-4 bg-slate-50">
-                        {/* Initial Thoughts */}
-                        {isMetadataObject(contact.metadata) && 
-                         'initial_review' in contact.metadata && 
-                         typeof contact.metadata.initial_review === 'string' && (
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <MessageSquare className="h-4 w-4 text-primary" />
-                              <h4 className="font-medium">Initial Thoughts</h4>
-                            </div>
-                            <p className="text-sm text-gray-700">{contact.metadata.initial_review}</p>
-                          </div>
-                        )}
-
-                        {/* Receipt Analysis */}
-                        {isMetadataObject(contact.metadata) && 
-                         'receipt_analysis' in contact.metadata && 
-                         isReceiptAnalysis(contact.metadata.receipt_analysis) && (
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <Receipt className="h-4 w-4 text-primary" />
-                              <h4 className="font-medium">Receipt Analysis</h4>
-                            </div>
-                            <div className="bg-white rounded-lg p-3">
-                              <p className="font-medium mb-2">
-                                Total Amount: {formatCurrency(contact.metadata.receipt_analysis.total_amount)}
-                              </p>
-                              <div className="space-y-1">
-                                {contact.metadata.receipt_analysis.items.map((item, index) => (
-                                  <div key={index} className="text-sm flex justify-between">
-                                    <span>{item.name}</span>
-                                    <span>{formatCurrency(item.price)}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Enhanced Review */}
-                        {isMetadataObject(contact.metadata) && 
-                         'refined_review' in contact.metadata && 
-                         typeof contact.metadata.refined_review === 'string' && (
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <Bot className="h-4 w-4 text-primary" />
-                              <h4 className="font-medium">Enhanced Review</h4>
-                            </div>
-                            <p className="text-sm text-gray-700">{contact.metadata.refined_review}</p>
-                          </div>
-                        )}
-
-                        {/* Additional Metadata */}
-                        {isMetadataObject(contact.metadata) && (
-                          <div className="text-sm text-gray-600 mt-4 pt-4 border-t">
-                            {'server_name' in contact.metadata && 
-                             typeof contact.metadata.server_name === 'string' && (
-                              <p>Server: {contact.metadata.server_name}</p>
-                            )}
-                            {'restaurant_name' in contact.metadata && 
-                             typeof contact.metadata.restaurant_name === 'string' && (
-                              <p>Restaurant: {contact.metadata.restaurant_name}</p>
-                            )}
-                            {'reward_code' in contact.metadata && 
-                             typeof contact.metadata.reward_code === 'string' && (
-                              <p>Reward Code: {contact.metadata.reward_code}</p>
-                            )}
-                          </div>
+                        {isReviewMetadata(contact.metadata) && (
+                          <MetadataDisplay 
+                            metadata={contact.metadata} 
+                            formatCurrency={formatCurrency}
+                          />
                         )}
                       </Card>
                     </TableCell>

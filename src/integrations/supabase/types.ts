@@ -949,7 +949,16 @@ export type Database = {
       audit_status: "pending" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
-      [_ in never]: never
+      review_metadata: {
+        initial_review: string | null
+        refined_review: string | null
+        receipt_analysis: Json | null
+        server_name: string | null
+        reward_code: string | null
+        google_maps_url: string | null
+        restaurant_name: string | null
+        submission_date: string | null
+      }
     }
   }
 }
