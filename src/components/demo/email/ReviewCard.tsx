@@ -33,6 +33,13 @@ export const ReviewCard = ({
   const [showDetails, setShowDetails] = useState(false);
   const timeAgo = formatDistanceToNow(new Date(review.created_at), { addSuffix: true });
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount);
+  };
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -64,32 +71,32 @@ export const ReviewCard = ({
         </Button>
 
         {showDetails && (
-          <div className="grid gap-4 mt-4">
-            {/* Initial Thoughts Tile */}
+          <div className="space-y-4">
+            {/* Step 1: Initial Thoughts */}
             <div className="bg-slate-50 p-4 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <MessageSquare className="h-4 w-4 text-primary" />
-                <h4 className="font-medium">Initial Thoughts</h4>
+                <h4 className="font-medium">Step 1: Initial Thoughts</h4>
               </div>
               <p className="text-sm">{review.review_text}</p>
             </div>
 
-            {/* Receipt Analysis Tile */}
+            {/* Step 2: Receipt Analysis */}
             {review.receipt_data && (
               <div className="bg-slate-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Receipt className="h-4 w-4 text-primary" />
-                  <h4 className="font-medium">Receipt Details</h4>
+                  <h4 className="font-medium">Step 2: Receipt Analysis</h4>
                 </div>
                 <div className="space-y-2">
                   <p className="text-sm font-medium">
-                    Total Amount: ${review.receipt_data.total_amount}
+                    Total Amount: {formatCurrency(review.receipt_data.total_amount)}
                   </p>
                   <div className="space-y-1">
                     {review.receipt_data.items.map((item, index) => (
                       <div key={index} className="text-sm flex justify-between">
                         <span>{item.name}</span>
-                        <span>${item.price}</span>
+                        <span>{formatCurrency(item.price)}</span>
                       </div>
                     ))}
                   </div>
@@ -97,12 +104,12 @@ export const ReviewCard = ({
               </div>
             )}
 
-            {/* AI Enhanced Review Tile */}
+            {/* Step 3: Enhanced Review */}
             {review.refined_review && (
               <div className="bg-slate-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Bot className="h-4 w-4 text-primary" />
-                  <h4 className="font-medium">AI Enhanced Review</h4>
+                  <h4 className="font-medium">Step 3: Enhanced Review</h4>
                 </div>
                 <p className="text-sm">{review.refined_review}</p>
               </div>
