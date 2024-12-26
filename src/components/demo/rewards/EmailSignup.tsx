@@ -32,6 +32,16 @@ export const EmailSignup = ({
       return;
     }
 
+    // Check if review is complete by verifying reward code exists
+    if (!rewardCode) {
+      toast({
+        title: "Review not complete",
+        description: "Please complete and copy your review to Google before signing up.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const reviewDataString = localStorage.getItem('reviewData');
@@ -45,11 +55,6 @@ export const EmailSignup = ({
       console.log('Parsed review info:', reviewInfo);
 
       const { reviewText, refinedReview, analysisResult, serverName } = reviewInfo;
-
-      // Check if either the initial review or refined review exists
-      if (!reviewText?.trim() && !refinedReview?.trim()) {
-        throw new Error('Please complete your review before signing up');
-      }
 
       // Use refined review if available, otherwise use initial review
       const finalReviewText = refinedReview?.trim() || reviewText?.trim();
@@ -66,13 +71,11 @@ export const EmailSignup = ({
           })) || []
         } : null,
         server_name: serverName?.trim() || null,
-        reward_code: rewardCode || null,
+        reward_code: rewardCode,
         google_maps_url: customGoogleMapsUrl || null,
         restaurant_name: customRestaurantName || null,
         submission_date: new Date().toISOString()
       };
-
-      console.log('Metadata being saved:', metadata);
 
       // First, get or create the restaurant's email list
       const { data: listData, error: listError } = await supabase
@@ -105,7 +108,7 @@ export const EmailSignup = ({
           receipt_data: analysisResult || null,
           server_name: serverName?.trim() || null,
           business_name: customRestaurantName || "The Local Kitchen & Bar",
-          unique_code: rewardCode || '',
+          unique_code: rewardCode,
           status: 'submitted'
         });
 
