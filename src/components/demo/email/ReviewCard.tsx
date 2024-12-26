@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Mail, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Mail, Loader2, MessageSquare, Receipt, Bot } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ReceiptAnalysisDisplay } from "../ReceiptAnalysisDisplay";
 
@@ -44,29 +44,34 @@ export const ReviewCard = ({
           )}
         </div>
 
-        {/* Initial Review Section */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Initial Thoughts</h4>
-          <div className="bg-secondary/5 rounded-lg p-4">
-            <p className="text-sm">{review.review_text}</p>
+        {/* Initial Thoughts Section */}
+        <div className="bg-white rounded-lg border p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            <h4 className="font-medium">Initial Thoughts</h4>
           </div>
+          <p className="text-sm text-gray-600">{review.review_text}</p>
         </div>
-
-        {/* AI Enhanced Review Section */}
-        {review.refined_review && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">AI Enhanced Review</h4>
-            <div className="bg-primary/5 rounded-lg p-4">
-              <p className="text-sm">{review.refined_review}</p>
-            </div>
-          </div>
-        )}
 
         {/* Receipt Analysis Section */}
         {review.receipt_data && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">Receipt Details</h4>
+          <div className="bg-white rounded-lg border p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Receipt className="h-5 w-5 text-primary" />
+              <h4 className="font-medium">Receipt Details</h4>
+            </div>
             <ReceiptAnalysisDisplay analysisResult={review.receipt_data} />
+          </div>
+        )}
+
+        {/* AI Enhanced Review Section */}
+        {review.refined_review && (
+          <div className="bg-white rounded-lg border p-4 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+              <Bot className="h-5 w-5 text-primary" />
+              <h4 className="font-medium">AI Enhanced Review</h4>
+            </div>
+            <p className="text-sm text-gray-600">{review.refined_review}</p>
           </div>
         )}
 
