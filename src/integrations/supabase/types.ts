@@ -781,39 +781,54 @@ export type Database = {
           business_name: string
           created_at: string
           id: string
+          initial_thoughts_completed_at: string | null
           photo_url: string | null
           receipt_data: Json | null
+          receipt_uploaded_at: string | null
           refined_review: string | null
+          review_copied_at: string | null
+          review_enhanced_at: string | null
           review_page_id: string | null
           review_text: string
           server_name: string | null
           status: string | null
+          steps_metadata: Json | null
           unique_code: string
         }
         Insert: {
           business_name: string
           created_at?: string
           id?: string
+          initial_thoughts_completed_at?: string | null
           photo_url?: string | null
           receipt_data?: Json | null
+          receipt_uploaded_at?: string | null
           refined_review?: string | null
+          review_copied_at?: string | null
+          review_enhanced_at?: string | null
           review_page_id?: string | null
           review_text: string
           server_name?: string | null
           status?: string | null
+          steps_metadata?: Json | null
           unique_code: string
         }
         Update: {
           business_name?: string
           created_at?: string
           id?: string
+          initial_thoughts_completed_at?: string | null
           photo_url?: string | null
           receipt_data?: Json | null
+          receipt_uploaded_at?: string | null
           refined_review?: string | null
+          review_copied_at?: string | null
+          review_enhanced_at?: string | null
           review_page_id?: string | null
           review_text?: string
           server_name?: string | null
           status?: string | null
+          steps_metadata?: Json | null
           unique_code?: string
         }
         Relationships: [

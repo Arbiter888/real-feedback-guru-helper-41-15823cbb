@@ -6,6 +6,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Mail, MessageSquare, Receipt } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { StepProgressDisplay } from "./StepProgressDisplay";
 
 interface CustomerDetailsProps {
   customer: any;
@@ -95,6 +96,22 @@ export const CustomerDetails = ({ customer, restaurantInfo }: CustomerDetailsPro
                     addSuffix: true,
                   })}
                 </div>
+
+                {/* Add Step Progress Display */}
+                <StepProgressDisplay 
+                  steps={review.steps_metadata?.steps || {
+                    initial_thoughts: false,
+                    receipt_uploaded: false,
+                    review_enhanced: false,
+                    copied_to_google: false
+                  }}
+                  timestamps={{
+                    initial_thoughts: review.initial_thoughts_completed_at,
+                    receipt_uploaded: review.receipt_uploaded_at,
+                    review_enhanced: review.review_enhanced_at,
+                    review_copied: review.review_copied_at
+                  }}
+                />
 
                 <div className="space-y-2">
                   <p className="font-medium">Initial Review:</p>
