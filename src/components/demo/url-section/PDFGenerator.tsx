@@ -32,9 +32,9 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         format: "a4",
       });
 
-      // Add EatUP! logo with proper dimensions
+      // Add EatUP! logo with corrected dimensions for proper aspect ratio
       const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
-      pdf.addImage(logoUrl, 'PNG', 20, 20, 60, 40); // Adjusted for proper logo proportions
+      pdf.addImage(logoUrl, 'PNG', 20, 20, 90, 30); // Adjusted width and height for proper aspect ratio
 
       // Add decorative header bar
       pdf.setFillColor(EATUP_PINK);
