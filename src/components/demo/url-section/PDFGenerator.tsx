@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { jsPDF } from "jspdf";
 import { useToast } from "@/hooks/use-toast";
-import QRCode from "qrcode";
 
 interface PDFGeneratorProps {
   url: string;
@@ -15,26 +14,16 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
   const EATUP_PINK = '#E94E87';
   const EATUP_DARK = '#221F26';
 
-  const generateQRCode = async (url: string): Promise<string> => {
-    try {
-      return await QRCode.toDataURL(url, {
-        width: 1000,
-        margin: 2,
-        color: {
-          dark: "#000000",
-          light: "#FFFFFF",
-        },
-      });
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-      throw error;
-    }
-  };
-
   const downloadPDF = async () => {
     try {
-      // Generate QR code if not already generated
-      const qrDataUrl = qrCodeUrl || await generateQRCode(url);
+      if (!qrCodeUrl) {
+        toast({
+          title: "Generate QR Code First",
+          description: "Please generate the QR code before downloading the PDF.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Create PDF with A4 dimensions (in mm)
       const pdf = new jsPDF({
@@ -43,37 +32,37 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         format: "a4",
       });
 
-      // Add EatUP! logo with proper dimensions
-      const logoUrl = '/lovable-uploads/5abedc45-81c6-4729-ac6a-e5cf72b9bbab.png';
-      pdf.addImage(logoUrl, 'PNG', 20, 20, 60, 30); // Adjusted dimensions for better aspect ratio
+      // Add EatUP! logo
+      const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
+      pdf.addImage(logoUrl, 'PNG', 20, 20, 60, 20);
 
       // Add decorative header bar
       pdf.setFillColor(EATUP_PINK);
-      pdf.rect(0, 60, 210, 2, 'F');
+      pdf.rect(0, 50, 210, 2, 'F');
 
       // Restaurant name
       pdf.setTextColor(EATUP_DARK);
       pdf.setFontSize(24);
       pdf.setFont("helvetica", "bold");
-      pdf.text(restaurantName, 20, 80);
+      pdf.text(restaurantName, 20, 70);
 
-      // Subtitle with proper spacing
+      // Subtitle
       pdf.setFontSize(16);
       pdf.setFont("helvetica", "normal");
-      pdf.text("Share Your Experience & Join Our Rewards Program", 20, 90);
+      pdf.text("Share Your Experience & Join Our Rewards Program", 20, 80);
 
       // QR Code section with white background and border
       pdf.setFillColor(255, 255, 255);
       pdf.setDrawColor(EATUP_PINK);
-      pdf.roundedRect(20, 100, 90, 90, 3, 3, 'FD');
-      pdf.addImage(qrDataUrl, "PNG", 25, 105, 80, 80);
+      pdf.roundedRect(20, 90, 90, 90, 3, 3, 'FD');
+      pdf.addImage(qrCodeUrl, "PNG", 25, 95, 80, 80);
 
-      // How it works section with proper formatting
-      pdf.setFontSize(16);
+      // Instructions section
+      pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
-      pdf.text("How it works:", 120, 110);
+      pdf.text("How it works:", 120, 100);
 
-      // Steps with consistent formatting and spacing
+      // Steps with icons
       const steps = [
         "📱 Scan the QR code",
         "⭐ Share your experience",
@@ -81,30 +70,29 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         "💌 Join our rewards program"
       ];
 
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
       steps.forEach((step, index) => {
-        pdf.text(step, 120, 130 + (index * 10));
+        pdf.setFont("helvetica", "normal");
+        pdf.text(step, 120, 120 + (index * 10));
       });
 
       // Your EatUP! Journey section
-      pdf.setFillColor(248, 250, 252);
-      pdf.rect(20, 200, 170, 50, 'F');
+      pdf.setFillColor(248, 250, 252); // Light gray background
+      pdf.rect(20, 190, 170, 50, 'F');
       
       pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(14);
-      pdf.text("Today's Visit", 30, 215);
+      pdf.setFontSize(16);
+      pdf.text("Your EatUP! Journey", 30, 205);
 
       pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(11);
+      pdf.setFontSize(12);
       const journeyText = [
-        "• Share your dining experience",
-        "• Receive a thank you email with a special voucher for your next visit",
+        "• Share your dining experience today",
+        "• Receive a personalized thank you email with a special voucher",
         "• Get exclusive weekly offers and rewards"
       ];
 
       journeyText.forEach((text, index) => {
-        pdf.text(text, 30, 230 + (index * 7));
+        pdf.text(text, 30, 220 + (index * 8));
       });
 
       // URL at the bottom
@@ -128,7 +116,7 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       console.error('Error generating PDF:', error);
       toast({
         title: "Error",
-        description: "Failed to generate PDF. Please try again.",
+        description: "Failed to generate PDF.",
         variant: "destructive",
       });
     }
