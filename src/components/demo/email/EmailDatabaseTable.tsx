@@ -53,6 +53,20 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
     }).format(amount);
   };
 
+  // Type guard for receipt analysis
+  const isReceiptAnalysis = (value: any): value is { total_amount: number; items: Array<{ name: string; price: number }> } => {
+    return value && 
+           typeof value === 'object' && 
+           'total_amount' in value && 
+           'items' in value &&
+           Array.isArray(value.items);
+  };
+
+  // Type guard for metadata object
+  const isMetadataObject = (value: Json): value is Record<string, unknown> => {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -104,7 +118,9 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                     <TableCell colSpan={5}>
                       <Card className="p-4 space-y-4 bg-slate-50">
                         {/* Initial Thoughts */}
-                        {typeof contact.metadata === 'object' && 'initial_review' in contact.metadata && contact.metadata.initial_review && (
+                        {isMetadataObject(contact.metadata) && 
+                         'initial_review' in contact.metadata && 
+                         typeof contact.metadata.initial_review === 'string' && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <MessageSquare className="h-4 w-4 text-primary" />
@@ -115,7 +131,9 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                         )}
 
                         {/* Receipt Analysis */}
-                        {typeof contact.metadata === 'object' && 'receipt_analysis' in contact.metadata && contact.metadata.receipt_analysis && (
+                        {isMetadataObject(contact.metadata) && 
+                         'receipt_analysis' in contact.metadata && 
+                         isReceiptAnalysis(contact.metadata.receipt_analysis) && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Receipt className="h-4 w-4 text-primary" />
@@ -138,7 +156,9 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                         )}
 
                         {/* Enhanced Review */}
-                        {typeof contact.metadata === 'object' && 'refined_review' in contact.metadata && contact.metadata.refined_review && (
+                        {isMetadataObject(contact.metadata) && 
+                         'refined_review' in contact.metadata && 
+                         typeof contact.metadata.refined_review === 'string' && (
                           <div>
                             <div className="flex items-center gap-2 mb-2">
                               <Bot className="h-4 w-4 text-primary" />
@@ -149,15 +169,18 @@ export const EmailDatabaseTable = ({ contacts, onExport, isExporting }: EmailDat
                         )}
 
                         {/* Additional Metadata */}
-                        {typeof contact.metadata === 'object' && (
+                        {isMetadataObject(contact.metadata) && (
                           <div className="text-sm text-gray-600 mt-4 pt-4 border-t">
-                            {'server_name' in contact.metadata && contact.metadata.server_name && (
+                            {'server_name' in contact.metadata && 
+                             typeof contact.metadata.server_name === 'string' && (
                               <p>Server: {contact.metadata.server_name}</p>
                             )}
-                            {'restaurant_name' in contact.metadata && contact.metadata.restaurant_name && (
+                            {'restaurant_name' in contact.metadata && 
+                             typeof contact.metadata.restaurant_name === 'string' && (
                               <p>Restaurant: {contact.metadata.restaurant_name}</p>
                             )}
-                            {'reward_code' in contact.metadata && contact.metadata.reward_code && (
+                            {'reward_code' in contact.metadata && 
+                             typeof contact.metadata.reward_code === 'string' && (
                               <p>Reward Code: {contact.metadata.reward_code}</p>
                             )}
                           </div>
