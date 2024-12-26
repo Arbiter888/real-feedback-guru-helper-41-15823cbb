@@ -32,31 +32,32 @@ export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: Rev
 
   return (
     <div className="relative">
-      <div className="md:sticky md:top-24 space-y-4 md:space-y-6 bg-white/80 backdrop-blur-sm p-6 md:p-8 rounded-xl shadow-lg border border-pink-100">
+      <div className="md:sticky md:top-24 space-y-4 md:space-y-6 bg-gradient-to-b from-white via-pink-50 to-pink-100/20 p-6 md:p-8 rounded-xl shadow-lg border border-pink-200">
         <div className="text-center space-y-3 md:space-y-4">
-          <div className="bg-primary/10 p-3 rounded-full w-fit mx-auto">
-            <Building2 className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+          <div className="bg-primary p-3 rounded-full w-fit mx-auto">
+            <Building2 className="h-6 w-6 md:h-8 md:w-8 text-white" />
           </div>
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-            Create Your Review Page
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Create Your Review Collection Page
           </h2>
-          <p className="text-sm md:text-base text-gray-600">
-            Get started with your own personalized review collection page. Perfect for restaurants looking to gather authentic customer feedback.
+          <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto">
+            Generate a professional PDF with QR code that you can display at your payment counter. 
+            Make it easy for customers to share their experience and get rewarded.
           </p>
-          <div className="space-y-4 text-left border-t border-gray-100 pt-4 mt-4">
+          <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
             <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
             <ol className="space-y-3 text-sm text-gray-600">
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">1.</span>
-                A custom-branded review collection page for your restaurant
+                A beautifully designed review collection page
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">2.</span>
-                Your own eatup.co URL to share with customers
+                Professional PDF with QR code for your counter
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">3.</span>
-                Preview of how your review system will work
+                Automated reward system for customer reviews
               </li>
             </ol>
           </div>

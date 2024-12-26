@@ -40,37 +40,35 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.setFont("helvetica", "bold");
       pdf.text("EatUp", 20, 28);
 
-      // Add tagline
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(14);
-      pdf.setFont("helvetica", "normal");
-      pdf.text("Share your dining experience", 90, 28);
-
-      // Restaurant name
+      // Main heading with restaurant name
       pdf.setTextColor(51, 51, 51);
       pdf.setFontSize(24);
       pdf.setFont("helvetica", "bold");
-      pdf.text(restaurantName, 20, 60);
+      pdf.text(`Review ${restaurantName}`, 20, 60);
+      pdf.text("and get Rewarded!", 20, 70);
 
-      // Main call to action
-      pdf.setFontSize(16);
+      // Instructions
+      pdf.setFontSize(14);
       pdf.setFont("helvetica", "normal");
-      pdf.text("Scan to share your experience", 20, 75);
+      pdf.text("Simply follow these steps:", 20, 85);
       
-      // Subtitle
+      // Steps
       pdf.setFontSize(12);
-      pdf.setTextColor(102, 102, 102);
-      pdf.text("Your feedback helps us serve you better!", 20, 82);
+      pdf.text("1. Scan the QR code below", 25, 95);
+      pdf.text("2. Share some positive words", 25, 105);
+      pdf.text("3. Add a photo of your receipt", 25, 115);
+      pdf.text("4. Share your review on Google", 25, 125);
+      pdf.text("5. Sign up to get your tailored voucher for your next visit", 25, 135);
 
       // Add QR code with white background
       pdf.setFillColor(255, 255, 255);
-      pdf.rect(20, 90, 80, 80, 'F');
-      pdf.addImage(qrCodeUrl, "PNG", 20, 90, 80, 80);
+      pdf.rect(20, 145, 80, 80, 'F');
+      pdf.addImage(qrCodeUrl, "PNG", 20, 145, 80, 80);
 
       // Add URL below QR code
       pdf.setFontSize(10);
       pdf.setTextColor(233, 78, 135); // EatUp pink
-      pdf.text(url, 20, 180);
+      pdf.text(url, 20, 235);
 
       // Add footer
       pdf.setFontSize(8);
