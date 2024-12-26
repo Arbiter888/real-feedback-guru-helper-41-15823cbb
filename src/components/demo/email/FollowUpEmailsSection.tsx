@@ -101,13 +101,25 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
   };
 
   if (isLoadingReviews) {
-    return <div className="text-center py-8">Loading reviews...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Latest Reviews & Follow-up Emails</h3>
+        </div>
+        <div className="text-center py-8">Loading latest reviews...</div>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Follow-up Emails</h3>
+        <div className="space-y-1">
+          <h3 className="text-lg font-semibold">Latest Reviews & Follow-up Emails</h3>
+          <p className="text-sm text-muted-foreground">
+            Generate personalized follow-up emails for your most recent reviews
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4">
@@ -134,8 +146,9 @@ export const FollowUpEmailsSection = ({ restaurantInfo }: FollowUpEmailsSectionP
         ))}
 
         {!reviews?.length && (
-          <div className="text-center py-8 text-muted-foreground">
-            No reviews available yet.
+          <div className="text-center py-8 text-muted-foreground bg-gray-50 rounded-lg">
+            <p className="text-sm">No reviews available yet.</p>
+            <p className="text-xs mt-1">New reviews will appear here automatically.</p>
           </div>
         )}
       </div>

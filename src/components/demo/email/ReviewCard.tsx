@@ -1,14 +1,18 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ThumbsUp, ThumbsDown, Eye, EyeOff } from "lucide-react";
+import { ChevronDown, ChevronUp, Mail, Loader2 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 interface ReviewCardProps {
   review: {
     id: string;
     review_text: string;
     created_at: string;
-    server_name: string | null;
+    server_name?: string;
+    receipt_data?: {
+      total_amount: number;
+      items: Array<{ name: string; price: number }>;
+    };
   };
   onGenerateFollowUp: (reviewId: string) => void;
   isGenerating: boolean;
@@ -17,68 +21,82 @@ interface ReviewCardProps {
   showPreview: boolean;
 }
 
-export const ReviewCard = ({ 
-  review, 
-  onGenerateFollowUp, 
+export const ReviewCard = ({
+  review,
+  onGenerateFollowUp,
   isGenerating,
-  selectedReviewId,
   onTogglePreview,
-  showPreview
+  showPreview,
 }: ReviewCardProps) => {
-  const getSentimentColor = (review: string) => {
-    const lowercaseReview = review.toLowerCase();
-    const positiveWords = ['great', 'excellent', 'amazing', 'good', 'love', 'wonderful', 'fantastic'];
-    const negativeWords = ['bad', 'poor', 'terrible', 'awful', 'disappointed', 'worst'];
-    
-    const positiveCount = positiveWords.filter(word => lowercaseReview.includes(word)).length;
-    const negativeCount = negativeWords.filter(word => lowercaseReview.includes(word)).length;
-    
-    return positiveCount > negativeCount ? "default" : negativeCount > positiveCount ? "destructive" : "secondary";
-  };
+  const timeAgo = formatDistanceToNow(new Date(review.created_at), { addSuffix: true });
 
   return (
-    <Card className="p-4 space-y-4">
-      <div className="flex justify-between items-start">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Badge variant={getSentimentColor(review.review_text)}>
-              {getSentimentColor(review.review_text) === "default" ? (
-                <ThumbsUp className="w-3 h-3 mr-1" />
-              ) : (
-                <ThumbsDown className="w-3 h-3 mr-1" />
+    <Card className="p-6">
+      <div className="space-y-4">
+        <div className="flex justify-between items-start">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-muted-foreground">Received {timeAgo}</p>
+              {review.server_name && (
+                <span className="text-sm bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                  Server: {review.server_name}
+                </span>
               )}
-              {getSentimentColor(review.review_text) === "default" ? "Positive" : "Needs Attention"}
-            </Badge>
-            {review.server_name && (
-              <Badge variant="outline">Server: {review.server_name}</Badge>
-            )}
+            </div>
+            <p className="text-sm">{review.review_text}</p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {new Date(review.created_at).toLocaleDateString()}
-          </p>
-          <p className="text-sm">{review.review_text}</p>
         </div>
-        <div className="flex gap-2">
+
+        {review.receipt_data && (
+          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+            <h4 className="text-sm font-medium">Receipt Details</h4>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">
+                Total Amount: ${review.receipt_data.total_amount}
+              </p>
+              <div className="text-sm text-muted-foreground">
+                {review.receipt_data.items.length} items ordered
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onTogglePreview}
+          >
+            {showPreview ? (
+              <>
+                <ChevronUp className="h-4 w-4 mr-1" />
+                Hide Email
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4 mr-1" />
+                Show Email
+              </>
+            )}
+          </Button>
+
           <Button
             onClick={() => onGenerateFollowUp(review.id)}
             disabled={isGenerating}
             size="sm"
           >
-            Generate Follow-up
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              <>
+                <Mail className="mr-2 h-4 w-4" />
+                Generate Follow-up
+              </>
+            )}
           </Button>
-          {selectedReviewId === review.id && (
-            <Button
-              onClick={onTogglePreview}
-              variant="outline"
-              size="sm"
-            >
-              {showPreview ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
-            </Button>
-          )}
         </div>
       </div>
     </Card>
