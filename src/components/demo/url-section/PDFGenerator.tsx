@@ -32,35 +32,35 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         format: "a4",
       });
 
-      // Add EatUP! logo with proper aspect ratio
+      // Add EatUP! logo with proper dimensions
       const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
-      pdf.addImage(logoUrl, 'PNG', 20, 20, 40, 13.33); // Maintain 3:1 aspect ratio
+      pdf.addImage(logoUrl, 'PNG', 20, 20, 60, 40); // Adjusted for proper logo proportions
 
       // Add decorative header bar
       pdf.setFillColor(EATUP_PINK);
-      pdf.rect(0, 50, 210, 2, 'F');
+      pdf.rect(0, 70, 210, 2, 'F');
 
       // Restaurant name
       pdf.setTextColor(EATUP_DARK);
       pdf.setFontSize(24);
       pdf.setFont("helvetica", "bold");
-      pdf.text(restaurantName, 20, 70);
+      pdf.text(restaurantName, 20, 90);
 
       // Subtitle
       pdf.setFontSize(16);
       pdf.setFont("helvetica", "normal");
-      pdf.text("Share Your Experience & Join Our Rewards Program", 20, 80);
+      pdf.text("Share Your Experience & Join Our Rewards Program", 20, 100);
 
       // QR Code section with white background and border
       pdf.setFillColor(255, 255, 255);
       pdf.setDrawColor(EATUP_PINK);
-      pdf.roundedRect(20, 90, 90, 90, 3, 3, 'FD');
-      pdf.addImage(qrCodeUrl, "PNG", 25, 95, 80, 80);
+      pdf.roundedRect(20, 110, 90, 90, 3, 3, 'FD');
+      pdf.addImage(qrCodeUrl, "PNG", 25, 115, 80, 80);
 
       // Instructions section with proper font and spacing
       pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
-      pdf.text("How it works:", 120, 100);
+      pdf.text("How it works:", 120, 120);
 
       // Steps with proper font and spacing
       pdf.setFont("helvetica", "normal");
@@ -72,16 +72,16 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       ];
 
       steps.forEach((step, index) => {
-        pdf.text(step, 120, 115 + (index * 10));
+        pdf.text(step, 120, 135 + (index * 10));
       });
 
       // Your EatUP! Journey section with updated content
       pdf.setFillColor(248, 250, 252);
-      pdf.rect(20, 190, 170, 50, 'F');
+      pdf.rect(20, 210, 170, 50, 'F');
       
       pdf.setFont("helvetica", "bold");
       pdf.setFontSize(16);
-      pdf.text("Your EatUP! Journey", 30, 205);
+      pdf.text("Your EatUP! Journey", 30, 225);
 
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(12);
@@ -92,7 +92,7 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       ];
 
       journeyText.forEach((text, index) => {
-        pdf.text(text, 30, 220 + (index * 8));
+        pdf.text(text, 30, 240 + (index * 8));
       });
 
       // URL at the bottom
