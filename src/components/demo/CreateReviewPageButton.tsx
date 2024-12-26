@@ -93,7 +93,8 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
       }
 
       const uniqueSlug = generateUniqueSlug(restaurantName);
-      const baseUrl = window.location.origin.replace(/:\/*$/, '').replace(/\/$/, '');
+      // Clean up the base URL by removing any trailing slashes and colons
+      const baseUrl = window.location.origin.replace(/[:\/]+$/, '');
       const fullUrl = `${baseUrl}/${uniqueSlug}`;
 
       const { data, error } = await supabase
