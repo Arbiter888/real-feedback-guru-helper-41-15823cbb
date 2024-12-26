@@ -4,6 +4,7 @@ import { Gift, Mail, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ReviewMetadata } from "@/types/email";
 
 interface EmailSignupProps {
   rewardCode: string | null;
@@ -37,6 +38,21 @@ export const EmailSignup = ({
       const reviewInfo = JSON.parse(reviewData);
       const { reviewText, refinedReview, analysisResult, serverName } = reviewInfo;
 
+      // Format the metadata according to our ReviewMetadata type
+      const metadata: ReviewMetadata = {
+        initial_review: reviewText || null,
+        refined_review: refinedReview || null,
+        receipt_analysis: analysisResult ? {
+          total_amount: analysisResult.total_amount || 0,
+          items: analysisResult.items || []
+        } : null,
+        server_name: serverName || null,
+        reward_code: rewardCode || null,
+        google_maps_url: customGoogleMapsUrl || null,
+        restaurant_name: customRestaurantName || null,
+        submission_date: new Date().toISOString()
+      };
+
       // First, get or create the restaurant's email list
       const { data: listData, error: listError } = await supabase
         .rpc('get_or_create_restaurant_email_list', {
@@ -51,16 +67,7 @@ export const EmailSignup = ({
         .insert({
           list_id: listData,
           email: email,
-          metadata: {
-            initial_review: reviewText,
-            refined_review: refinedReview,
-            receipt_analysis: analysisResult,
-            server_name: serverName,
-            reward_code: rewardCode,
-            google_maps_url: customGoogleMapsUrl,
-            restaurant_name: customRestaurantName,
-            submission_date: new Date().toISOString()
-          }
+          metadata: metadata
         });
 
       if (contactError) throw contactError;
