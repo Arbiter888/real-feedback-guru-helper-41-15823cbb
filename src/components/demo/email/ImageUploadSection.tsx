@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -10,6 +10,7 @@ export interface UploadedImage {
   url: string;
   title: string;
   added: boolean;
+  isFooter?: boolean;
 }
 
 interface ImageUploadSectionProps {
@@ -20,6 +21,7 @@ interface ImageUploadSectionProps {
 
 export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUpdate }: ImageUploadSectionProps) => {
   const { toast } = useToast();
+  const [isFooterImage, setIsFooterImage] = useState(false);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -43,7 +45,8 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
         return {
           url: publicUrl,
           title: "",
-          added: false
+          added: false,
+          isFooter: isFooterImage
         };
       });
 
@@ -81,7 +84,18 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
     }
 
     const updatedImages = [...uploadedImages];
-    updatedImages[index] = { ...updatedImages[index], added: true };
+    updatedImages[index] = { 
+      ...updatedImages[index], 
+      added: true,
+      isFooter: isFooterImage 
+    };
+    onImagesChange(updatedImages);
+    onContentUpdate();
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const updatedImages = [...uploadedImages];
+    updatedImages.splice(index, 1);
     onImagesChange(updatedImages);
     onContentUpdate();
   };
@@ -90,22 +104,31 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
     <div>
       <Label>Upload Images</Label>
       <div className="mt-2 space-y-2">
-        <Input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={handleImageUpload}
-          className="hidden"
-          id="image-upload"
-        />
-        <Button
-          variant="outline"
-          onClick={() => document.getElementById('image-upload')?.click()}
-          className="w-full"
-        >
-          <Upload className="mr-2 h-4 w-4" />
-          Choose Images
-        </Button>
+        <div className="flex items-center gap-2">
+          <Input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageUpload}
+            className="hidden"
+            id="image-upload"
+          />
+          <Button
+            variant="outline"
+            onClick={() => document.getElementById('image-upload')?.click()}
+            className="flex-1"
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Choose Images
+          </Button>
+          <Button
+            variant={isFooterImage ? "default" : "outline"}
+            onClick={() => setIsFooterImage(!isFooterImage)}
+            className="whitespace-nowrap"
+          >
+            {isFooterImage ? "Footer Image" : "Content Image"}
+          </Button>
+        </div>
       </div>
       {uploadedImages.length > 0 && (
         <div className="mt-4 space-y-4">
@@ -123,15 +146,24 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
                   onChange={(e) => handleImageTitleChange(index, e.target.value)}
                   className="mb-2"
                 />
-                <Button
-                  size="sm"
-                  variant={image.added ? "secondary" : "default"}
-                  onClick={() => handleAddImageToEmail(index)}
-                  disabled={image.added}
-                  className={image.added ? "bg-gray-200 text-gray-800 hover:bg-gray-300" : ""}
-                >
-                  {image.added ? "Added to Email" : "Add to Email"}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant={image.added ? "secondary" : "default"}
+                    onClick={() => handleAddImageToEmail(index)}
+                    disabled={image.added}
+                    className={image.added ? "bg-gray-200 text-gray-800 hover:bg-gray-300" : ""}
+                  >
+                    {image.added ? `Added as ${image.isFooter ? 'Footer' : 'Content'}` : 'Add to Email'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleRemoveImage(index)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

@@ -1,10 +1,12 @@
 import { Label } from "@/components/ui/label";
+import { UploadedImage } from "./ImageUploadSection";
 
 interface EmailPreviewProps {
   emailSubject: string;
   htmlContent: string;
   showPreview: boolean;
   restaurantInfo: RestaurantInfo;
+  footerImages?: UploadedImage[];
 }
 
 interface RestaurantInfo {
@@ -17,7 +19,7 @@ interface RestaurantInfo {
   googleMapsUrl: string;
 }
 
-export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo }: EmailPreviewProps) => {
+export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo, footerImages }: EmailPreviewProps) => {
   if (!showPreview) return null;
 
   // Replace **text** with bold text
@@ -26,8 +28,17 @@ export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restauran
     '<strong style="font-weight: 600;">$1</strong>'
   );
 
+  const footerImagesHtml = footerImages?.filter(img => img.added && img.isFooter)
+    .map(img => `
+      <div style="text-align: center; margin: 20px 0;">
+        <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+        ${img.title ? `<p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>` : ''}
+      </div>
+    `).join('\n') || '';
+
   const footerHtml = `
     <div style="margin-top: 30px; padding: 20px 0; border-top: 1px solid #eee;">
+      ${footerImagesHtml}
       <h2 style="font-size: 24px; margin-bottom: 16px; color: #333;">${restaurantInfo.restaurantName}</h2>
       <div style="margin-bottom: 20px;">
         ${restaurantInfo.phoneNumber ? `

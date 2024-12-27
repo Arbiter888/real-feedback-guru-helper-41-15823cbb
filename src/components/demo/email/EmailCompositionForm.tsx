@@ -71,9 +71,9 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
     ).join('\n');
 
-    // Add images first
+    // Add content images
     const addedImages = uploadedImages
-      .filter(img => img.added)
+      .filter(img => img.added && !img.isFooter)
       .map(img => `
         <div style="text-align: center; margin: 20px 0;">
           <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
@@ -170,6 +170,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           bookingUrl: "",
           googleMapsUrl: "",
         }}
+        footerImages={uploadedImages}
       />
     </div>
   );
