@@ -198,19 +198,19 @@ export const ReviewSection = ({
           onCopyAndRedirect={handleCopyAndRedirect}
         />
 
-        <RewardsSection 
-          rewardCode={rewardCode} 
-          hasUploadedReceipt={!!analysisResult}
-          customRestaurantName={restaurantName}
-          customGoogleMapsUrl={googleMapsUrl}
-        />
-
         {analysisResult && selectedServer && (
           <TipJarSection 
             serverName={selectedServer}
             totalAmount={analysisResult.total_amount}
           />
         )}
+
+        <RewardsSection 
+          rewardCode={rewardCode} 
+          hasUploadedReceipt={!!analysisResult}
+          customRestaurantName={restaurantName}
+          customGoogleMapsUrl={googleMapsUrl}
+        />
 
         {onTakeAiSurvey && (
           <AiFeedbackSection onTakeAiSurvey={onTakeAiSurvey} />

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heart } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface TipJarSectionProps {
   serverName: string | null;
@@ -8,6 +9,8 @@ interface TipJarSectionProps {
 }
 
 export const TipJarSection = ({ serverName, totalAmount }: TipJarSectionProps) => {
+  const { toast } = useToast();
+  
   if (!serverName) return null;
 
   const getSuggestedTips = (total: number) => {
@@ -25,6 +28,14 @@ export const TipJarSection = ({ serverName, totalAmount }: TipJarSectionProps) =
     }
     
     return tips.sort((a, b) => a - b);
+  };
+
+  const handleTip = (amount: number) => {
+    // For now, just show a toast - this would be connected to a payment system in production
+    toast({
+      title: `Tipping ${serverName}`,
+      description: `£${amount} tip will be sent to ${serverName}`,
+    });
   };
 
   const suggestedTips = getSuggestedTips(totalAmount || 0);
@@ -46,10 +57,7 @@ export const TipJarSection = ({ serverName, totalAmount }: TipJarSectionProps) =
             key={amount}
             variant="outline"
             className="w-full"
-            onClick={() => {
-              // Placeholder for future payment integration
-              console.log(`Selected tip amount: £${amount}`);
-            }}
+            onClick={() => handleTip(amount)}
           >
             £{amount}
           </Button>
@@ -58,10 +66,7 @@ export const TipJarSection = ({ serverName, totalAmount }: TipJarSectionProps) =
 
       <Button 
         className="w-full"
-        onClick={() => {
-          // Placeholder for future payment integration
-          console.log('Custom tip amount clicked');
-        }}
+        onClick={() => handleTip(suggestedTips[1] || 5)}
       >
         <Heart className="w-4 h-4 mr-2" />
         Send Tip to {serverName}
