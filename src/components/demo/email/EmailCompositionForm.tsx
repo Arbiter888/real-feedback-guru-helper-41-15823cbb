@@ -67,12 +67,20 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   };
 
   const updateEmailContent = () => {
-    const formattedContent = emailContent.split('\n').map(paragraph => 
+    // Format the main content with proper spacing and warm regards
+    const mainContent = emailContent.split('\n').map(paragraph => 
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
     ).join('\n');
 
+    const warmRegards = `
+      <p style="margin: 20px 0; line-height: 1.6;">
+        Warm regards,<br/>
+        ${restaurantInfo?.restaurantName || 'Your Restaurant'}
+      </p>
+    `;
+
     // Add content images
-    const addedImages = uploadedImages
+    const contentImages = uploadedImages
       .filter(img => img.added && !img.isFooter)
       .map(img => `
         <div style="text-align: center; margin: 20px 0;">
@@ -83,8 +91,9 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
     const newHtmlContent = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-        ${formattedContent}
-        ${addedImages}
+        ${mainContent}
+        ${warmRegards}
+        ${contentImages}
       </div>
     `;
 
@@ -93,9 +102,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   };
 
   const handleVoucherGenerated = (voucherHtml: string) => {
-    // Replace any existing voucher content
-    const contentWithoutVoucher = htmlContent.replace(/<div style="margin: 2rem 0; text-align: center;">.*?<\/div>/s, '');
-    const updatedHtmlContent = contentWithoutVoucher.replace('</div>', `${voucherHtml}</div>`);
+    const updatedHtmlContent = htmlContent.replace('</div>', `${voucherHtml}</div>`);
     setHtmlContent(updatedHtmlContent);
     setShowPreview(true);
   };

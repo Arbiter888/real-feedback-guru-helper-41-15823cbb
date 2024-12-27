@@ -39,7 +39,6 @@ export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restauran
   const footerHtml = `
     <div style="margin-top: 30px; padding: 20px 0; border-top: 1px solid #eee;">
       ${footerImagesHtml}
-      <h2 style="font-size: 24px; margin-bottom: 16px; color: #333;">${restaurantInfo.restaurantName}</h2>
       <div style="margin-bottom: 20px;">
         ${restaurantInfo.phoneNumber ? `
           <p style="margin: 8px 0;">
