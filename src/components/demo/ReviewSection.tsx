@@ -167,6 +167,17 @@ export const ReviewSection = ({
 
       if (listError) throw listError;
 
+      localStorage.setItem('reviewData', JSON.stringify({
+        reviewText: reviewText?.trim() || '',
+        refinedReview: refinedReview?.trim(),
+        analysisResult,
+        serverName: selectedServer?.trim(),
+        rewardCode: uniqueCode,
+        googleMapsUrl,
+        restaurantName,
+        restaurantInfo
+      }));
+
       // Save review data to CRM
       await saveReviewData('', listData, {
         reviewText: reviewText?.trim() || '',
