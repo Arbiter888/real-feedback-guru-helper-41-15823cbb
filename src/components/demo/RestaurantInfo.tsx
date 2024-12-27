@@ -27,25 +27,21 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
     console.log("RestaurantInfo: Loading saved preferences");
     const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
     if (savedRestaurantInfo) {
-      const { 
-        restaurantName: savedRestaurantName, 
-        googleMapsUrl: savedGoogleMapsUrl, 
-        contactEmail: savedContactEmail,
-        websiteUrl: savedWebsiteUrl,
-        facebookUrl: savedFacebookUrl,
-        instagramUrl: savedInstagramUrl,
-        serverNames: savedServerNames 
-      } = JSON.parse(savedRestaurantInfo);
-      
-      setRestaurantName(savedRestaurantName || '');
-      setGoogleMapsUrl(savedGoogleMapsUrl || '');
-      setContactEmail(savedContactEmail || '');
-      setWebsiteUrl(savedWebsiteUrl || '');
-      setFacebookUrl(savedFacebookUrl || '');
-      setInstagramUrl(savedInstagramUrl || '');
-      setServerNames(savedServerNames || []);
-      console.log("RestaurantInfo: Loaded server names:", savedServerNames);
-      onRestaurantInfoSaved(savedRestaurantName, savedGoogleMapsUrl, savedContactEmail || '', savedServerNames);
+      const parsedInfo = JSON.parse(savedRestaurantInfo);
+      setRestaurantName(parsedInfo.restaurantName || '');
+      setGoogleMapsUrl(parsedInfo.googleMapsUrl || '');
+      setContactEmail(parsedInfo.contactEmail || '');
+      setWebsiteUrl(parsedInfo.websiteUrl || '');
+      setFacebookUrl(parsedInfo.facebookUrl || '');
+      setInstagramUrl(parsedInfo.instagramUrl || '');
+      setServerNames(parsedInfo.serverNames || []);
+      console.log("RestaurantInfo: Loaded server names:", parsedInfo.serverNames);
+      onRestaurantInfoSaved(
+        parsedInfo.restaurantName, 
+        parsedInfo.googleMapsUrl, 
+        parsedInfo.contactEmail || '', 
+        parsedInfo.serverNames || []
+      );
     }
   }, [onRestaurantInfoSaved]);
 
@@ -72,12 +68,21 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
     }
   };
 
-  const handleMenuAnalyzed = (analysis: any) => {
-    localStorage.setItem('menuAnalysis', JSON.stringify(analysis));
-    toast({
-      title: "Menu analysis saved",
-      description: "Your menu has been analyzed and saved for future use.",
-    });
+  const handleServerNamesChange = (names: string[]) => {
+    console.log("RestaurantInfo: Updating server names:", names);
+    setServerNames(names);
+    // Save immediately when server names change
+    const updatedInfo = {
+      restaurantName,
+      googleMapsUrl,
+      contactEmail,
+      websiteUrl,
+      facebookUrl,
+      instagramUrl,
+      serverNames: names,
+    };
+    localStorage.setItem('restaurantInfo', JSON.stringify(updatedInfo));
+    onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, names);
   };
 
   const handleSavePreferences = () => {
@@ -94,7 +99,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
 
     try {
       console.log("RestaurantInfo: Saving preferences with server names:", serverNames);
-      localStorage.setItem('restaurantInfo', JSON.stringify({
+      const restaurantInfo = {
         restaurantName,
         googleMapsUrl,
         contactEmail,
@@ -102,9 +107,11 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         facebookUrl,
         instagramUrl,
         serverNames,
-      }));
-
+      };
+      
+      localStorage.setItem('restaurantInfo', JSON.stringify(restaurantInfo));
       onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, serverNames);
+      
       setShowSuccess(true);
       toast({
         title: "Preferences saved!",
@@ -146,7 +153,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
 
         <ServerManagementSection
           serverNames={serverNames}
-          onServerNamesChange={setServerNames}
+          onServerNamesChange={handleServerNamesChange}
         />
 
         <Button 

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface ServerManagementSectionProps {
   serverNames: string[];
@@ -14,15 +15,31 @@ export const ServerManagementSection = ({
   onServerNamesChange,
 }: ServerManagementSectionProps) => {
   const [newServerName, setNewServerName] = useState("");
+  const { toast } = useToast();
 
   const handleAddServer = () => {
     if (!newServerName.trim()) return;
-    onServerNamesChange([...serverNames, newServerName.trim()]);
+    
+    console.log("ServerManagementSection: Adding new server:", newServerName.trim());
+    const updatedNames = [...serverNames, newServerName.trim()];
+    onServerNamesChange(updatedNames);
     setNewServerName("");
+    
+    toast({
+      title: "Server added",
+      description: `${newServerName.trim()} has been added to the server list.`,
+    });
   };
 
   const handleRemoveServer = (indexToRemove: number) => {
-    onServerNamesChange(serverNames.filter((_, index) => index !== indexToRemove));
+    console.log("ServerManagementSection: Removing server at index:", indexToRemove);
+    const updatedNames = serverNames.filter((_, index) => index !== indexToRemove);
+    onServerNamesChange(updatedNames);
+    
+    toast({
+      title: "Server removed",
+      description: "The server has been removed from the list.",
+    });
   };
 
   return (
