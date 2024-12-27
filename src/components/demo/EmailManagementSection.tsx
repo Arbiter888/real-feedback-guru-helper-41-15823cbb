@@ -1,9 +1,7 @@
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
-import { EmailProviderConnection } from "./email/EmailProviderConnection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -103,9 +101,6 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
 
   return (
     <div className="space-y-8">
-      {/* Email Provider Connection Section */}
-      <EmailProviderConnection />
-
       {/* Email Composition Section */}
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-xl font-semibold mb-6">Send Email Campaign</h2>
