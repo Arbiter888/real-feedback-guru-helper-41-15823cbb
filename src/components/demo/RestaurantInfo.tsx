@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Check, Plus, X } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Check } from "lucide-react";
+import { BasicInfoSection } from "./restaurant/BasicInfoSection";
+import { SocialMediaSection } from "./restaurant/SocialMediaSection";
+import { MenuUploadSection } from "./restaurant/MenuUploadSection";
+import { ServerManagementSection } from "./restaurant/ServerManagementSection";
 import { RestaurantContactCard } from "./RestaurantContactCard";
 
 interface RestaurantInfoProps {
@@ -18,10 +19,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [facebookUrl, setFacebookUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [preferredBookingMethod, setPreferredBookingMethod] = useState("phone");
   const [serverNames, setServerNames] = useState<string[]>([]);
-  const [newServerName, setNewServerName] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const { toast } = useToast();
@@ -36,8 +34,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         websiteUrl: savedWebsiteUrl,
         facebookUrl: savedFacebookUrl,
         instagramUrl: savedInstagramUrl,
-        phoneNumber: savedPhoneNumber,
-        preferredBookingMethod: savedPreferredBookingMethod,
         serverNames: savedServerNames 
       } = JSON.parse(savedRestaurantInfo);
       
@@ -47,21 +43,40 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       setWebsiteUrl(savedWebsiteUrl || '');
       setFacebookUrl(savedFacebookUrl || '');
       setInstagramUrl(savedInstagramUrl || '');
-      setPhoneNumber(savedPhoneNumber || '');
-      setPreferredBookingMethod(savedPreferredBookingMethod || 'phone');
       setServerNames(savedServerNames || []);
       onRestaurantInfoSaved(savedRestaurantName, savedGoogleMapsUrl, savedContactEmail || '');
     }
   }, [onRestaurantInfoSaved]);
 
-  const handleAddServer = () => {
-    if (!newServerName.trim()) return;
-    setServerNames([...serverNames, newServerName.trim()]);
-    setNewServerName("");
+  const handleInfoChange = (field: string, value: string) => {
+    switch (field) {
+      case 'restaurantName':
+        setRestaurantName(value);
+        break;
+      case 'googleMapsUrl':
+        setGoogleMapsUrl(value);
+        break;
+      case 'contactEmail':
+        setContactEmail(value);
+        break;
+      case 'websiteUrl':
+        setWebsiteUrl(value);
+        break;
+      case 'facebookUrl':
+        setFacebookUrl(value);
+        break;
+      case 'instagramUrl':
+        setInstagramUrl(value);
+        break;
+    }
   };
 
-  const handleRemoveServer = (indexToRemove: number) => {
-    setServerNames(serverNames.filter((_, index) => index !== indexToRemove));
+  const handleMenuAnalyzed = (analysis: any) => {
+    localStorage.setItem('menuAnalysis', JSON.stringify(analysis));
+    toast({
+      title: "Menu analysis saved",
+      description: "Your menu has been analyzed and saved for future use.",
+    });
   };
 
   const handleSavePreferences = () => {
@@ -84,8 +99,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         websiteUrl,
         facebookUrl,
         instagramUrl,
-        phoneNumber,
-        preferredBookingMethod,
         serverNames,
       }));
 
@@ -114,126 +127,28 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   return (
     <div className="space-y-8">
       <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-sm">
-        <div className="space-y-2">
-          <Label htmlFor="restaurantName">Restaurant Name</Label>
-          <Input
-            id="restaurantName"
-            value={restaurantName}
-            onChange={(e) => setRestaurantName(e.target.value)}
-            placeholder="Enter your restaurant name"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="googleMapsUrl">Google Maps URL</Label>
-          <Input
-            id="googleMapsUrl"
-            value={googleMapsUrl}
-            onChange={(e) => setGoogleMapsUrl(e.target.value)}
-            placeholder="Paste your Google Maps link"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="contactEmail">Contact Email</Label>
-          <Input
-            id="contactEmail"
-            type="email"
-            value={contactEmail}
-            onChange={(e) => setContactEmail(e.target.value)}
-            placeholder="Enter restaurant contact email"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="websiteUrl">Website URL</Label>
-          <Input
-            id="websiteUrl"
-            type="url"
-            value={websiteUrl}
-            onChange={(e) => setWebsiteUrl(e.target.value)}
-            placeholder="Enter your website URL"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="facebookUrl">Facebook URL</Label>
-          <Input
-            id="facebookUrl"
-            type="url"
-            value={facebookUrl}
-            onChange={(e) => setFacebookUrl(e.target.value)}
-            placeholder="Enter your Facebook page URL"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="instagramUrl">Instagram URL</Label>
-          <Input
-            id="instagramUrl"
-            type="url"
-            value={instagramUrl}
-            onChange={(e) => setInstagramUrl(e.target.value)}
-            placeholder="Enter your Instagram profile URL"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder="Enter your phone number"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>Preferred Booking Method</Label>
-          <RadioGroup
-            value={preferredBookingMethod}
-            onValueChange={setPreferredBookingMethod}
-            className="flex gap-4"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="phone" id="phone" />
-              <Label htmlFor="phone">Phone</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="website" id="website" />
-              <Label htmlFor="website">Website</Label>
-            </div>
-          </RadioGroup>
-        </div>
-        <div className="space-y-2">
-          <Label>Server Names</Label>
-          <div className="flex gap-2">
-            <Input
-              value={newServerName}
-              onChange={(e) => setNewServerName(e.target.value)}
-              placeholder="Add server name"
-              onKeyPress={(e) => e.key === 'Enter' && handleAddServer()}
-            />
-            <Button 
-              type="button" 
-              onClick={handleAddServer}
-              variant="outline"
-              size="icon"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {serverNames.map((name, index) => (
-              <div 
-                key={index}
-                className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full"
-              >
-                <span>{name}</span>
-                <button
-                  onClick={() => handleRemoveServer(index)}
-                  className="hover:text-primary/80"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+        <BasicInfoSection
+          restaurantName={restaurantName}
+          googleMapsUrl={googleMapsUrl}
+          contactEmail={contactEmail}
+          onInfoChange={handleInfoChange}
+          showSuccess={showSuccess}
+        />
+
+        <SocialMediaSection
+          websiteUrl={websiteUrl}
+          facebookUrl={facebookUrl}
+          instagramUrl={instagramUrl}
+          onInfoChange={handleInfoChange}
+        />
+
+        <MenuUploadSection onMenuAnalyzed={handleMenuAnalyzed} />
+
+        <ServerManagementSection
+          serverNames={serverNames}
+          onServerNamesChange={setServerNames}
+        />
+
         <Button 
           onClick={handleSavePreferences}
           disabled={isSaving}
@@ -256,11 +171,9 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         </Button>
       </div>
 
-      {/* Preview Card */}
       {restaurantName && (
         <RestaurantContactCard
           name={restaurantName}
-          phoneNumber={phoneNumber}
           websiteUrl={websiteUrl}
           facebookUrl={facebookUrl}
           instagramUrl={instagramUrl}
