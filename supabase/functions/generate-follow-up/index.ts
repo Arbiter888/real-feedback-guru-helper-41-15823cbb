@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface ReviewData {
-  reviewText: string;
+  reviewText?: string;
   refinedReview?: string;
   receiptData?: {
     total_amount: number;
@@ -39,7 +39,7 @@ serve(async (req) => {
   try {
     const { reviewText, refinedReview, receiptData, serverName, customerName, voucherDetails, restaurantInfo } = await req.json() as ReviewData;
 
-    if (!reviewText || !customerName || !restaurantInfo) {
+    if (!customerName || !restaurantInfo) {
       throw new Error("Missing required fields");
     }
 
@@ -60,21 +60,22 @@ serve(async (req) => {
           {
             role: 'system',
             content: `You are an expert at creating personalized follow-up emails for restaurant customers. 
-            Create warm, engaging content that references specific details from their visit and review.
+            Create warm, engaging content that references specific details from their visit and review if available.
             The email should feel personal and genuine, maintaining a professional yet friendly tone.
-            If a voucher is included, make it a central part of the thank you message.`
+            If a voucher is included, make it a central part of the thank you message.
+            If no review data is available, focus on creating a welcoming message that encourages future visits.`
           },
           {
             role: 'user',
             content: `Generate a follow-up email for ${customerName} who visited ${restaurantInfo.restaurantName}.
-            Their initial review: "${reviewText}"
+            ${reviewText ? `Their initial review: "${reviewText}"` : ''}
             ${refinedReview ? `Their enhanced review: "${refinedReview}"` : ''}
             ${serverName ? `They were served by ${serverName}.` : ''}
             ${receiptData ? `They spent $${receiptData.total_amount} and ordered: ${receiptData.items.map(item => item.name).join(', ')}.` : ''}
             ${voucherDetails ? `Include this special offer: ${voucherDetails.title} - ${voucherDetails.description} (${voucherDetails.discountValue})` : ''}
             
-            Create both a subject line and email content. Make the content personal and reference specific details from their visit.
-            The email should thank them for their visit and review.
+            Create both a subject line and email content. Make the content personal ${reviewText ? 'and reference specific details from their visit.' : 'and welcoming.'}
+            The email should thank them ${reviewText ? 'for their visit and review.' : 'for their interest in our restaurant.'}
             ${voucherDetails ? 'Make the voucher offer a highlight of the email.' : ''}`
           }
         ],

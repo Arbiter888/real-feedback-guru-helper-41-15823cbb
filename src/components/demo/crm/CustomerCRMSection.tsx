@@ -45,24 +45,9 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
     const customer = customers?.find(c => c.id === customerId);
     if (!customer) return;
     
-    const metadata = customer.metadata as any;
-    
-    if (!metadata?.initial_review) {
-      toast({
-        title: "Cannot generate follow-up",
-        description: "No review data available for this customer.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     try {
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { 
-          reviewText: metadata.initial_review,
-          refinedReview: metadata.refined_review,
-          receiptData: metadata.receipt_data,
-          serverName: metadata.server_name,
           customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
           voucherDetails,
           restaurantInfo: {
@@ -72,7 +57,14 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
             instagramUrl: restaurantInfo.instagramUrl,
             phoneNumber: restaurantInfo.phoneNumber,
             googleMapsUrl: restaurantInfo.googleMapsUrl,
-          }
+          },
+          // Only include review data if available
+          ...(customer.metadata?.initial_review && {
+            reviewText: customer.metadata.initial_review,
+            refinedReview: customer.metadata.refined_review,
+            receiptData: customer.metadata.receipt_data,
+            serverName: customer.metadata.server_name,
+          })
         },
       });
 
