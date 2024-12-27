@@ -10,6 +10,7 @@ import { EmailContent } from "./EmailContent";
 import { EmailPreview } from "./EmailPreview";
 import { ImageUploadSection, UploadedImage } from "./ImageUploadSection";
 import { supabase } from "@/integrations/supabase/client";
+import { formatEmailContent } from "./EmailContentFormatter";
 
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
@@ -110,38 +111,12 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   };
 
   const updateEmailContent = () => {
-    // Format the main content with proper spacing and warm regards
-    const mainContent = emailContent.split('\n').map(paragraph => 
-      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
-    ).join('\n');
-
-    const warmRegards = `
-      <p style="margin: 20px 0; line-height: 1.6;">
-        Warm regards,<br/>
-        ${restaurantInfo?.restaurantName || 'Your Restaurant'}
-      </p>
-    `;
-
-    // Add content images
-    const contentImages = uploadedImages
-      .filter(img => img.added && !img.isFooter)
-      .map(img => `
-        <div style="text-align: center; margin: 20px 0;">
-          <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
-          ${img.title ? `<p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>` : ''}
-        </div>
-      `).join('\n');
-
-    const newHtmlContent = `
-      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-        <p style="margin: 0 0 15px 0; line-height: 1.6;">Dear Food Lover,</p>
-        ${mainContent}
-        ${warmRegards}
-        ${contentImages}
-      </div>
-    `;
-
-    setHtmlContent(newHtmlContent);
+    const formattedContent = formatEmailContent({
+      content: emailContent,
+      images: uploadedImages,
+      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant'
+    });
+    setHtmlContent(formattedContent);
     setShowPreview(true);
   };
 
