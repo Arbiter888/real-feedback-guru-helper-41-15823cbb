@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,7 +35,7 @@ serve(async (req) => {
             content: [
               {
                 type: 'text',
-                text: 'Analyze this menu image and extract all menu items with their prices. Format the response as a JSON array with objects containing name, price (in GBP), and category fields. Group items by their categories.',
+                text: 'Analyze this menu image and extract all menu items with their prices. Return ONLY a JSON array with objects containing "name", "price" (in GBP), and "category" fields. Group items by their categories. Do not include any markdown formatting, explanations, or additional text - just the raw JSON array.',
               },
               {
                 type: 'image_url',
@@ -59,11 +59,27 @@ serve(async (req) => {
     const data = await response.json();
     console.log('OpenAI response:', data);
 
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    if (!data.choices?.[0]?.message?.content) {
       throw new Error('Invalid response format from OpenAI');
     }
 
-    const menuAnalysis = JSON.parse(data.choices[0].message.content);
+    let menuAnalysis;
+    try {
+      // Try to parse the response content as JSON
+      menuAnalysis = JSON.parse(data.choices[0].message.content.trim());
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response as JSON:', parseError);
+      console.log('Raw content:', data.choices[0].message.content);
+      
+      // If parsing fails, try to extract JSON from markdown
+      const content = data.choices[0].message.content;
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        menuAnalysis = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Could not extract valid JSON from OpenAI response');
+      }
+    }
 
     return new Response(
       JSON.stringify({ menuAnalysis }),
