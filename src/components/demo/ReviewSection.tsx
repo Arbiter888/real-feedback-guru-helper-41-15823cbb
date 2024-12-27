@@ -11,6 +11,7 @@ import { RestaurantInfo } from "./RestaurantInfo";
 import { nanoid } from 'nanoid';
 import { AiFeedbackSection } from "./AiFeedbackSection";
 import { IntroSection } from "./sections/IntroSection";
+import { TipJarSection } from "./tips/TipJarSection";
 
 interface ReviewSectionProps {
   customRestaurantName?: string;
@@ -178,6 +179,11 @@ export const ReviewSection = ({
           hasUploadedReceipt={!!analysisResult}
           customRestaurantName={restaurantName}
           customGoogleMapsUrl={googleMapsUrl}
+        />
+
+        <TipJarSection 
+          serverName={selectedServer}
+          totalAmount={analysisResult?.total_amount}
         />
 
         {onTakeAiSurvey && (
