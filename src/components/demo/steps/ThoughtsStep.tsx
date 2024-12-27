@@ -16,11 +16,11 @@ export const ThoughtsStep = ({ reviewText, onChange, onComplete }: ThoughtsStepP
       </div>
       <Textarea
         value={reviewText}
+        onBlur={(e) => {
+          if (e.target.value.trim().length > 0) onComplete();
+        }}
         onChange={(e) => {
           onChange(e.target.value);
-          if (e.target.value.trim().length > 0) {
-            onComplete();
-          }
         }}
         placeholder="What did you love about your visit? Tell us about the amazing food, exceptional service, or memorable moments!"
         className="min-h-[150px] bg-white/50 font-medium resize-none"
