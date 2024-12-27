@@ -17,6 +17,7 @@ import { saveReviewData } from "./rewards/ReviewDataManager";
 interface ReviewSectionProps {
   customRestaurantName?: string;
   customGoogleMapsUrl?: string;
+  customServerNames?: string[];
   hidePreferences?: boolean;
   onTakeAiSurvey?: () => void;
 }
@@ -24,11 +25,12 @@ interface ReviewSectionProps {
 export const ReviewSection = ({ 
   customRestaurantName,
   customGoogleMapsUrl,
+  customServerNames,
   hidePreferences = false,
   onTakeAiSurvey
 }: ReviewSectionProps) => {
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
-  const [serverNames, setServerNames] = useState<string[]>([]);
+  const [serverNames, setServerNames] = useState<string[]>(customServerNames || []);
   const [reviewText, setReviewText] = useState("");
   const [refinedReview, setRefinedReview] = useState("");
   const [analysisResult, setAnalysisResult] = useState<any>(null);

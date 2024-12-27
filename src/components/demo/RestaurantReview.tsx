@@ -14,6 +14,7 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
   const [preferences, setPreferences] = useState<{
     restaurant_name: string;
     google_maps_url: string;
+    server_names: string[];
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAiSurvey, setShowAiSurvey] = useState(false);
@@ -24,7 +25,7 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
       try {
         const { data, error } = await supabase
           .from('demo_pages')
-          .select('restaurant_name, google_maps_url')
+          .select('restaurant_name, google_maps_url, server_names')
           .eq('slug', slug)
           .single();
 
@@ -34,6 +35,7 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
           localStorage.setItem('restaurantInfo', JSON.stringify({
             restaurantName: data.restaurant_name,
             googleMapsUrl: data.google_maps_url,
+            serverNames: data.server_names,
           }));
         } else {
           navigate('/');
@@ -71,6 +73,7 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
         <ReviewSection 
           customRestaurantName={preferences.restaurant_name}
           customGoogleMapsUrl={preferences.google_maps_url}
+          customServerNames={preferences.server_names}
           hidePreferences={true}
           onTakeAiSurvey={() => setShowAiSurvey(true)}
         />
