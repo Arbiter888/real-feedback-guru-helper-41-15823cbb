@@ -189,13 +189,9 @@ export const ReviewSection = ({
         restaurantName,
         restaurantInfo
       });
-
-      toast({
-        title: "Review copied!",
-        description: "Opening Google Reviews in a new tab. Please paste your review there.",
-      });
     } catch (error) {
       console.error('Error saving to CRM:', error);
+    } finally {
       toast({
         title: "Review copied!",
         description: "Opening Google Reviews in a new tab. Please paste your review there.",
