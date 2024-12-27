@@ -11,6 +11,7 @@ interface QRCodeGeneratorProps {
 
 export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) => {
   const { toast } = useToast();
+  const [qrGenerated, setQrGenerated] = useState(false);
 
   const generateQRCode = async () => {
     try {
@@ -23,6 +24,7 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
         },
       });
       onQRGenerated(qrDataUrl);
+      setQrGenerated(true);
     } catch (error) {
       console.error('Error generating QR code:', error);
       toast({
@@ -34,13 +36,20 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
   };
 
   return (
-    <Button
-      onClick={generateQRCode}
-      variant="outline"
-      className="flex-shrink-0"
-    >
-      <QrCode className="h-4 w-4 mr-2" />
-      Generate QR Code
-    </Button>
+    <div className="space-y-2">
+      <Button
+        onClick={generateQRCode}
+        variant="outline"
+        className="flex-shrink-0"
+      >
+        <QrCode className="h-4 w-4 mr-2" />
+        Generate QR Code
+      </Button>
+      {!qrGenerated && (
+        <p className="text-sm text-muted-foreground">
+          Generate a QR code first to enable PDF download
+        </p>
+      )}
+    </div>
   );
 };

@@ -138,6 +138,8 @@ export type Database = {
           google_maps_url: string
           id: string
           instagram_url: string | null
+          menu_analysis: Json | null
+          menu_url: string | null
           phone_number: string | null
           preferred_booking_method: string | null
           restaurant_name: string
@@ -156,6 +158,8 @@ export type Database = {
           google_maps_url: string
           id?: string
           instagram_url?: string | null
+          menu_analysis?: Json | null
+          menu_url?: string | null
           phone_number?: string | null
           preferred_booking_method?: string | null
           restaurant_name: string
@@ -174,6 +178,8 @@ export type Database = {
           google_maps_url?: string
           id?: string
           instagram_url?: string | null
+          menu_analysis?: Json | null
+          menu_url?: string | null
           phone_number?: string | null
           preferred_booking_method?: string | null
           restaurant_name?: string
@@ -390,6 +396,44 @@ export type Database = {
             columns: ["review_id"]
             isOneToOne: false
             referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          price: number
+          restaurant_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          price: number
+          restaurant_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          price?: number
+          restaurant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_items_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
             referencedColumns: ["id"]
           },
         ]

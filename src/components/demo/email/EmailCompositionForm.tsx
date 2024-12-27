@@ -71,12 +71,13 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
     ).join('\n');
 
+    // Add images first
     const addedImages = uploadedImages
       .filter(img => img.added)
       .map(img => `
         <div style="text-align: center; margin: 20px 0;">
           <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
-          <p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>
+          ${img.title ? `<p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>` : ''}
         </div>
       `).join('\n');
 
@@ -92,7 +93,9 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   };
 
   const handleVoucherGenerated = (voucherHtml: string) => {
-    const updatedHtmlContent = htmlContent.replace('</div>', `${voucherHtml}</div>`);
+    // Replace any existing voucher content
+    const contentWithoutVoucher = htmlContent.replace(/<div style="margin: 2rem 0; text-align: center;">.*?<\/div>/s, '');
+    const updatedHtmlContent = contentWithoutVoucher.replace('</div>', `${voucherHtml}</div>`);
     setHtmlContent(updatedHtmlContent);
     setShowPreview(true);
   };

@@ -128,6 +128,7 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
                   variant={image.added ? "secondary" : "default"}
                   onClick={() => handleAddImageToEmail(index)}
                   disabled={image.added}
+                  className={image.added ? "bg-gray-200 text-gray-800 hover:bg-gray-300" : ""}
                 >
                   {image.added ? "Added to Email" : "Add to Email"}
                 </Button>
