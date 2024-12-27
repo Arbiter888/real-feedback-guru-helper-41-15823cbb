@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { CustomerList } from "./CustomerList";
 import { EmailPreviewCard } from "../email/EmailPreviewCard";
-import { Customer } from "@/types/customer";
+import { Customer, CustomerMetadata } from "@/types/customer";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -58,12 +58,12 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
             phoneNumber: restaurantInfo.phoneNumber,
             googleMapsUrl: restaurantInfo.googleMapsUrl,
           },
-          // Only include review data if available
-          ...(customer.metadata?.initial_review && {
-            reviewText: customer.metadata.initial_review,
-            refinedReview: customer.metadata.refined_review,
-            receiptData: customer.metadata.receipt_data,
-            serverName: customer.metadata.server_name,
+          // Only include review data if available and metadata is of type CustomerMetadata
+          ...((typeof customer.metadata === 'object' && customer.metadata !== null && 'initial_review' in customer.metadata) && {
+            reviewText: (customer.metadata as CustomerMetadata).initial_review,
+            refinedReview: (customer.metadata as CustomerMetadata).refined_review,
+            receiptData: (customer.metadata as CustomerMetadata).receipt_data,
+            serverName: (customer.metadata as CustomerMetadata).server_name,
           })
         },
       });
