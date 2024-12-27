@@ -39,7 +39,9 @@ serve(async (req) => {
               },
               {
                 type: 'image_url',
-                image_url: menuUrl,
+                image_url: {
+                  url: menuUrl
+                }
               },
             ],
           },
