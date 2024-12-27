@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +27,7 @@ export const ReviewSection = ({
   onTakeAiSurvey
 }: ReviewSectionProps) => {
   const [selectedServer, setSelectedServer] = useState<string | null>(null);
+  const [serverNames, setServerNames] = useState<string[]>([]);
   const [reviewText, setReviewText] = useState("");
   const [refinedReview, setRefinedReview] = useState("");
   const [analysisResult, setAnalysisResult] = useState<any>(null);
@@ -37,9 +38,26 @@ export const ReviewSection = ({
   const [restaurantName, setRestaurantName] = useState(customRestaurantName || "The Local Kitchen & Bar");
   const { toast } = useToast();
 
-  const handlePreferencesSaved = (name: string, url: string) => {
+  // Load server names from localStorage when component mounts
+  useEffect(() => {
+    console.log("Loading server names from localStorage");
+    const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+    if (savedRestaurantInfo) {
+      const { serverNames: savedServerNames } = JSON.parse(savedRestaurantInfo);
+      if (Array.isArray(savedServerNames)) {
+        console.log("Found server names:", savedServerNames);
+        setServerNames(savedServerNames);
+      }
+    }
+  }, []);
+
+  const handlePreferencesSaved = (name: string, url: string, email: string, updatedServerNames?: string[]) => {
+    console.log("Preferences saved with server names:", updatedServerNames);
     setRestaurantName(name);
     setGoogleMapsUrl(url);
+    if (updatedServerNames) {
+      setServerNames(updatedServerNames);
+    }
   };
 
   const handleReceiptUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,12 +159,18 @@ export const ReviewSection = ({
     <Card>
       <CardContent className="space-y-8 pt-6">
         {!hidePreferences && (
-          <RestaurantInfo onRestaurantInfoSaved={handlePreferencesSaved} />
+          <RestaurantInfo 
+            onRestaurantInfoSaved={handlePreferencesSaved} 
+          />
         )}
         
         <IntroSection />
         
-        <ServerSelectionStep onServerSelect={setSelectedServer} />
+        <ServerSelectionStep 
+          serverNames={serverNames}
+          onServerSelect={setSelectedServer}
+          selectedServer={selectedServer}
+        />
 
         <ThoughtsStep 
           reviewText={reviewText}

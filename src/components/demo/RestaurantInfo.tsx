@@ -8,7 +8,7 @@ import { ServerManagementSection } from "./restaurant/ServerManagementSection";
 import { RestaurantContactCard } from "./RestaurantContactCard";
 
 interface RestaurantInfoProps {
-  onRestaurantInfoSaved: (name: string, url: string, email: string) => void;
+  onRestaurantInfoSaved: (name: string, url: string, email: string, serverNames: string[]) => void;
 }
 
 export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) => {
@@ -24,6 +24,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   const { toast } = useToast();
 
   useEffect(() => {
+    console.log("RestaurantInfo: Loading saved preferences");
     const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
     if (savedRestaurantInfo) {
       const { 
@@ -43,7 +44,8 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       setFacebookUrl(savedFacebookUrl || '');
       setInstagramUrl(savedInstagramUrl || '');
       setServerNames(savedServerNames || []);
-      onRestaurantInfoSaved(savedRestaurantName, savedGoogleMapsUrl, savedContactEmail || '');
+      console.log("RestaurantInfo: Loaded server names:", savedServerNames);
+      onRestaurantInfoSaved(savedRestaurantName, savedGoogleMapsUrl, savedContactEmail || '', savedServerNames);
     }
   }, [onRestaurantInfoSaved]);
 
@@ -91,6 +93,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
     setIsSaving(true);
 
     try {
+      console.log("RestaurantInfo: Saving preferences with server names:", serverNames);
       localStorage.setItem('restaurantInfo', JSON.stringify({
         restaurantName,
         googleMapsUrl,
@@ -101,7 +104,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         serverNames,
       }));
 
-      onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail);
+      onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, serverNames);
       setShowSuccess(true);
       toast({
         title: "Preferences saved!",

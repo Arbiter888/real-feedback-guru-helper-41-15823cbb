@@ -5,28 +5,26 @@ import { UserRound } from "lucide-react";
 
 interface ServerSelectionStepProps {
   onServerSelect: (serverName: string) => void;
+  serverNames: string[];
+  selectedServer: string | null;
 }
 
-export const ServerSelectionStep = ({ onServerSelect }: ServerSelectionStepProps) => {
-  const [serverNames, setServerNames] = useState<string[]>([]);
-  const [selectedServer, setSelectedServer] = useState<string | null>(null);
-
-  useEffect(() => {
-    const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
-    if (savedRestaurantInfo) {
-      const { serverNames: savedServerNames } = JSON.parse(savedRestaurantInfo);
-      if (Array.isArray(savedServerNames)) {
-        setServerNames(savedServerNames);
-      }
-    }
-  }, []);
+export const ServerSelectionStep = ({ 
+  onServerSelect,
+  serverNames,
+  selectedServer 
+}: ServerSelectionStepProps) => {
+  console.log("ServerSelectionStep rendered with names:", serverNames);
 
   const handleServerSelect = (name: string) => {
-    setSelectedServer(name);
+    console.log("Server selected:", name);
     onServerSelect(name);
   };
 
-  if (!serverNames.length) return null;
+  if (!serverNames.length) {
+    console.log("No server names available, hiding component");
+    return null;
+  }
 
   return (
     <div className="space-y-4">
