@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { ServerManagementSection } from "./ServerManagementSection";
+import { MenuUploadSection } from "./MenuUploadSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -13,6 +15,8 @@ interface RestaurantInfo {
   phoneNumber: string;
   bookingUrl: string;
   preferredBookingMethod: 'phone' | 'website';
+  serverNames?: string[];
+  menuAnalysis?: any;
 }
 
 interface RestaurantInfoSectionProps {
@@ -32,6 +36,20 @@ export const RestaurantInfoSection = ({
     setRestaurantInfo({
       ...restaurantInfo,
       [field]: e.target.value
+    });
+  };
+
+  const handleServerNamesChange = (names: string[]) => {
+    setRestaurantInfo({
+      ...restaurantInfo,
+      serverNames: names
+    });
+  };
+
+  const handleMenuAnalyzed = (analysis: any) => {
+    setRestaurantInfo({
+      ...restaurantInfo,
+      menuAnalysis: analysis
     });
   };
 
@@ -137,6 +155,13 @@ export const RestaurantInfoSection = ({
             placeholder="Enter your booking page URL"
           />
         </div>
+
+        <MenuUploadSection onMenuAnalyzed={handleMenuAnalyzed} />
+
+        <ServerManagementSection
+          serverNames={restaurantInfo.serverNames || []}
+          onServerNamesChange={handleServerNamesChange}
+        />
 
         <Button onClick={handleSavePreferences} className="w-full">
           Save Restaurant Information
