@@ -36,6 +36,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [htmlContent, setHtmlContent] = useState<string>("");
   const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
+  const [voucherHtml, setVoucherHtml] = useState<string>("");
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -114,15 +115,22 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     const formattedContent = formatEmailContent({
       content: emailContent,
       images: uploadedImages,
-      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant'
+      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
+      voucherHtml
     });
     setHtmlContent(formattedContent);
     setShowPreview(true);
   };
 
-  const handleVoucherGenerated = (voucherHtml: string) => {
-    const updatedHtmlContent = htmlContent.replace('</div>', `${voucherHtml}</div>`);
-    setHtmlContent(updatedHtmlContent);
+  const handleVoucherGenerated = (newVoucherHtml: string) => {
+    setVoucherHtml(newVoucherHtml);
+    const formattedContent = formatEmailContent({
+      content: emailContent,
+      images: uploadedImages,
+      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
+      voucherHtml: newVoucherHtml
+    });
+    setHtmlContent(formattedContent);
     setShowPreview(true);
   };
 
@@ -132,7 +140,14 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
         onEmailGenerated={(subject, content) => {
           setEmailSubject(subject);
           setEmailContent(content);
-          updateEmailContent();
+          const formattedContent = formatEmailContent({
+            content,
+            images: uploadedImages,
+            restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
+            voucherHtml
+          });
+          setHtmlContent(formattedContent);
+          setShowPreview(true);
         }}
       />
 
@@ -152,7 +167,17 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
         <ImageUploadSection
           uploadedImages={uploadedImages}
-          onImagesChange={setUploadedImages}
+          onImagesChange={(images) => {
+            setUploadedImages(images);
+            const formattedContent = formatEmailContent({
+              content: emailContent,
+              images,
+              restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
+              voucherHtml
+            });
+            setHtmlContent(formattedContent);
+            setShowPreview(true);
+          }}
           onContentUpdate={updateEmailContent}
         />
       </div>

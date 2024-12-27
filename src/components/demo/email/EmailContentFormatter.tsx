@@ -7,9 +7,10 @@ interface EmailContentFormatterProps {
     isFooter?: boolean;
   }>;
   restaurantName: string;
+  voucherHtml?: string;
 }
 
-export const formatEmailContent = ({ content, images, restaurantName }: EmailContentFormatterProps) => {
+export const formatEmailContent = ({ content, images, restaurantName, voucherHtml }: EmailContentFormatterProps) => {
   // Format the main content with proper spacing
   const mainContent = content.split('\n').map(paragraph => 
     paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
@@ -36,8 +37,9 @@ export const formatEmailContent = ({ content, images, restaurantName }: EmailCon
     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
       <p style="margin: 0 0 15px 0; line-height: 1.6;">Dear Food Lover,</p>
       ${mainContent}
-      ${warmRegards}
       ${contentImages}
+      ${voucherHtml || ''}
+      ${warmRegards}
     </div>
   `;
 };
