@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid';
 import { AiFeedbackSection } from "./AiFeedbackSection";
 import { IntroSection } from "./sections/IntroSection";
 import { TipJarSection } from "./tips/TipJarSection";
+import { saveReviewData } from "./rewards/ReviewDataManager";
 
 interface ReviewSectionProps {
   customRestaurantName?: string;
@@ -143,16 +144,52 @@ export const ReviewSection = ({
     }
   };
 
-  const handleCopyAndRedirect = () => {
+  const handleCopyAndRedirect = async () => {
     const finalReview = refinedReview || reviewText;
     navigator.clipboard.writeText(finalReview);
     window.open(googleMapsUrl, '_blank');
     const uniqueCode = nanoid(8);
     setRewardCode(uniqueCode);
-    toast({
-      title: "Review copied!",
-      description: "Opening Google Reviews in a new tab. Please paste your review there.",
-    });
+
+    // Get restaurant info for CRM
+    const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+    let restaurantInfo = null;
+    if (savedRestaurantInfo) {
+      restaurantInfo = JSON.parse(savedRestaurantInfo);
+    }
+
+    try {
+      // Get or create the restaurant's email list
+      const { data: listData, error: listError } = await supabase
+        .rpc('get_or_create_restaurant_email_list', {
+          restaurant_name: restaurantName
+        });
+
+      if (listError) throw listError;
+
+      // Save review data to CRM
+      await saveReviewData('', listData, {
+        reviewText: reviewText?.trim() || '',
+        refinedReview: refinedReview?.trim(),
+        analysisResult,
+        serverName: selectedServer?.trim(),
+        rewardCode: uniqueCode,
+        googleMapsUrl,
+        restaurantName,
+        restaurantInfo
+      });
+
+      toast({
+        title: "Review copied!",
+        description: "Opening Google Reviews in a new tab. Please paste your review there.",
+      });
+    } catch (error) {
+      console.error('Error saving to CRM:', error);
+      toast({
+        title: "Review copied!",
+        description: "Opening Google Reviews in a new tab. Please paste your review there.",
+      });
+    }
   };
 
   return (
