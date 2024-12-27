@@ -164,14 +164,14 @@ export const ReviewSection = ({
           />
         )}
         
-        <IntroSection />
-        
         <ServerSelectionStep 
           serverNames={serverNames}
           onServerSelect={setSelectedServer}
           selectedServer={selectedServer}
         />
 
+        <IntroSection />
+        
         <ThoughtsStep 
           reviewText={reviewText}
           onChange={setReviewText}
