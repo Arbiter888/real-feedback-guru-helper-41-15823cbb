@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, Send, TestTube2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AiPromptSection } from "./AiPromptSection";
 import { VoucherSection } from "./VoucherSection";
@@ -8,6 +9,7 @@ import { EmailHeader } from "./EmailHeader";
 import { EmailContent } from "./EmailContent";
 import { EmailPreview } from "./EmailPreview";
 import { ImageUploadSection, UploadedImage } from "./ImageUploadSection";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
@@ -31,6 +33,8 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [showPreview, setShowPreview] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
   const [htmlContent, setHtmlContent] = useState<string>("");
+  const [testEmail, setTestEmail] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -66,6 +70,45 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     }
   };
 
+  const handleSendTest = async () => {
+    if (!testEmail || !emailSubject.trim() || !emailContent.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide test email address, subject, and content.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSendingTest(true);
+    try {
+      const response = await supabase.functions.invoke("send-test-email", {
+        body: {
+          to: testEmail,
+          subject: emailSubject,
+          htmlContent: htmlContent || emailContent,
+          restaurantInfo,
+        },
+      });
+
+      if (response.error) throw new Error(response.error.message);
+
+      toast({
+        title: "Test email sent",
+        description: `Test email sent to ${testEmail}`,
+      });
+    } catch (error) {
+      console.error('Test email error:', error);
+      toast({
+        title: "Failed to send test email",
+        description: "There was an error sending the test email.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingTest(false);
+    }
+  };
+
   const updateEmailContent = () => {
     // Format the main content with proper spacing and warm regards
     const mainContent = emailContent.split('\n').map(paragraph => 
@@ -91,6 +134,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
     const newHtmlContent = `
       <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
+        <p style="margin: 0 0 15px 0; line-height: 1.6;">Dear Food Lover,</p>
         ${mainContent}
         ${warmRegards}
         ${contentImages}
@@ -140,7 +184,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
       <VoucherSection onVoucherGenerated={handleVoucherGenerated} />
 
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         <Button
           onClick={handleSend}
           disabled={isSending || disabled || !emailContent.trim() || !emailSubject.trim()}
@@ -152,9 +196,39 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
               Sending...
             </>
           ) : (
-            "Send Email Campaign"
+            <>
+              <Send className="mr-2 h-4 w-4" />
+              Send Email Campaign
+            </>
           )}
         </Button>
+        
+        <div className="flex gap-2 items-center flex-1">
+          <Input
+            type="email"
+            placeholder="Test email address"
+            value={testEmail}
+            onChange={(e) => setTestEmail(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            onClick={handleSendTest}
+            disabled={isSendingTest || !testEmail || !emailContent.trim() || !emailSubject.trim()}
+          >
+            {isSendingTest ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Testing...
+              </>
+            ) : (
+              <>
+                <TestTube2 className="mr-2 h-4 w-4" />
+                Test
+              </>
+            )}
+          </Button>
+        </div>
+
         <Button
           variant="outline"
           onClick={() => setShowPreview(!showPreview)}
