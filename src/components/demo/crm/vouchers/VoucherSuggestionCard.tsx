@@ -22,12 +22,32 @@ interface VoucherSuggestionCardProps {
 export const VoucherSuggestionCard = ({ customer, onVoucherGenerated }: VoucherSuggestionCardProps) => {
   const [suggestion, setSuggestion] = useState<VoucherSuggestion | null>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const generateVoucherSuggestion = async () => {
     try {
+      setIsLoading(true);
       const metadata = customer.metadata as any;
-      const { data: suggestionData } = await supabase.functions.invoke('suggest-voucher', {
+      
+      // Validate that we have review data before making the request
+      if (!metadata?.initial_review) {
+        toast({
+          title: "Missing review data",
+          description: "Cannot generate voucher suggestion without review data.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Generating voucher with data:', {
+        reviewText: metadata.initial_review,
+        refinedReview: metadata.refined_review,
+        receiptData: metadata.receipt_data,
+        customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+      });
+
+      const { data: suggestionData, error } = await supabase.functions.invoke('suggest-voucher', {
         body: { 
           reviewText: metadata.initial_review,
           refinedReview: metadata.refined_review,
@@ -36,15 +56,25 @@ export const VoucherSuggestionCard = ({ customer, onVoucherGenerated }: VoucherS
         }
       });
 
+      if (error) throw error;
+
+      console.log('Received suggestion:', suggestionData);
       setSuggestion(suggestionData);
       onVoucherGenerated(suggestionData);
-    } catch (error) {
+      
+      toast({
+        title: "Voucher suggestion generated",
+        description: "A personalized voucher has been created based on the customer's review.",
+      });
+    } catch (error: any) {
       console.error('Error generating voucher suggestion:', error);
       toast({
         title: "Generation failed",
-        description: "Failed to generate voucher suggestion.",
+        description: error.message || "Failed to generate voucher suggestion.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -65,9 +95,10 @@ export const VoucherSuggestionCard = ({ customer, onVoucherGenerated }: VoucherS
         onClick={generateVoucherSuggestion}
         variant="outline"
         size="sm"
+        disabled={isLoading}
       >
         <Gift className="mr-2 h-4 w-4" />
-        Suggest Voucher
+        {isLoading ? "Generating..." : "Suggest Voucher"}
       </Button>
     );
   }

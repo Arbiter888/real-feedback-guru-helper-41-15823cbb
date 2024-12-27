@@ -14,8 +14,9 @@ serve(async (req) => {
 
   try {
     const { reviewText, refinedReview, receiptData, customerName } = await req.json();
+    console.log('Received request with:', { reviewText, refinedReview, receiptData, customerName });
 
-    if (!reviewText) {
+    if (!reviewText?.trim()) {
       throw new Error("Review text is required");
     }
 
@@ -26,7 +27,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
