@@ -50,8 +50,8 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
     try {
       const { data, error } = await supabase.functions.invoke('suggest-voucher', {
         body: {
-          customerName: "Customer", // You can customize this if you have customer info
-          reviewText: "Positive review", // You can pass actual review text if available
+          customerName: "Customer",
+          reviewText: "Positive review",
         }
       });
       
@@ -116,7 +116,7 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
           id="offerDescription"
           value={offerDescription}
           onChange={(e) => setOfferDescription(e.target.value)}
-          placeholder="e.g., Weekdays only"
+          placeholder="e.g., Valid Monday to Thursday only. Excludes public holidays."
         />
       </div>
 

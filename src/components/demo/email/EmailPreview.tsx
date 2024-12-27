@@ -22,11 +22,11 @@ interface RestaurantInfo {
 export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo, footerImages }: EmailPreviewProps) => {
   if (!showPreview) return null;
 
-  // Replace **text** with bold text
-  const formattedContent = htmlContent.replace(
-    /\*\*(.*?)\*\*/g,
-    '<strong style="font-weight: 600;">$1</strong>'
-  );
+  // Replace **text** with bold text and remove contact placeholders
+  const formattedContent = htmlContent
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600;">$1</strong>')
+    .replace(/\[Your Name\][\s\S]*?\[Website URL\]/g, '')
+    .replace(/Warm regards,\s*$/, `Warm regards,\n${restaurantInfo.restaurantName}`);
 
   const footerImagesHtml = footerImages?.filter(img => img.added && img.isFooter)
     .map(img => `
