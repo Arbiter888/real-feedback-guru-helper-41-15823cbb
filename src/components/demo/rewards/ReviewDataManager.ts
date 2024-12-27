@@ -2,18 +2,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { ReviewMetadata } from "@/types/email";
 import { Json } from "@/integrations/supabase/types";
 
+interface ReviewData {
+  reviewText: string;
+  refinedReview?: string;
+  analysisResult?: any;
+  serverName?: string;
+  rewardCode: string;
+  googleMapsUrl?: string;
+  restaurantName?: string;
+  restaurantInfo?: {
+    restaurantName?: string;
+    googleMapsUrl?: string;
+    contactEmail?: string;
+    websiteUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    serverNames?: string[];
+  };
+}
+
 export const saveReviewData = async (
   email: string,
   listId: string,
-  reviewData: {
-    reviewText: string;
-    refinedReview?: string;
-    analysisResult?: any;
-    serverName?: string;
-    rewardCode: string;
-    googleMapsUrl?: string;
-    restaurantName?: string;
-  }
+  reviewData: ReviewData
 ) => {
   const now = new Date().toISOString();
   const stepsMetadata = {
