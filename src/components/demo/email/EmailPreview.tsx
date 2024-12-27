@@ -22,10 +22,13 @@ interface RestaurantInfo {
 export const EmailPreview = ({ emailSubject, htmlContent, showPreview, restaurantInfo, footerImages }: EmailPreviewProps) => {
   if (!showPreview) return null;
 
-  // Replace **text** with bold text and remove contact placeholders
+  // Replace placeholders with actual restaurant info
   const formattedContent = htmlContent
     .replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 600;">$1</strong>')
     .replace(/\[Your Name\][\s\S]*?\[Website URL\]/g, '')
+    .replace(/\[Phone Number\]/g, restaurantInfo.phoneNumber || 'our phone number')
+    .replace(/\[Website URL\]/g, restaurantInfo.websiteUrl || 'our website')
+    .replace(/\[Restaurant Name\]/g, restaurantInfo.restaurantName)
     .replace(/Warm regards,\s*$/, `Warm regards,\n${restaurantInfo.restaurantName}`);
 
   const footerImagesHtml = footerImages?.filter(img => img.added && img.isFooter)
