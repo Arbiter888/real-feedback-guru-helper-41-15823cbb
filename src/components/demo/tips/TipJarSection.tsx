@@ -11,10 +11,10 @@ export const TipJarSection = ({ serverName, totalAmount }: TipJarSectionProps) =
   if (!serverName) return null;
 
   const getSuggestedTips = (total: number) => {
-    const tips = [5]; // Minimum $5 tip
+    const tips = [5]; // Minimum £5 tip
     
     if (total) {
-      // Add 10%, 15%, 20% of the bill, rounded to nearest dollar
+      // Add 10%, 15%, 20% of the bill, rounded to nearest pound
       const percentages = [0.10, 0.15, 0.20];
       percentages.forEach(percentage => {
         const suggestedTip = Math.max(5, Math.round(total * percentage));
@@ -48,10 +48,10 @@ export const TipJarSection = ({ serverName, totalAmount }: TipJarSectionProps) =
             className="w-full"
             onClick={() => {
               // Placeholder for future payment integration
-              console.log(`Selected tip amount: $${amount}`);
+              console.log(`Selected tip amount: £${amount}`);
             }}
           >
-            ${amount}
+            £{amount}
           </Button>
         ))}
       </div>
