@@ -4,7 +4,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Check } from "lucide-react";
 import { BasicInfoSection } from "./restaurant/BasicInfoSection";
 import { SocialMediaSection } from "./restaurant/SocialMediaSection";
-import { MenuUploadSection } from "./restaurant/MenuUploadSection";
 import { ServerManagementSection } from "./restaurant/ServerManagementSection";
 import { RestaurantContactCard } from "./RestaurantContactCard";
 
@@ -141,8 +140,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
           instagramUrl={instagramUrl}
           onInfoChange={handleInfoChange}
         />
-
-        <MenuUploadSection onMenuAnalyzed={handleMenuAnalyzed} />
 
         <ServerManagementSection
           serverNames={serverNames}

@@ -181,10 +181,12 @@ export const ReviewSection = ({
           customGoogleMapsUrl={googleMapsUrl}
         />
 
-        <TipJarSection 
-          serverName={selectedServer}
-          totalAmount={analysisResult?.total_amount}
-        />
+        {analysisResult && selectedServer && (
+          <TipJarSection 
+            serverName={selectedServer}
+            totalAmount={analysisResult.total_amount}
+          />
+        )}
 
         {onTakeAiSurvey && (
           <AiFeedbackSection onTakeAiSurvey={onTakeAiSurvey} />
