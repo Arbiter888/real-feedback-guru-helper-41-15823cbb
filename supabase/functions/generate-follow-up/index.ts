@@ -63,14 +63,33 @@ serve(async (req) => {
             Create warm, engaging content that references specific details from their visit and review if available.
             The email should feel personal and genuine, maintaining a professional yet friendly tone.
             
-            Important: When mentioning the restaurant's online presence or contact methods, create HTML links using this format:
-            - For website: <a href="[websiteUrl]" style="color: #E94E87; text-decoration: none;">🌐 Visit our website</a>
-            - For Google Maps: <a href="[googleMapsUrl]" style="color: #E94E87; text-decoration: none;">📍 Find us on Google Maps</a>
-            - For Facebook: <a href="[facebookUrl]" style="color: #E94E87; text-decoration: none;">👥 Follow us on Facebook</a>
-            - For Instagram: <a href="[instagramUrl]" style="color: #E94E87; text-decoration: none;">📸 Follow us on Instagram</a>
-            - For phone: <a href="tel:[phoneNumber]" style="color: #E94E87; text-decoration: none;">📞 [phoneNumber]</a>
+            IMPORTANT FORMATTING INSTRUCTIONS:
+            When mentioning contact methods or online presence, you MUST use HTML links with this exact format:
             
-            Naturally incorporate these links into the email content where relevant.
+            1. Phone number:
+            <a href="tel:[phoneNumber]" style="color: #E94E87; text-decoration: none;">📞 [phoneNumber]</a>
+            
+            2. Website:
+            <a href="[websiteUrl]" style="color: #E94E87; text-decoration: none;">🌐 visit our website</a>
+            
+            3. Google Maps:
+            <a href="[googleMapsUrl]" style="color: #E94E87; text-decoration: none;">📍 find us on Google Maps</a>
+            
+            4. Facebook:
+            <a href="[facebookUrl]" style="color: #E94E87; text-decoration: none;">👥 follow us on Facebook</a>
+            
+            5. Instagram:
+            <a href="[instagramUrl]" style="color: #E94E87; text-decoration: none;">📸 follow us on Instagram</a>
+            
+            RULES:
+            - ALWAYS use the exact HTML format provided above, including the style and emojis
+            - Integrate these links naturally into sentences where relevant
+            - Don't use placeholder text - only create links for URLs that are actually provided
+            - If a URL is not provided, write the content without mentioning that contact method
+            
+            Example good integration:
+            "We'd love to have you back! You can easily <a href="tel:+1234567890" style="color: #E94E87; text-decoration: none;">📞 call us</a> to make a reservation, or <a href="https://restaurant.com" style="color: #E94E87; text-decoration: none;">🌐 book a table online</a>."
+            
             If a voucher is included, make it a central part of the thank you message.
             If no review data is available, focus on creating a welcoming message that encourages future visits.`
           },
@@ -83,20 +102,20 @@ serve(async (req) => {
             ${receiptData ? `They spent $${receiptData.total_amount} and ordered: ${receiptData.items.map(item => item.name).join(', ')}.` : ''}
             ${voucherDetails ? `Include this special offer: ${voucherDetails.title} - ${voucherDetails.description} (${voucherDetails.discountValue})` : ''}
             
-            Available links:
-            Website: ${restaurantInfo.websiteUrl || 'N/A'}
-            Google Maps: ${restaurantInfo.googleMapsUrl || 'N/A'}
-            Facebook: ${restaurantInfo.facebookUrl || 'N/A'}
-            Instagram: ${restaurantInfo.instagramUrl || 'N/A'}
-            Phone: ${restaurantInfo.phoneNumber || 'N/A'}
+            Available contact methods (only use the ones that are provided):
+            ${restaurantInfo.websiteUrl ? `Website: ${restaurantInfo.websiteUrl}` : ''}
+            ${restaurantInfo.googleMapsUrl ? `Google Maps: ${restaurantInfo.googleMapsUrl}` : ''}
+            ${restaurantInfo.facebookUrl ? `Facebook: ${restaurantInfo.facebookUrl}` : ''}
+            ${restaurantInfo.instagramUrl ? `Instagram: ${restaurantInfo.instagramUrl}` : ''}
+            ${restaurantInfo.phoneNumber ? `Phone: ${restaurantInfo.phoneNumber}` : ''}
             
             Create both a subject line and email content. Make the content personal ${reviewText ? 'and reference specific details from their visit.' : 'and welcoming.'}
             The email should thank them ${reviewText ? 'for their visit and review.' : 'for their interest in our restaurant.'}
             ${voucherDetails ? 'Make the voucher offer a highlight of the email.' : ''}
-            Naturally incorporate the available links where relevant in the content.`
+            Naturally incorporate the available contact methods where relevant in the content.`
           }
         ],
-        temperature: 0.7,
+        temperature: 0.5, // Lower temperature for more consistent formatting
       }),
     });
 
