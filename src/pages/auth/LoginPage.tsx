@@ -20,8 +20,9 @@ export default function LoginPage() {
     });
   }, [navigate]);
 
-  const handleHomeClick = () => {
-    navigate("/");
+  const handleHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Prevent any default button behavior
+    navigate("/"); // Navigate to home page
   };
 
   return (
