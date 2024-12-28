@@ -42,7 +42,7 @@ export const saveReviewData = async (
     .upsert({
       review_text: reviewData.reviewText,
       refined_review: reviewData.refinedReview,
-      receipt_data: reviewData.analysisResult,
+      receipt_data: reviewData.analysisResult, // Keep as receipt_data for the reviews table
       server_name: reviewData.serverName,
       business_name: reviewData.restaurantName || "The Local Kitchen & Bar",
       unique_code: reviewData.rewardCode,
@@ -65,7 +65,7 @@ export const saveReviewData = async (
   const metadata: ReviewMetadata = {
     initial_review: reviewData.reviewText,
     refined_review: reviewData.refinedReview,
-    receipt_analysis: reviewData.analysisResult, // Changed from receipt_data to receipt_analysis
+    receipt_analysis: reviewData.analysisResult, // Use receipt_analysis for the metadata
     server_name: reviewData.serverName,
     reward_code: reviewData.rewardCode,
     google_maps_url: reviewData.googleMapsUrl,
