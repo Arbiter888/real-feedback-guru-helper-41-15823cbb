@@ -36,10 +36,10 @@ export const saveReviewData = async (
     }
   };
 
-  // Create review entry
+  // Create or update review entry using upsert
   const { data: reviewData_, error: reviewError } = await supabase
     .from('reviews')
-    .insert({
+    .upsert({
       review_text: reviewData.reviewText,
       refined_review: reviewData.refinedReview,
       receipt_data: reviewData.analysisResult,
@@ -52,6 +52,9 @@ export const saveReviewData = async (
       receipt_uploaded_at: reviewData.analysisResult ? now : null,
       review_enhanced_at: reviewData.refinedReview ? now : null,
       review_copied_at: now
+    }, {
+      onConflict: 'unique_code',
+      ignoreDuplicates: false
     })
     .select()
     .single();
@@ -77,6 +80,9 @@ export const saveReviewData = async (
       list_id: listId,
       email: email,
       metadata: metadata as unknown as Json
+    }, {
+      onConflict: 'list_id,email',
+      ignoreDuplicates: false
     });
 
   if (contactError) throw contactError;
