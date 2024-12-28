@@ -75,8 +75,12 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
       }
 
       const uniqueSlug = generateUniqueSlug(restaurantName);
-      const baseUrl = window.location.origin;
-      const fullUrl = `${baseUrl}/restaurant-review/${uniqueSlug}`;
+      
+      // Generate the correct URL path
+      const generatedUrlPath = `/restaurant-review/${uniqueSlug}`;
+      
+      // For QR code, use the full URL including the current hostname
+      const fullUrl = `${window.location.origin}${generatedUrlPath}`;
 
       const { data, error } = await supabase
         .from('demo_pages')
@@ -86,7 +90,8 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             google_maps_url: googleMapsUrl,
             contact_email: contactEmail,
             slug: uniqueSlug,
-            server_names: serverNames || []
+            server_names: serverNames || [],
+            full_url: fullUrl // Store the full URL in the database
           }
         ])
         .select()
@@ -97,8 +102,6 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
         throw error;
       }
 
-      const generatedUrlPath = `/restaurant-review/${uniqueSlug}`;
-      
       // Save the generated URL and review page ID to localStorage
       localStorage.setItem('generatedUrl', generatedUrlPath);
       localStorage.setItem('reviewPageId', data.id);
