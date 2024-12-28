@@ -62,16 +62,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           setUser(null);
-          // Only redirect to login if not on public routes
-          if (!location.pathname.match(/^\/[^/]+$/) && 
-              location.pathname !== '/' && 
-              !location.pathname.startsWith('/auth/login')) {
+          if (!location.pathname.startsWith('/auth/login') && 
+              !location.pathname.match(/^\/[^/]+$/) && 
+              location.pathname !== '/') {
             navigate('/auth/login');
           }
         }
       } catch (error) {
         console.error('Error in auth initialization:', error);
         setUser(null);
+        if (!location.pathname.match(/^\/[^/]+$/) && location.pathname !== '/') {
+          navigate('/auth/login');
+        }
       } finally {
         setLoading(false);
       }
