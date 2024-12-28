@@ -65,7 +65,7 @@ export const saveReviewData = async (
   const metadata: ReviewMetadata = {
     initial_review: reviewData.reviewText,
     refined_review: reviewData.refinedReview,
-    receipt_data: reviewData.analysisResult, // Include receipt data in metadata
+    receipt_analysis: reviewData.analysisResult, // Changed from receipt_data to receipt_analysis
     server_name: reviewData.serverName,
     reward_code: reviewData.rewardCode,
     google_maps_url: reviewData.googleMapsUrl,
