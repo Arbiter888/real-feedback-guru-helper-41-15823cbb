@@ -32,37 +32,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const handleAuthError = async (error: AuthError | null) => {
     if (error) {
       console.error('Auth error:', error);
-      await supabase.auth.signOut();
-      setUser(null);
-      navigate('/auth/login');
       toast({
-        title: "Session expired",
-        description: "Please sign in again.",
+        title: "Authentication Error",
+        description: error.message,
         variant: "destructive",
       });
+      await supabase.auth.signOut();
+      setUser(null);
+      if (!location.pathname.startsWith('/auth/login') && !location.pathname.match(/^\/[^/]+$/)) {
+        navigate('/auth/login');
+      }
     }
   };
 
   useEffect(() => {
-    // Get initial session
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
-          // Clear any invalid session data
-          await supabase.auth.signOut();
-          setUser(null);
-          // Only redirect to login if not on a public route and not already on login page
-          if (!location.pathname.startsWith('/auth/login') && !location.pathname.match(/^\/[^/]+$/)) {
-            navigate('/auth/login');
-          }
+          await handleAuthError(error);
         } else if (session) {
           setUser(session.user);
+          // Only redirect to dashboard if on login page
+          if (location.pathname === '/auth/login') {
+            navigate('/dashboard');
+          }
         } else {
           setUser(null);
-          // Only redirect to login if not on a public route and not already on login page
           if (!location.pathname.startsWith('/auth/login') && !location.pathname.match(/^\/[^/]+$/)) {
             navigate('/auth/login');
           }
@@ -70,7 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Error in auth initialization:', error);
         setUser(null);
-        // Only redirect to login if not on a public route
         if (!location.pathname.match(/^\/[^/]+$/)) {
           navigate('/auth/login');
         }
@@ -81,7 +77,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initializeAuth();
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -91,7 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        // Only redirect to login if not on a public route
         if (!location.pathname.match(/^\/[^/]+$/)) {
           navigate('/auth/login');
         }

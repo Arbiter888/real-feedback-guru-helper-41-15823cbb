@@ -1,69 +1,45 @@
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
-import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { useState } from 'react';
+import { Auth } from '@supabase/auth-ui-react';
+import { ThemeSupa } from '@supabase/auth-ui-shared';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-export default function LoginPage() {
-  const navigate = useNavigate();
+const LoginPage = () => {
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate("/dashboard");
-      }
-    });
-  }, [navigate]);
-
-  const handleHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // Prevent any default button behavior
-    navigate("/"); // Navigate to home page
-  };
+  const [loading, setLoading] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        <div className="mb-8 text-center">
-          <Button 
-            variant="outline" 
-            onClick={handleHomeClick}
-            className="mb-6 bg-white hover:bg-white/90 text-primary border-primary/20"
-          >
-            <Home className="mr-2 h-4 w-4" />
-            Home
-          </Button>
-          <img 
-            src="/lovable-uploads/50980a14-589f-4bd1-8267-536c582ff4e1.png" 
-            alt="EatUP! Logo" 
-            className="h-16 mx-auto mb-6"
-          />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to EatUP!</h1>
-          <p className="text-muted-foreground">Sign in to manage your restaurant reviews</p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow">
+        <div className="text-center">
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Welcome back
+          </h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Sign in to your account
+          </p>
         </div>
-        <div className="bg-white p-6 rounded-xl shadow-lg">
-          <Auth
-            supabaseClient={supabase}
-            appearance={{
-              theme: ThemeSupa,
-              variables: {
-                default: {
-                  colors: {
-                    brand: '#E94E87',
-                    brandAccent: '#D13D73',
-                  },
-                },
+        <Auth
+          supabaseClient={supabase}
+          appearance={{
+            theme: ThemeSupa,
+            style: {
+              button: {
+                background: '#E94E87',
+                color: 'white',
+                borderRadius: '0.375rem',
               },
-            }}
-            providers={[]}
-            theme="light"
-          />
-        </div>
+              anchor: {
+                color: '#E94E87',
+              },
+            },
+          }}
+          theme="light"
+          providers={[]}
+        />
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;
