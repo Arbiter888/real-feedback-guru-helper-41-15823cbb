@@ -21,7 +21,7 @@ function App() {
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/dashboard/create-review-page" element={<CreateReviewPage />} />
-          <Route path="/:slug" element={<RestaurantReviewPage />} />
+          <Route path="/restaurant-review/:slug" element={<RestaurantReviewPage />} />
         </Routes>
         <Toaster />
       </AuthProvider>
