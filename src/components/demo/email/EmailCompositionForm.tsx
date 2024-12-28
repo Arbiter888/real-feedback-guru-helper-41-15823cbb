@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Send, TestTube2 } from "lucide-react";
@@ -37,6 +37,17 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [voucherHtml, setVoucherHtml] = useState<string>("");
+
+  useEffect(() => {
+    const formattedContent = formatEmailContent({
+      content: emailContent,
+      images: uploadedImages,
+      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
+      voucherHtml
+    });
+    setHtmlContent(formattedContent);
+    if (emailContent) setShowPreview(true);
+  }, [emailContent, uploadedImages, restaurantInfo, voucherHtml]);
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -111,29 +122,6 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     }
   };
 
-  const updateEmailContent = () => {
-    const formattedContent = formatEmailContent({
-      content: emailContent,
-      images: uploadedImages,
-      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
-      voucherHtml
-    });
-    setHtmlContent(formattedContent);
-    setShowPreview(true);
-  };
-
-  const handleVoucherGenerated = (newVoucherHtml: string) => {
-    setVoucherHtml(newVoucherHtml);
-    const formattedContent = formatEmailContent({
-      content: emailContent,
-      images: uploadedImages,
-      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
-      voucherHtml: newVoucherHtml
-    });
-    setHtmlContent(formattedContent);
-    setShowPreview(true);
-  };
-
   return (
     <div className="space-y-4">
       <AiPromptSection 
@@ -159,30 +147,16 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
         <EmailContent 
           emailContent={emailContent}
-          setEmailContent={(content) => {
-            setEmailContent(content);
-            updateEmailContent();
-          }}
+          setEmailContent={setEmailContent}
         />
 
         <ImageUploadSection
           uploadedImages={uploadedImages}
-          onImagesChange={(images) => {
-            setUploadedImages(images);
-            const formattedContent = formatEmailContent({
-              content: emailContent,
-              images,
-              restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
-              voucherHtml
-            });
-            setHtmlContent(formattedContent);
-            setShowPreview(true);
-          }}
-          onContentUpdate={updateEmailContent}
+          setUploadedImages={setUploadedImages}
         />
       </div>
 
-      <VoucherSection onVoucherGenerated={handleVoucherGenerated} />
+      <VoucherSection setVoucherHtml={setVoucherHtml} />
 
       <div className="flex gap-4 items-center">
         <Button

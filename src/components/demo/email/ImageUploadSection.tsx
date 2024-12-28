@@ -15,11 +15,10 @@ export interface UploadedImage {
 
 interface ImageUploadSectionProps {
   uploadedImages: UploadedImage[];
-  onImagesChange: (images: UploadedImage[]) => void;
-  onContentUpdate: () => void;
+  setUploadedImages: React.Dispatch<React.SetStateAction<UploadedImage[]>>;
 }
 
-export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUpdate }: ImageUploadSectionProps) => {
+export const ImageUploadSection = ({ uploadedImages, setUploadedImages }: ImageUploadSectionProps) => {
   const { toast } = useToast();
   const [isFooterImage, setIsFooterImage] = useState(false);
 
@@ -51,7 +50,7 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
       });
 
       const newImages = await Promise.all(uploadPromises);
-      onImagesChange([...uploadedImages, ...newImages]);
+      setUploadedImages([...uploadedImages, ...newImages]);
       
       toast({
         title: "Images uploaded successfully",
@@ -70,7 +69,7 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
   const handleImageTitleChange = (index: number, title: string) => {
     const updatedImages = [...uploadedImages];
     updatedImages[index] = { ...updatedImages[index], title };
-    onImagesChange(updatedImages);
+    setUploadedImages(updatedImages);
   };
 
   const handleAddImageToEmail = (index: number) => {
@@ -89,15 +88,13 @@ export const ImageUploadSection = ({ uploadedImages, onImagesChange, onContentUp
       added: true,
       isFooter: isFooterImage 
     };
-    onImagesChange(updatedImages);
-    onContentUpdate();
+    setUploadedImages(updatedImages);
   };
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = [...uploadedImages];
     updatedImages.splice(index, 1);
-    onImagesChange(updatedImages);
-    onContentUpdate();
+    setUploadedImages(updatedImages);
   };
 
   return (

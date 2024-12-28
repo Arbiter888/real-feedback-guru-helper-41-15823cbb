@@ -10,10 +10,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface VoucherSectionProps {
-  onVoucherGenerated: (voucherHtml: string) => void;
+  setVoucherHtml: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
+export const VoucherSection = ({ setVoucherHtml }: VoucherSectionProps) => {
   const [offerTitle, setOfferTitle] = useState("");
   const [offerDescription, setOfferDescription] = useState("");
   const [voucherCode, setVoucherCode] = useState("");
@@ -42,7 +42,7 @@ export const VoucherSection = ({ onVoucherGenerated }: VoucherSectionProps) => {
       </div>
     `;
 
-    onVoucherGenerated(voucherHtml);
+    setVoucherHtml(voucherHtml);
   };
 
   const generateSuggestion = async () => {
