@@ -27,6 +27,10 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
     try {
       const qrCodeDataUrl = await QRCode.toDataURL(url);
       setQrCodeUrl(qrCodeDataUrl);
+      
+      // Save QR code URL to localStorage for persistence
+      localStorage.setItem('qrCodeUrl', qrCodeDataUrl);
+      
       toast({
         title: "QR Code Generated!",
         description: "You can now download the PDF with the QR code.",
@@ -92,6 +96,10 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
         console.error('Error creating review page:', error);
         throw error;
       }
+
+      // Save the generated URL and review page ID to localStorage
+      localStorage.setItem('generatedUrl', `/${uniqueSlug}`);
+      localStorage.setItem('reviewPageId', data.id);
 
       setReviewPageId(data.id);
       setGeneratedUrl(`/${uniqueSlug}`);
