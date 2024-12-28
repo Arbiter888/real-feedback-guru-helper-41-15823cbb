@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, AuthError } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -27,6 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleAuthError = async (error: AuthError | null) => {
     if (error) {
@@ -53,20 +54,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Clear any invalid session data
           await supabase.auth.signOut();
           setUser(null);
-          navigate('/auth/login');
+          // Only redirect to login if not on a public route and not already on login page
+          if (!location.pathname.startsWith('/auth/login') && !location.pathname.match(/^\/[^/]+$/)) {
+            navigate('/auth/login');
+          }
         } else if (session) {
           setUser(session.user);
         } else {
           setUser(null);
-          // Only redirect to login if not already on login page
-          if (!window.location.pathname.includes('/auth/login')) {
+          // Only redirect to login if not on a public route and not already on login page
+          if (!location.pathname.startsWith('/auth/login') && !location.pathname.match(/^\/[^/]+$/)) {
             navigate('/auth/login');
           }
         }
       } catch (error) {
         console.error('Error in auth initialization:', error);
         setUser(null);
-        navigate('/auth/login');
+        // Only redirect to login if not on a public route
+        if (!location.pathname.match(/^\/[^/]+$/)) {
+          navigate('/auth/login');
+        }
       } finally {
         setLoading(false);
       }
@@ -84,7 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        navigate('/auth/login');
+        // Only redirect to login if not on a public route
+        if (!location.pathname.match(/^\/[^/]+$/)) {
+          navigate('/auth/login');
+        }
       } else if (event === 'SIGNED_IN') {
         setUser(session?.user ?? null);
         navigate('/dashboard');
@@ -98,7 +108,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast]);
+  }, [navigate, toast, location]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
