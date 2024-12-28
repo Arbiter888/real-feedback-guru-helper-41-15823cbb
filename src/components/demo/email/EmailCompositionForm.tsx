@@ -111,7 +111,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
     setIsSending(true);
     try {
-      await onSend(emailSubject, htmlContent || emailContent + footerHtml);
+      await onSend(emailSubject, '<div>' + (htmlContent || emailContent) + footerHtml + '</div>');
       setEmailSubject("");
       setEmailContent("");
       setHtmlContent("");
@@ -149,7 +149,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
         body: {
           to: testEmail,
           subject: emailSubject,
-          htmlContent: htmlContent || emailContent + footerHtml,
+          htmlContent: '<div>' + (htmlContent || emailContent) + footerHtml + '</div>',
           restaurantInfo,
         },
       });
