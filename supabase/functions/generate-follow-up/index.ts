@@ -55,13 +55,22 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
             content: `You are an expert at creating personalized follow-up emails for restaurant customers. 
             Create warm, engaging content that references specific details from their visit and review if available.
             The email should feel personal and genuine, maintaining a professional yet friendly tone.
+            
+            Important: When mentioning the restaurant's online presence or contact methods, create HTML links using this format:
+            - For website: <a href="[websiteUrl]" style="color: #E94E87; text-decoration: none;">🌐 Visit our website</a>
+            - For Google Maps: <a href="[googleMapsUrl]" style="color: #E94E87; text-decoration: none;">📍 Find us on Google Maps</a>
+            - For Facebook: <a href="[facebookUrl]" style="color: #E94E87; text-decoration: none;">👥 Follow us on Facebook</a>
+            - For Instagram: <a href="[instagramUrl]" style="color: #E94E87; text-decoration: none;">📸 Follow us on Instagram</a>
+            - For phone: <a href="tel:[phoneNumber]" style="color: #E94E87; text-decoration: none;">📞 [phoneNumber]</a>
+            
+            Naturally incorporate these links into the email content where relevant.
             If a voucher is included, make it a central part of the thank you message.
             If no review data is available, focus on creating a welcoming message that encourages future visits.`
           },
@@ -74,9 +83,17 @@ serve(async (req) => {
             ${receiptData ? `They spent $${receiptData.total_amount} and ordered: ${receiptData.items.map(item => item.name).join(', ')}.` : ''}
             ${voucherDetails ? `Include this special offer: ${voucherDetails.title} - ${voucherDetails.description} (${voucherDetails.discountValue})` : ''}
             
+            Available links:
+            Website: ${restaurantInfo.websiteUrl || 'N/A'}
+            Google Maps: ${restaurantInfo.googleMapsUrl || 'N/A'}
+            Facebook: ${restaurantInfo.facebookUrl || 'N/A'}
+            Instagram: ${restaurantInfo.instagramUrl || 'N/A'}
+            Phone: ${restaurantInfo.phoneNumber || 'N/A'}
+            
             Create both a subject line and email content. Make the content personal ${reviewText ? 'and reference specific details from their visit.' : 'and welcoming.'}
             The email should thank them ${reviewText ? 'for their visit and review.' : 'for their interest in our restaurant.'}
-            ${voucherDetails ? 'Make the voucher offer a highlight of the email.' : ''}`
+            ${voucherDetails ? 'Make the voucher offer a highlight of the email.' : ''}
+            Naturally incorporate the available links where relevant in the content.`
           }
         ],
         temperature: 0.7,
