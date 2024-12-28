@@ -4,7 +4,7 @@ import { Link2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { nanoid } from "nanoid";
-import QRCode from "qrcode";
+import { generateAndUploadQRCode } from "@/utils/qrCodeUtils";
 import { jsPDF } from "jspdf";
 
 const generateUniqueSlug = (baseName: string) => {
@@ -25,11 +25,11 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
 
   const generateQRCodeAndPDF = async (url: string, restaurantName: string) => {
     try {
-      const qrCodeDataUrl = await QRCode.toDataURL(url);
-      setQrCodeUrl(qrCodeDataUrl);
+      const qrCodeUrl = await generateAndUploadQRCode(url);
+      setQrCodeUrl(qrCodeUrl);
       
       // Save QR code URL to localStorage for persistence
-      localStorage.setItem('qrCodeUrl', qrCodeDataUrl);
+      localStorage.setItem('qrCodeUrl', qrCodeUrl);
       
       toast({
         title: "QR Code Generated!",

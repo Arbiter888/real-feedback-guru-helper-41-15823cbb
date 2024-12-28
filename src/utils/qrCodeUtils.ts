@@ -1,10 +1,10 @@
 import QRCode from "qrcode";
 import { supabase } from "@/integrations/supabase/client";
 
-export async function generateAndUploadQRCode(content: string): Promise<string> {
+export const generateAndUploadQRCode = async (content: string): Promise<string> => {
   try {
-    // Generate QR code as buffer
-    const buffer = await QRCode.toBuffer(content, {
+    // Generate QR code as data URL
+    const qrCodeDataUrl = await QRCode.toDataURL(content, {
       width: 1000,
       margin: 2,
       color: {
@@ -13,8 +13,10 @@ export async function generateAndUploadQRCode(content: string): Promise<string> 
       },
     });
 
-    // Create a File object from the buffer
-    const file = new File([buffer], `qr-${Date.now()}.png`, { type: 'image/png' });
+    // Convert data URL to Blob
+    const response = await fetch(qrCodeDataUrl);
+    const blob = await response.blob();
+    const file = new File([blob], `qr-${Date.now()}.png`, { type: 'image/png' });
 
     // Upload to Supabase Storage
     const { data, error: uploadError } = await supabase.storage
@@ -36,4 +38,4 @@ export async function generateAndUploadQRCode(content: string): Promise<string> 
     console.error('Error generating and uploading QR code:', error);
     throw error;
   }
-}
+};

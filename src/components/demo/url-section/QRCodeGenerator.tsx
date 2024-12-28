@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { QrCode, Loader2 } from "lucide-react";
-import QRCode from "qrcode";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { generateAndUploadQRCode } from "@/utils/qrCodeUtils";
 
 interface QRCodeGeneratorProps {
   url: string;
@@ -18,36 +17,8 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
   const generateQRCode = async () => {
     try {
       setIsGenerating(true);
-      
-      // Generate QR code as buffer
-      const buffer = await QRCode.toBuffer(url, {
-        width: 1000,
-        margin: 2,
-        color: {
-          dark: "#000000",
-          light: "#FFFFFF",
-        },
-      });
-
-      // Create a File object from the buffer
-      const file = new File([buffer], `qr-${Date.now()}.png`, { type: 'image/png' });
-
-      // Upload to Supabase Storage
-      const { data, error: uploadError } = await supabase.storage
-        .from('qr_codes')
-        .upload(`${crypto.randomUUID()}.png`, file, {
-          contentType: 'image/png',
-          upsert: false
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('qr_codes')
-        .getPublicUrl(data.path);
-
-      onQRGenerated(publicUrl);
+      const qrCodeUrl = await generateAndUploadQRCode(url);
+      onQRGenerated(qrCodeUrl);
       setQrGenerated(true);
       
       toast({
