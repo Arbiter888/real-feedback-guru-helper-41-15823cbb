@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { LogOut, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
@@ -74,13 +74,23 @@ export default function DashboardPage() {
     navigate("/");
   };
 
+  const handleHomeClick = () => {
+    navigate("/");
+  };
+
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={handleHomeClick}>
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
+          </div>
           <Button variant="outline" onClick={handleLogout}>
             <LogOut className="mr-2 h-4 w-4" />
             Logout
