@@ -37,6 +37,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [voucherHtml, setVoucherHtml] = useState<string>("");
+  const [footerHtml, setFooterHtml] = useState<string>("");
 
   useEffect(() => {
     const formattedContent = formatEmailContent({
@@ -48,6 +49,55 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     setHtmlContent(formattedContent);
     if (emailContent) setShowPreview(true);
   }, [emailContent, uploadedImages, restaurantInfo, voucherHtml]);
+
+  useEffect(() => {
+    const footerImagesHtml = uploadedImages.filter(img => img.added && img.isFooter)
+      .map(img => `
+        <div style="text-align: center; margin: 20px 0;">
+          <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
+          ${img.title ? `<p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>` : ''}
+        </div>
+      `).join('\n') || '';
+
+    setFooterHtml(`
+      <div style="margin-top: 30px; padding: 20px 0; border-top: 1px solid #eee;">
+        ${footerImagesHtml}
+        <div style="margin-bottom: 20px;">
+          ${restaurantInfo.phoneNumber ? `
+            <p style="margin: 8px 0;">
+              <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+                📞 ${restaurantInfo.phoneNumber}
+              </a>
+            </p>
+          ` : ''}
+          ${restaurantInfo.googleMapsUrl ? `
+            <p style="margin: 8px 0;">
+              <a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+                📍 Find us on Google Maps
+              </a>
+            </p>
+          ` : ''}
+        </div>
+        <div style="margin-top: 16px;">
+          ${restaurantInfo.websiteUrl ? `
+            <a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
+              🌐 Visit our Website
+            </a>
+          ` : ''}
+          ${restaurantInfo.facebookUrl ? `
+            <a href="${restaurantInfo.facebookUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
+              👥 Follow us on Facebook
+            </a>
+          ` : ''}
+          ${restaurantInfo.instagramUrl ? `
+            <a href="${restaurantInfo.instagramUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+              📸 Follow us on Instagram
+            </a>
+          ` : ''}
+        </div>
+      </div>
+    `);
+  }, [restaurantInfo, uploadedImages]);
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -61,7 +111,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
     setIsSending(true);
     try {
-      await onSend(emailSubject, htmlContent || emailContent);
+      await onSend(emailSubject, htmlContent || emailContent + footerHtml);
       setEmailSubject("");
       setEmailContent("");
       setHtmlContent("");
@@ -99,7 +149,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
         body: {
           to: testEmail,
           subject: emailSubject,
-          htmlContent: htmlContent || emailContent,
+          htmlContent: htmlContent || emailContent + footerHtml,
           restaurantInfo,
         },
       });
@@ -225,7 +275,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           bookingUrl: "",
           googleMapsUrl: "",
         }}
-        footerImages={uploadedImages}
+        footerHtml={footerHtml}
       />
     </div>
   );
