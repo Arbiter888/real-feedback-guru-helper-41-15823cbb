@@ -62,6 +62,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           setUser(null);
+          // Only redirect to login if not on public routes
+          if (!location.pathname.match(/^\/[^/]+$/) && 
+              location.pathname !== '/' && 
+              !location.pathname.startsWith('/auth/login')) {
+            navigate('/auth/login');
+          }
         }
       } catch (error) {
         console.error('Error in auth initialization:', error);
