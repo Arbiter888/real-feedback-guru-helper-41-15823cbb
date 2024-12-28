@@ -1,57 +1,43 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User, AuthError } from '@supabase/supabase-js';
-import { useToast } from '@/hooks/use-toast';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { createContext, useContext, useEffect, useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { User } from '@supabase/supabase-js'
+import { supabase } from '@/integrations/supabase/client'
 
 interface AuthContextType {
-  user: User | null;
-  loading: boolean;
+  user: User | null
+  signOut: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  loading: true,
-});
+  signOut: async () => {},
+})
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+  return useContext(AuthContext)
+}
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const location = useLocation();
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null)
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  const handleAuthError = async (error: AuthError | null) => {
-    if (error) {
-      console.error('Auth error:', error);
-      toast({
-        title: "Authentication Error",
-        description: error.message,
-        variant: "destructive",
-      });
+  const signOut = async () => {
+    try {
       await supabase.auth.signOut();
       setUser(null);
+      navigate('/restaurant-review');
+    } catch (error) {
+      console.error('Error signing out:', error);
     }
   };
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          await handleAuthError(error);
-        } else if (session) {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
           setUser(session.user);
-          // Only redirect to dashboard if on login page
           if (location.pathname === '/auth/login') {
             navigate('/dashboard');
           }
@@ -61,39 +47,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         console.error('Error in auth initialization:', error);
         setUser(null);
-      } finally {
-        setLoading(false);
       }
     };
 
     initializeAuth();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state changed:', event);
-      
-      if (event === 'TOKEN_REFRESHED') {
-        setUser(session?.user ?? null);
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-      } else if (event === 'SIGNED_IN') {
-        setUser(session?.user ?? null);
-        navigate('/dashboard');
-      } else if (event === 'USER_UPDATED') {
-        setUser(session?.user ?? null);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'TOKEN_REFRESHED') {
+          setUser(session?.user ?? null);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          navigate('/restaurant-review');
+        } else if (event === 'SIGNED_IN') {
+          setUser(session?.user ?? null);
+          navigate('/dashboard');
+        }
       }
-
-      setLoading(false);
-    });
+    );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, toast, location]);
+  }, [navigate, location.pathname]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, signOut }}>
       {children}
     </AuthContext.Provider>
   );
