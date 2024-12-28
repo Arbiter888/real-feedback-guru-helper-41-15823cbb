@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -18,10 +20,24 @@ export default function LoginPage() {
     });
   }, [navigate]);
 
+  const handleHomeClick = () => {
+    navigate("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center relative">
+          <div className="absolute left-0 top-0">
+            <Button 
+              variant="ghost" 
+              onClick={handleHomeClick}
+              className="text-primary hover:text-primary/90"
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
+          </div>
           <img 
             src="/lovable-uploads/50980a14-589f-4bd1-8267-536c582ff4e1.png" 
             alt="EatUP! Logo" 
