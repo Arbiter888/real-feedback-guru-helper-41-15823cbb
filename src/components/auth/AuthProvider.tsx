@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -25,6 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -37,12 +39,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Clear any invalid session data
           await supabase.auth.signOut();
           setUser(null);
+          navigate('/auth/login');
+        } else if (session) {
+          setUser(session.user);
         } else {
-          setUser(session?.user ?? null);
+          setUser(null);
+          // Only redirect to login if not already on login page
+          if (!window.location.pathname.includes('/auth/login')) {
+            navigate('/auth/login');
+          }
         }
       } catch (error) {
         console.error('Error in auth initialization:', error);
         setUser(null);
+        navigate('/auth/login');
       } finally {
         setLoading(false);
       }
@@ -60,10 +70,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
+        navigate('/auth/login');
       } else if (event === 'SIGNED_IN') {
         setUser(session?.user ?? null);
+        navigate('/dashboard');
       } else if (event === 'USER_UPDATED') {
         setUser(session?.user ?? null);
+      }
+
+      // Handle token refresh errors
+      if (event === 'TOKEN_REFRESH_FAILED') {
+        console.error('Token refresh failed');
+        await supabase.auth.signOut();
+        setUser(null);
+        navigate('/auth/login');
+        toast({
+          title: "Session expired",
+          description: "Please sign in again.",
+          variant: "destructive",
+        });
       }
 
       setLoading(false);
@@ -72,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate, toast]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
