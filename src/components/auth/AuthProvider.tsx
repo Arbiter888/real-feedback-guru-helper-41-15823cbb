@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import type { User, AuthError } from '@supabase/supabase-js';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,6 +27,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const handleAuthError = async (error: AuthError | null) => {
+    if (error) {
+      console.error('Auth error:', error);
+      await supabase.auth.signOut();
+      setUser(null);
+      navigate('/auth/login');
+      toast({
+        title: "Session expired",
+        description: "Please sign in again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     // Get initial session
@@ -78,17 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
       }
 
-      // Handle token refresh errors
-      if (event === 'TOKEN_REFRESH_FAILED') {
-        console.error('Token refresh failed');
-        await supabase.auth.signOut();
-        setUser(null);
-        navigate('/auth/login');
-        toast({
-          title: "Session expired",
-          description: "Please sign in again.",
-          variant: "destructive",
-        });
+      // Handle any auth errors
+      if (session?.error) {
+        await handleAuthError(session.error);
       }
 
       setLoading(false);
