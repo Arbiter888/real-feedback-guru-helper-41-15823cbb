@@ -61,11 +61,11 @@ export const saveReviewData = async (
 
   if (reviewError) throw reviewError;
 
-  // Create or update email contact
+  // Create or update email contact with receipt data
   const metadata: ReviewMetadata = {
     initial_review: reviewData.reviewText,
     refined_review: reviewData.refinedReview,
-    receipt_analysis: reviewData.analysisResult,
+    receipt_data: reviewData.analysisResult, // Include receipt data in metadata
     server_name: reviewData.serverName,
     reward_code: reviewData.rewardCode,
     google_maps_url: reviewData.googleMapsUrl,
