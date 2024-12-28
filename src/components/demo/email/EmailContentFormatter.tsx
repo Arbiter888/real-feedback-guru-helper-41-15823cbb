@@ -26,12 +26,16 @@ export const formatEmailContent = ({
   voucherHtml,
   restaurantInfo 
 }: EmailContentFormatterProps) => {
-  // Format the main content with proper spacing
-  const mainContent = content.split('\n').map(paragraph => 
-    paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
-  ).join('\n');
+  // Replace any instances of "Hello [Name]" or similar with "Dear Food Lover"
+  const formattedContent = content
+    .replace(/Hello\s*\[.*?\]|Dear\s*\[.*?\]/gi, "Dear Food Lover")
+    .split('\n')
+    .map(paragraph => 
+      paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
+    )
+    .join('\n');
 
-  // Generate contact links section
+  // Generate contact links section with emojis
   const contactLinks = [];
   if (restaurantInfo?.phoneNumber) {
     contactLinks.push(`
@@ -107,7 +111,7 @@ export const formatEmailContent = ({
   // Generate signature with available restaurant information
   const signature = `
     <div style="margin: 30px 0; padding-top: 20px; border-top: 1px solid #eee;">
-      <p style="margin: 0 0 10px 0; font-weight: bold;">${restaurantName}</p>
+      <p style="margin: 0 0 10px 0; font-weight: bold;">✨ ${restaurantName}</p>
       ${contactLinks.join('\n')}
       <div style="margin-top: 16px;">
         ${socialLinks.join('\n')}
@@ -116,8 +120,8 @@ export const formatEmailContent = ({
   `;
 
   return `
-    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-      ${mainContent}
+    <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px;">
+      ${formattedContent}
       ${contentImages}
       ${voucherHtml || ''}
       ${signature}
