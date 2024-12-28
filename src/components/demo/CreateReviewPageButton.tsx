@@ -90,8 +90,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             google_maps_url: googleMapsUrl,
             contact_email: contactEmail,
             slug: uniqueSlug,
-            server_names: serverNames || [],
-            full_url: fullUrl // Store the full URL in the database
+            server_names: serverNames || []
           }
         ])
         .select()
