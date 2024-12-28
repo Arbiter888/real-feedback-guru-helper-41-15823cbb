@@ -31,35 +31,50 @@ export const formatEmailContent = ({
     paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
   ).join('\n');
 
-  // Generate signature with available restaurant information
-  const signatureLinks = [];
-  
-  if (restaurantInfo?.websiteUrl) {
-    signatureLinks.push(`<a href="${restaurantInfo.websiteUrl}" style="color: #0066cc; text-decoration: none;">Website</a>`);
-  }
-  if (restaurantInfo?.facebookUrl) {
-    signatureLinks.push(`<a href="${restaurantInfo.facebookUrl}" style="color: #0066cc; text-decoration: none;">Facebook</a>`);
-  }
-  if (restaurantInfo?.instagramUrl) {
-    signatureLinks.push(`<a href="${restaurantInfo.instagramUrl}" style="color: #0066cc; text-decoration: none;">Instagram</a>`);
+  // Generate contact links section
+  const contactLinks = [];
+  if (restaurantInfo?.phoneNumber) {
+    contactLinks.push(`
+      <p style="margin: 8px 0;">
+        <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+          📞 ${restaurantInfo.phoneNumber}
+        </a>
+      </p>
+    `);
   }
   if (restaurantInfo?.googleMapsUrl) {
-    signatureLinks.push(`<a href="${restaurantInfo.googleMapsUrl}" style="color: #0066cc; text-decoration: none;">Find Us</a>`);
+    contactLinks.push(`
+      <p style="margin: 8px 0;">
+        <a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+          📍 Find us on Google Maps
+        </a>
+      </p>
+    `);
   }
 
-  const signature = `
-    <div style="margin: 30px 0; padding-top: 20px; border-top: 1px solid #eee;">
-      <p style="margin: 0 0 10px 0; font-weight: bold;">${restaurantName}</p>
-      ${restaurantInfo?.phoneNumber ? `<p style="margin: 0 0 5px 0;">📞 ${restaurantInfo.phoneNumber}</p>` : ''}
-      ${restaurantInfo?.contactEmail ? `<p style="margin: 0 0 5px 0;">✉️ ${restaurantInfo.contactEmail}</p>` : ''}
-      ${signatureLinks.length > 0 ? 
-        `<p style="margin: 10px 0;">
-          ${signatureLinks.join(' | ')}
-        </p>` 
-        : ''
-      }
-    </div>
-  `;
+  // Generate social links section
+  const socialLinks = [];
+  if (restaurantInfo?.websiteUrl) {
+    socialLinks.push(`
+      <a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
+        🌐 Visit our Website
+      </a>
+    `);
+  }
+  if (restaurantInfo?.facebookUrl) {
+    socialLinks.push(`
+      <a href="${restaurantInfo.facebookUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
+        👥 Follow us on Facebook
+      </a>
+    `);
+  }
+  if (restaurantInfo?.instagramUrl) {
+    socialLinks.push(`
+      <a href="${restaurantInfo.instagramUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+        📸 Follow us on Instagram
+      </a>
+    `);
+  }
 
   // Add content images
   const contentImages = images
@@ -70,6 +85,17 @@ export const formatEmailContent = ({
         ${img.title ? `<p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>` : ''}
       </div>
     `).join('\n');
+
+  // Generate signature with available restaurant information
+  const signature = `
+    <div style="margin: 30px 0; padding-top: 20px; border-top: 1px solid #eee;">
+      <p style="margin: 0 0 10px 0; font-weight: bold;">${restaurantName}</p>
+      ${contactLinks.join('\n')}
+      <div style="margin-top: 16px;">
+        ${socialLinks.join('\n')}
+      </div>
+    </div>
+  `;
 
   return `
     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
