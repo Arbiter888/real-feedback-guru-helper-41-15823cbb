@@ -27,17 +27,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="mb-8 text-center relative">
-          <div className="absolute left-4 -top-2">
-            <Button 
-              variant="outline" 
-              onClick={handleHomeClick}
-              className="bg-white hover:bg-white/90 text-primary border-primary/20"
-            >
-              <Home className="mr-2 h-4 w-4" />
-              Home
-            </Button>
-          </div>
+        <div className="mb-8 text-center">
+          <Button 
+            variant="outline" 
+            onClick={handleHomeClick}
+            className="mb-6 bg-white hover:bg-white/90 text-primary border-primary/20"
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Home
+          </Button>
           <img 
             src="/lovable-uploads/50980a14-589f-4bd1-8267-536c582ff4e1.png" 
             alt="EatUP! Logo" 
