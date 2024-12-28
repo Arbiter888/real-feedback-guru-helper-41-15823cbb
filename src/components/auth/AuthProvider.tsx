@@ -39,11 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       await supabase.auth.signOut();
       setUser(null);
-      if (!location.pathname.startsWith('/auth/login') && 
-          !location.pathname.match(/^\/[^/]+$/) && 
-          location.pathname !== '/') {
-        navigate('/auth/login');
-      }
     }
   };
 
@@ -62,12 +57,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           setUser(null);
-          // Only redirect to login if not on public routes
-          if (!location.pathname.match(/^\/[^/]+$/) && 
-              location.pathname !== '/' && 
-              !location.pathname.startsWith('/auth/login')) {
-            navigate('/auth/login');
-          }
         }
       } catch (error) {
         console.error('Error in auth initialization:', error);
@@ -88,9 +77,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        if (!location.pathname.match(/^\/[^/]+$/) && location.pathname !== '/') {
-          navigate('/auth/login');
-        }
       } else if (event === 'SIGNED_IN') {
         setUser(session?.user ?? null);
         navigate('/dashboard');
