@@ -28,11 +28,11 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="mb-8 text-center relative">
-          <div className="absolute left-0 top-0">
+          <div className="absolute left-4 -top-2">
             <Button 
-              variant="ghost" 
+              variant="outline" 
               onClick={handleHomeClick}
-              className="text-primary hover:text-primary/90"
+              className="bg-white hover:bg-white/90 text-primary border-primary/20"
             >
               <Home className="mr-2 h-4 w-4" />
               Home
