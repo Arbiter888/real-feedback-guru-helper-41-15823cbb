@@ -73,7 +73,6 @@ export const formatEmailContent = ({
 
   return `
     <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
-      <p style="margin: 0 0 15px 0; line-height: 1.6;">Dear Food Lover,</p>
       ${mainContent}
       ${contentImages}
       ${voucherHtml || ''}
