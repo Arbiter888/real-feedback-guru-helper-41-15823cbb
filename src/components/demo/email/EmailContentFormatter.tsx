@@ -42,11 +42,29 @@ export const formatEmailContent = ({
       </p>
     `);
   }
+  if (restaurantInfo?.contactEmail) {
+    contactLinks.push(`
+      <p style="margin: 8px 0;">
+        <a href="mailto:${restaurantInfo.contactEmail}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+          ✉️ ${restaurantInfo.contactEmail}
+        </a>
+      </p>
+    `);
+  }
   if (restaurantInfo?.googleMapsUrl) {
     contactLinks.push(`
       <p style="margin: 8px 0;">
         <a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
           📍 Find us on Google Maps
+        </a>
+      </p>
+    `);
+  }
+  if (restaurantInfo?.bookingUrl) {
+    contactLinks.push(`
+      <p style="margin: 8px 0;">
+        <a href="${restaurantInfo.bookingUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
+          📅 Book a Table
         </a>
       </p>
     `);
