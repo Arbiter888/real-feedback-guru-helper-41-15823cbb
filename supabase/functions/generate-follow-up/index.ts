@@ -31,16 +31,75 @@ interface ReviewData {
   };
 }
 
-const formatEmailContent = (content: string): string => {
-  return content
-    // Convert markdown bold to HTML strong tags
-    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #333;">$1</strong>')
-    // Wrap paragraphs in styled p tags
-    .split('\n\n')
-    .map(paragraph => paragraph.trim() ? 
-      `<p style="margin: 0 0 16px 0; line-height: 1.6; color: #333;">${paragraph}</p>` : '')
-    .join('\n');
-};
+function wrapEmailContent(content: string, restaurantInfo: ReviewData['restaurantInfo']): string {
+  // Define a base style for the email content
+  const emailStyle = `
+    <style>
+      .email-content {
+        font-family: Arial, sans-serif;
+        color: #333;
+        line-height: 1.6;
+      }
+      .email-content p {
+        margin-bottom: 16px;
+      }
+      .email-content strong {
+        color: #333;
+        font-weight: 600;
+      }
+      .email-content a {
+        color: #E94E87;
+        text-decoration: none;
+      }
+      .email-content .signature {
+        margin-top: 32px;
+        padding-top: 16px;
+        border-top: 1px solid #eee;
+      }
+      .email-content .terms {
+        margin-top: 24px;
+        padding: 16px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+      }
+    </style>
+  `;
+
+  // Create the contact links section with the correct restaurant info
+  const contactLinks = `
+    <div class="signature">
+      ${restaurantInfo.phoneNumber ? `
+        <p>
+          <a href="tel:${restaurantInfo.phoneNumber}">📞 ${restaurantInfo.phoneNumber}</a>
+        </p>
+      ` : ''}
+      ${restaurantInfo.googleMapsUrl ? `
+        <p>
+          <a href="${restaurantInfo.googleMapsUrl}">📍 Find us on Google Maps</a>
+        </p>
+      ` : ''}
+      <div style="margin-top: 16px;">
+        ${restaurantInfo.websiteUrl ? `
+          <a href="${restaurantInfo.websiteUrl}" style="margin-right: 16px;">🌐 Visit our Website</a>
+        ` : ''}
+        ${restaurantInfo.facebookUrl ? `
+          <a href="${restaurantInfo.facebookUrl}" style="margin-right: 16px;">👥 Follow us on Facebook</a>
+        ` : ''}
+        ${restaurantInfo.instagramUrl ? `
+          <a href="${restaurantInfo.instagramUrl}">📸 Follow us on Instagram</a>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
+  return `
+    ${emailStyle}
+    <div class="email-content">
+      ${content}
+      ${contactLinks}
+    </div>
+  `;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -66,38 +125,28 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
-            content: `You are an expert at creating personalized follow-up emails for restaurant customers. 
-            Create warm, engaging content that references specific details from their visit and review if available.
-            The email should feel personal and genuine, maintaining a professional yet friendly tone.
+            content: `You are an expert at creating personalized thank you emails for restaurant customers. 
+            Create warm, engaging content that references specific details from their visit and review.
             
             IMPORTANT FORMATTING RULES:
-            - Use HTML formatting for emphasis (e.g., <strong>text</strong>)
-            - Each paragraph should be separated by a line break
+            - Use HTML tags for formatting (<strong>, <p>, etc.)
             - Keep paragraphs concise and readable
-            - Maintain consistent restaurant branding throughout
-            - Don't use markdown formatting
-            
-            When mentioning contact methods or online presence, use the exact HTML format provided in the email.`
+            - Maintain consistent restaurant branding
+            - Don't include any contact information or social media links in the main content
+            - Focus on the customer's specific experience and the voucher details`
           },
           {
             role: 'user',
-            content: `Generate a follow-up email for ${customerName} who visited ${restaurantInfo.restaurantName}.
-            ${reviewText ? `Their initial review: "${reviewText}"` : ''}
-            ${refinedReview ? `Their enhanced review: "${refinedReview}"` : ''}
-            ${serverName ? `They were served by ${serverName}.` : ''}
-            ${receiptData ? `They spent $${receiptData.total_amount} and ordered: ${receiptData.items.map(item => item.name).join(', ')}.` : ''}
-            ${voucherDetails ? `Include this special offer: ${voucherDetails.title} - ${voucherDetails.description} (${voucherDetails.discountValue})` : ''}
-            
-            Available contact methods:
-            ${restaurantInfo.websiteUrl ? `Website: ${restaurantInfo.websiteUrl}` : ''}
-            ${restaurantInfo.googleMapsUrl ? `Google Maps: ${restaurantInfo.googleMapsUrl}` : ''}
-            ${restaurantInfo.facebookUrl ? `Facebook: ${restaurantInfo.facebookUrl}` : ''}
-            ${restaurantInfo.instagramUrl ? `Instagram: ${restaurantInfo.instagramUrl}` : ''}
-            ${restaurantInfo.phoneNumber ? `Phone: ${restaurantInfo.phoneNumber}` : ''}`
+            content: `Generate a thank you email for a customer of ${restaurantInfo.restaurantName}.
+            ${reviewText ? `Their review: "${reviewText}"` : ''}
+            ${refinedReview ? `Enhanced review: "${refinedReview}"` : ''}
+            ${serverName ? `Server name: ${serverName}` : ''}
+            ${receiptData ? `Order details: Total $${receiptData.total_amount}, Items: ${receiptData.items.map(item => item.name).join(', ')}` : ''}
+            ${voucherDetails ? `Include this offer: ${voucherDetails.title} (${voucherDetails.discountValue}) - ${voucherDetails.description}` : ''}`
           }
         ],
         temperature: 0.7,
@@ -107,19 +156,15 @@ serve(async (req) => {
     const aiResponse = await response.json();
     const generatedContent = aiResponse.choices[0].message.content;
 
-    // Split content into subject and body
-    const subjectMatch = generatedContent.match(/Subject: (.*?)(?=\n|$)/i);
-    const emailSubject = subjectMatch ? subjectMatch[1].trim() : `Thank you for visiting ${restaurantInfo.restaurantName}!`;
-    const emailContent = formatEmailContent(generatedContent.replace(/Subject: .*?\n/i, '').trim());
+    // Wrap the content with our styled template
+    const formattedEmail = wrapEmailContent(generatedContent, restaurantInfo);
 
-    const voucherCode = voucherDetails ? `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}` : undefined;
-    
     const followUpEmail = {
-      email_subject: emailSubject,
-      email_content: emailContent,
+      email_subject: `Thank you for visiting ${restaurantInfo.restaurantName}!`,
+      email_content: formattedEmail,
       voucher_details: voucherDetails ? {
         ...voucherDetails,
-        code: voucherCode,
+        code: `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
       } : undefined,
       scheduled_for: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       status: 'pending'
