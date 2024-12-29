@@ -33,3 +33,14 @@ export interface Customer {
   list_id: string;
   metadata: CustomerMetadata | Json;
 }
+
+// Type guard to check if an object is CustomerMetadata
+export function isCustomerMetadata(obj: any): obj is CustomerMetadata {
+  return obj && (
+    typeof obj.initial_review === 'string' ||
+    typeof obj.refined_review === 'string' ||
+    typeof obj.server_name === 'string' ||
+    obj.receipt_data !== undefined ||
+    obj.review_steps_completed !== undefined
+  );
+}

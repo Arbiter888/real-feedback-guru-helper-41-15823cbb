@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { CustomerList } from "./CustomerList";
 import { EmailPreviewCard } from "../email/EmailPreviewCard";
 import { Customer, CustomerMetadata } from "@/types/customer";
+import { isCustomerMetadata } from "@/types/customer";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -63,6 +64,11 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
     if (!customer) return;
     
     try {
+      // Type guard to ensure metadata is CustomerMetadata
+      if (!isCustomerMetadata(customer.metadata)) {
+        throw new Error("Invalid metadata format");
+      }
+
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { 
           customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
@@ -76,7 +82,7 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
             googleMapsUrl: restaurantInfo.googleMapsUrl,
           },
           // Include review data if available
-          ...((typeof customer.metadata === 'object' && customer.metadata !== null) && {
+          ...(customer.metadata && {
             reviewText: customer.metadata.initial_review,
             refinedReview: customer.metadata.refined_review,
             receiptData: customer.metadata.receipt_data || customer.metadata.receipt_analysis,
