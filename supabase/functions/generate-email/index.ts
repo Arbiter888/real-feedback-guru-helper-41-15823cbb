@@ -22,13 +22,12 @@ serve(async (req) => {
 
       Important context about the restaurant:
       - Restaurant Name: ${restaurantInfo?.restaurantName || 'the restaurant'}
-      - Contact Email: ${restaurantInfo?.contactEmail || ''}
-      - Phone Number: ${restaurantInfo?.phoneNumber || ''}
-      - Website: ${restaurantInfo?.websiteUrl || ''}
-      - Social Media: ${restaurantInfo?.facebookUrl ? 'Facebook, ' : ''}${restaurantInfo?.instagramUrl ? 'Instagram' : ''}
       
-      DO NOT use placeholders like [Your Name] or [Restaurant Name]. Instead, use the actual restaurant information provided above.
-      Always sign the email with "${restaurantInfo?.restaurantName || 'The Team'}"`;
+      IMPORTANT GUIDELINES:
+      1. DO NOT use placeholders like [Your Name] or [Restaurant Name]
+      2. DO NOT include contact information, website URLs, or social media links in the email body
+      3. Always end the email with "Warm regards," followed by a new line and "${restaurantInfo?.restaurantName || 'The Team'}"
+      4. The contact information and social links will be automatically added in a signature block`;
     } else if (htmlOnly) {
       systemPrompt = `You are an expert email marketer for ${restaurantInfo?.restaurantName || 'the restaurant'}. Convert the given plain text email into responsive HTML format that looks good on all devices. Use modern email-safe HTML and CSS.`;
     } else {
@@ -36,13 +35,12 @@ serve(async (req) => {
       
       Important context about the restaurant:
       - Restaurant Name: ${restaurantInfo?.restaurantName || 'the restaurant'}
-      - Contact Email: ${restaurantInfo?.contactEmail || ''}
-      - Phone Number: ${restaurantInfo?.phoneNumber || ''}
-      - Website: ${restaurantInfo?.websiteUrl || ''}
-      - Social Media: ${restaurantInfo?.facebookUrl ? 'Facebook, ' : ''}${restaurantInfo?.instagramUrl ? 'Instagram' : ''}
       
-      DO NOT use placeholders like [Your Name] or [Restaurant Name]. Instead, use the actual restaurant information provided above.
-      Always sign the email with "${restaurantInfo?.restaurantName || 'The Team'}"
+      IMPORTANT GUIDELINES:
+      1. DO NOT use placeholders like [Your Name] or [Restaurant Name]
+      2. DO NOT include contact information, website URLs, or social media links in the email body
+      3. Always end the email with "Warm regards," followed by a new line and "${restaurantInfo?.restaurantName || 'The Team'}"
+      4. The contact information and social links will be automatically added in a signature block
       
       Your response should be in this format:
       SUBJECT: [Your generated subject line here]
@@ -69,7 +67,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `${imageContext}\n\n${prompt}` }
