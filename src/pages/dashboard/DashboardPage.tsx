@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, Home } from "lucide-react";
+import { Home } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
@@ -25,7 +24,6 @@ interface RestaurantInfo {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
@@ -43,14 +41,10 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate("/auth/login");
-      return;
-    }
-
     // Load saved preferences if they exist
     const savedInfo = localStorage.getItem('restaurantInfo');
     const savedReviewPageId = localStorage.getItem('reviewPageId');
+    const savedUrl = localStorage.getItem('generatedUrl');
     
     if (savedInfo) {
       const parsed = JSON.parse(savedInfo);
@@ -63,22 +57,15 @@ export default function DashboardPage() {
     if (savedReviewPageId) {
       setReviewPageId(savedReviewPageId);
     }
-  }, [user, navigate]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    toast({
-      title: "Logged out successfully",
-      description: "You have been logged out of your account.",
-    });
-    navigate("/");
-  };
+    if (savedUrl) {
+      setGeneratedUrl(savedUrl);
+    }
+  }, []);
 
   const handleHomeClick = () => {
     navigate("/");
   };
-
-  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-[#FFE5ED] to-[#FFD5E2]/20">
@@ -89,12 +76,8 @@ export default function DashboardPage() {
               <Home className="mr-2 h-4 w-4" />
               Home
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Restaurant Dashboard Demo</h1>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
         </div>
         
         <div className="grid gap-6">
