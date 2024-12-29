@@ -12,29 +12,55 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt, imageUrls, subjectOnly, contentOnly, htmlOnly } = await req.json();
+    const { prompt, imageUrls, subjectOnly, contentOnly, htmlOnly, restaurantInfo } = await req.json();
 
     let systemPrompt = "";
     if (subjectOnly) {
-      systemPrompt = "You are an expert email marketer. Generate a compelling subject line based on the user's prompt.";
+      systemPrompt = `You are an expert email marketer for ${restaurantInfo?.restaurantName || 'the restaurant'}. Generate a compelling subject line based on the user's prompt.`;
     } else if (contentOnly) {
-      systemPrompt = "You are an expert email marketer. Generate engaging plain text email content based on the user's prompt. Do not include any HTML formatting.";
+      systemPrompt = `You are an expert email marketer for ${restaurantInfo?.restaurantName || 'the restaurant'}. Generate engaging plain text email content based on the user's prompt. Do not include any HTML formatting.
+
+      Important context about the restaurant:
+      - Restaurant Name: ${restaurantInfo?.restaurantName || 'the restaurant'}
+      - Contact Email: ${restaurantInfo?.contactEmail || ''}
+      - Phone Number: ${restaurantInfo?.phoneNumber || ''}
+      - Website: ${restaurantInfo?.websiteUrl || ''}
+      - Social Media: ${restaurantInfo?.facebookUrl ? 'Facebook, ' : ''}${restaurantInfo?.instagramUrl ? 'Instagram' : ''}
+      
+      DO NOT use placeholders like [Your Name] or [Restaurant Name]. Instead, use the actual restaurant information provided above.
+      Always sign the email with "${restaurantInfo?.restaurantName || 'The Team'}"`;
     } else if (htmlOnly) {
-      systemPrompt = "You are an expert email marketer. Convert the given plain text email into responsive HTML format that looks good on all devices. Use modern email-safe HTML and CSS.";
+      systemPrompt = `You are an expert email marketer for ${restaurantInfo?.restaurantName || 'the restaurant'}. Convert the given plain text email into responsive HTML format that looks good on all devices. Use modern email-safe HTML and CSS.`;
     } else {
-      systemPrompt = `You are an expert email marketer. Generate both a compelling subject line and engaging plain text email content based on the user's prompt.
+      systemPrompt = `You are an expert email marketer for ${restaurantInfo?.restaurantName || 'the restaurant'}. Generate both a compelling subject line and engaging email content based on the user's prompt.
+      
+      Important context about the restaurant:
+      - Restaurant Name: ${restaurantInfo?.restaurantName || 'the restaurant'}
+      - Contact Email: ${restaurantInfo?.contactEmail || ''}
+      - Phone Number: ${restaurantInfo?.phoneNumber || ''}
+      - Website: ${restaurantInfo?.websiteUrl || ''}
+      - Social Media: ${restaurantInfo?.facebookUrl ? 'Facebook, ' : ''}${restaurantInfo?.instagramUrl ? 'Instagram' : ''}
+      
+      DO NOT use placeholders like [Your Name] or [Restaurant Name]. Instead, use the actual restaurant information provided above.
+      Always sign the email with "${restaurantInfo?.restaurantName || 'The Team'}"
       
       Your response should be in this format:
       SUBJECT: [Your generated subject line here]
       
       CONTENT:
-      [Your generated plain text email content here]`;
+      [Your generated email content here]`;
     }
 
     let imageContext = "";
     if (imageUrls && imageUrls.length > 0) {
       imageContext = "Based on the provided images: " + imageUrls.join(", ");
     }
+
+    console.log('Generating email with context:', {
+      restaurantInfo,
+      prompt,
+      systemPrompt
+    });
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
