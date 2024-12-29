@@ -37,7 +37,24 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
         .order("created_at", { ascending: false });
 
       if (emailError) throw emailError;
-      return emailContacts as Customer[];
+
+      // Transform the data to ensure receipt_data is properly structured
+      return emailContacts?.map((contact: any) => {
+        let metadata: CustomerMetadata = {};
+        
+        if (contact.metadata) {
+          metadata = {
+            ...contact.metadata,
+            // Ensure receipt_data is properly structured from either source
+            receipt_data: contact.metadata.receipt_data || contact.metadata.receipt_analysis
+          };
+        }
+
+        return {
+          ...contact,
+          metadata
+        };
+      }) as Customer[];
     },
   });
 
@@ -58,12 +75,12 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
             phoneNumber: restaurantInfo.phoneNumber,
             googleMapsUrl: restaurantInfo.googleMapsUrl,
           },
-          // Only include review data if available and metadata is of type CustomerMetadata
-          ...((typeof customer.metadata === 'object' && customer.metadata !== null && 'initial_review' in customer.metadata) && {
-            reviewText: (customer.metadata as CustomerMetadata).initial_review,
-            refinedReview: (customer.metadata as CustomerMetadata).refined_review,
-            receiptData: (customer.metadata as CustomerMetadata).receipt_data,
-            serverName: (customer.metadata as CustomerMetadata).server_name,
+          // Include review data if available
+          ...((typeof customer.metadata === 'object' && customer.metadata !== null) && {
+            reviewText: customer.metadata.initial_review,
+            refinedReview: customer.metadata.refined_review,
+            receiptData: customer.metadata.receipt_data || customer.metadata.receipt_analysis,
+            serverName: customer.metadata.server_name,
           })
         },
       });
