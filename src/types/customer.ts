@@ -10,6 +10,13 @@ export interface CustomerMetadata {
       price: number;
     }>;
   };
+  receipt_analysis?: {
+    total_amount: number;
+    items: Array<{
+      name: string;
+      price: number;
+    }>;
+  };
   server_name?: string;
   restaurant_visit_date?: string;
   review_steps_completed?: {
@@ -41,6 +48,7 @@ export function isCustomerMetadata(obj: any): obj is CustomerMetadata {
     typeof obj.refined_review === 'string' ||
     typeof obj.server_name === 'string' ||
     obj.receipt_data !== undefined ||
+    obj.receipt_analysis !== undefined ||
     obj.review_steps_completed !== undefined
   );
 }
