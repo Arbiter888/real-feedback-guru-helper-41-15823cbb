@@ -1,3 +1,4 @@
+'use client'
 import { Phone, Globe, Facebook, Instagram, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

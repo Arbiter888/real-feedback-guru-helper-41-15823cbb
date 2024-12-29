@@ -1,5 +1,5 @@
 import { Mail } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export const Footer = () => {
   const handleEmailClick = () => {
@@ -19,7 +19,7 @@ export const Footer = () => {
               Contact Us
             </button>
             <Link
-              to="/terms"
+              href="/terms"
               className="text-gray-600 hover:text-primary transition-colors"
             >
               Terms & Conditions

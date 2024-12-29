@@ -1,8 +1,13 @@
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+// @ts-ignore
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
+// @ts-ignore
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+// @ts-ignore
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+// @ts-ignore
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
 const corsHeaders = {

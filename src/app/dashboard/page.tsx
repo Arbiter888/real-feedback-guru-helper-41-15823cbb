@@ -1,9 +1,7 @@
+'use client'
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, ChevronDown, ChevronUp } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
 import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
 import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
@@ -11,6 +9,7 @@ import { CustomerCRMSection } from "@/components/demo/crm/CustomerCRMSection";
 import { RestaurantInfoSection } from "./sections/RestaurantInfoSection";
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { redirect } from 'next/navigation';
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -25,8 +24,6 @@ interface RestaurantInfo {
 }
 
 export default function DashboardPage() {
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [reviewPageId, setReviewPageId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(true);
@@ -66,7 +63,7 @@ export default function DashboardPage() {
   }, []);
 
   const handleHomeClick = () => {
-    navigate("/");
+    redirect("/");
   };
 
   return (

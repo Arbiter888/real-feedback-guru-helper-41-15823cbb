@@ -42,7 +42,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         parsedInfo.tipRewardPercentage || 50
       );
     }
-  }, [onRestaurantInfoSaved]);
+  }, []);
 
   const handleInfoChange = (field: string, value: string | number) => {
     switch (field) {

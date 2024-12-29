@@ -1,6 +1,10 @@
+// @ts-ignore
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore
 import OpenAI from "https://deno.land/x/openai@v4.24.0/mod.ts";
+// @ts-ignore
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
@@ -17,7 +21,9 @@ serve(async (req) => {
     const { review, receiptData, restaurantName, serverName } = await req.json();
 
     const supabase = createClient(
+      // @ts-ignore
       Deno.env.get('SUPABASE_URL') ?? '',
+      // @ts-ignore
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
@@ -32,6 +38,7 @@ serve(async (req) => {
     const menuData = menuVersion?.analysis;
 
     const openai = new OpenAI({
+      // @ts-ignore
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
 

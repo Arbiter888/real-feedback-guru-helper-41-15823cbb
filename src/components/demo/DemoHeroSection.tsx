@@ -9,7 +9,7 @@ interface DemoHeroSectionProps {
   onTakeoutDemo: () => void;
 }
 
-export const DemoHeroSection = ({ onSurveyDemo, onBookingDemo, onTakeoutDemo }: DemoHeroSectionProps) => {
+export default function DemoHeroSection({ onSurveyDemo, onBookingDemo, onTakeoutDemo }: DemoHeroSectionProps) {
   return (
     <section className="relative py-12 md:py-20">
       <div className="absolute inset-0 overflow-hidden">

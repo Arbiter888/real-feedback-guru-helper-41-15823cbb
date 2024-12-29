@@ -77,8 +77,11 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
           restaurantInfo,
           ...(customer.metadata && {
             reviewText: customer.metadata.initial_review,
+            // @ts-ignore
             refinedReview: customer.metadata.refined_review,
+            // @ts-ignore
             receiptData: customer.metadata.receipt_data || customer.metadata.receipt_analysis,
+            // @ts-ignore
             serverName: customer.metadata.server_name,
           })
         },

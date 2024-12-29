@@ -1,6 +1,8 @@
+// @ts-ignore
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-ignore
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { formatTipHistory } from "./utils.ts";
+import { formatTipHistory } from "./utils";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -118,7 +120,9 @@ serve(async (req) => {
 
     const data: ReviewData = requestData;
     const supabaseClient = createClient(
+      // @ts-ignore
       Deno.env.get('SUPABASE_URL') ?? '',
+      // @ts-ignore
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
@@ -157,6 +161,7 @@ serve(async (req) => {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
+        // @ts-ignore
         'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
         'Content-Type': 'application/json',
       },

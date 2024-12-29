@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 const TermsPage = () => {
   return (
@@ -151,7 +151,7 @@ const TermsPage = () => {
 
         {/* Back to Home */}
         <div className="mt-12 border-t pt-8">
-          <Link to="/" className="text-primary hover:text-primary-dark transition-colors">
+          <Link href="/" className="text-primary hover:text-primary-dark transition-colors">
             ← Back to Home
           </Link>
         </div>

@@ -1,10 +1,11 @@
+'use client'
 import { useEffect, useState } from "react";
 import { RestaurantHeader } from "./RestaurantHeader";
 import { ReviewSection } from "./ReviewSection";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
 import { AiSurveyWidget } from "./AiSurveyWidget";
 import { Footer } from "@/components/Footer";
+import { redirect } from "next/navigation";
 
 interface RestaurantReviewProps {
   slug: string;
@@ -18,7 +19,6 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showAiSurvey, setShowAiSurvey] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const loadRestaurantReviewPage = async () => {
@@ -38,18 +38,18 @@ export const RestaurantReview = ({ slug }: RestaurantReviewProps) => {
             serverNames: data.server_names,
           }));
         } else {
-          navigate('/');
+          redirect('/');
         }
       } catch (err) {
         console.error('Error loading demo page:', err);
-        navigate('/');
+        redirect('/');
       } finally {
         setIsLoading(false);
       }
     };
 
     loadRestaurantReviewPage();
-  }, [slug, navigate]);
+  }, []);
 
   if (isLoading) {
     return (

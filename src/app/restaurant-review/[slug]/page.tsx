@@ -1,8 +1,11 @@
-import { useParams } from "react-router-dom";
 import { RestaurantReview } from "@/components/demo/RestaurantReview";
 
-const RestaurantReviewPage = () => {
-  const { slug } = useParams();
+export default async function RestaurantReviewPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const slug = (await params).slug;
 
   if (!slug) {
     return (
@@ -14,5 +17,3 @@ const RestaurantReviewPage = () => {
 
   return <RestaurantReview slug={slug} />;
 };
-
-export default RestaurantReviewPage;

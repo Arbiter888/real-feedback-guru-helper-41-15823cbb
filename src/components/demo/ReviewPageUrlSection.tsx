@@ -1,3 +1,4 @@
+'use client'
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ export const ReviewPageUrlSection = ({
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   // Remove any trailing slashes and ensure proper URL formatting
-  const baseUrl = window.location.origin.replace(/\/+$/, '');
+  const [baseUrl] = useState('https://eatup.co/'.replace(/\/+$/, ''));
   const fullUrl = generatedUrl ? `${baseUrl}${generatedUrl}` : '';
 
   const handleCopyUrl = async () => {

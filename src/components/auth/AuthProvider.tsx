@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
+import { redirect } from 'next/navigation'
 
 interface AuthContextType {
   user: User | null
@@ -28,13 +28,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   const [user, setUser] = useState<User | null>(mockUser)
-  const navigate = useNavigate()
 
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
       setUser(null);
-      navigate('/restaurant-review');
+      redirect('/restaurant-review');
     } catch (error) {
       console.error('Error signing out:', error);
     }

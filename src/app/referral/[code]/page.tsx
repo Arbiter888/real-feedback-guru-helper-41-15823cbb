@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+'use client'
+import { use, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
 import { Gift, Loader2 } from "lucide-react";
 
-export default function ReferralPage() {
-  const { code } = useParams();
+export default function ReferralPage({
+  params,
+}: {
+  params: Promise<{ code: string }>
+}) {
+  const code = use(params).code;
   const [referralData, setReferralData] = useState<any>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

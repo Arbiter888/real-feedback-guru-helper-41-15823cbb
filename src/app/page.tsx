@@ -1,3 +1,4 @@
+'use client'
 import { RestaurantHeader } from "@/components/demo/RestaurantHeader";
 import { ReviewSection } from "@/components/demo/ReviewSection";
 import { useState, useEffect } from "react";
@@ -6,7 +7,7 @@ import { AiBookingWidget } from "@/components/demo/AiBookingWidget";
 import { AiTakeoutWidget } from "@/components/demo/AiTakeoutWidget";
 import { Footer } from "@/components/Footer";
 import { ReviewPageCreationSection } from "@/components/demo/ReviewPageCreationSection";
-import { DemoHeroSection } from "@/components/demo/DemoHeroSection";
+import DemoHeroSection from "@/components/demo/DemoHeroSection";
 
 const Page = () => {
   const [showSurveyWidget, setShowSurveyWidget] = useState(false);

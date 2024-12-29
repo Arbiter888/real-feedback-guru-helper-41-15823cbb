@@ -1,3 +1,4 @@
+'use client'
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link2 } from "lucide-react";
@@ -65,7 +66,9 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
 
       const uniqueSlug = generateUniqueSlug(restaurantName);
       const generatedUrlPath = `/restaurant-review/${uniqueSlug}`;
-      const fullUrl = `${window.location.origin}${generatedUrlPath}`;
+      
+      // For QR code, use the full URL including the current hostname
+      const fullUrl = `https://eatup.co/${generatedUrlPath}`;
 
       const { data, error } = await supabase
         .from('demo_pages')
