@@ -33,17 +33,15 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
 
       <div className="max-w-7xl mx-auto px-4 text-center relative">
         <div className="flex justify-end mb-4">
-          <Button onClick={handleAuthClick} variant="outline">
+          <Button 
+            onClick={handleAuthClick} 
+            className="bg-gradient-to-r from-[#8B5CF6] to-[#D946EF] hover:from-[#7C4DEF] hover:to-[#C935DE] text-white shadow-lg transition-all duration-300 hover:shadow-xl"
+          >
+            Demo Dashboard
             {user ? (
-              <>
-                Dashboard
-                <MessageSquare className="ml-2 h-4 w-4" />
-              </>
+              <MessageSquare className="ml-2 h-4 w-4" />
             ) : (
-              <>
-                Restaurant Login
-                <LogIn className="ml-2 h-4 w-4" />
-              </>
+              <LogIn className="ml-2 h-4 w-4" />
             )}
           </Button>
         </div>
