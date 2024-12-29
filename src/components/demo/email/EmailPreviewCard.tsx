@@ -49,51 +49,10 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
     generateQRCode();
   }, [email.voucher_details?.code]);
 
-  const renderEmailFooter = () => (
-    <div style={{ marginTop: '30px', padding: '20px 0', borderTop: '1px solid #eee' }}>
-      <h2 style={{ fontSize: '24px', marginBottom: '16px', color: '#333' }}>
-        {restaurantInfo?.restaurantName || 'Our Restaurant'}
-      </h2>
-      <div style={{ marginBottom: '20px' }}>
-        {restaurantInfo?.phoneNumber && (
-          <p style={{ margin: '8px 0' }}>
-            <a href={`tel:${restaurantInfo.phoneNumber}`} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
-              📞 {restaurantInfo.phoneNumber}
-            </a>
-          </p>
-        )}
-        {restaurantInfo?.googleMapsUrl && (
-          <p style={{ margin: '8px 0' }}>
-            <a href={restaurantInfo.googleMapsUrl} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
-              📍 Find us on Google Maps
-            </a>
-          </p>
-        )}
-      </div>
-      <div style={{ marginTop: '16px' }}>
-        {restaurantInfo?.websiteUrl && (
-          <a href={restaurantInfo.websiteUrl} style={{ color: '#E94E87', textDecoration: 'none', marginRight: '16px', fontWeight: 500 }}>
-            🌐 Visit our Website
-          </a>
-        )}
-        {restaurantInfo?.facebookUrl && (
-          <a href={restaurantInfo.facebookUrl} style={{ color: '#E94E87', textDecoration: 'none', marginRight: '16px', fontWeight: 500 }}>
-            👥 Follow us on Facebook
-          </a>
-        )}
-        {restaurantInfo?.instagramUrl && (
-          <a href={restaurantInfo.instagramUrl} style={{ color: '#E94E87', textDecoration: 'none', fontWeight: 500 }}>
-            📸 Follow us on Instagram
-          </a>
-        )}
-      </div>
-    </div>
-  );
-
   return (
     <Card className="mt-4 p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Follow-up Email</h3>
+        <h3 className="text-lg font-semibold">Follow-up Email Preview</h3>
         <Button
           variant="ghost"
           size="sm"
@@ -115,7 +74,10 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
           </div>
           
           <div className="prose max-w-none bg-white p-6 rounded-lg shadow-sm">
-            <div className="whitespace-pre-wrap text-left">{email.email_content}</div>
+            <div 
+              className="text-left email-content"
+              dangerouslySetInnerHTML={{ __html: email.email_content }}
+            />
 
             {email.voucher_details && (
               <div className="my-8 bg-pink-50/50 rounded-xl p-6 space-y-4 border border-pink-100">
@@ -136,8 +98,6 @@ export const EmailPreviewCard = ({ email, onSendEmail, restaurantInfo }: EmailPr
                 </div>
               </div>
             )}
-
-            {renderEmailFooter()}
           </div>
 
           <div className="flex justify-end">
