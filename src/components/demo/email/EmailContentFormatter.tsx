@@ -27,8 +27,10 @@ export const formatEmailContent = ({
   restaurantInfo 
 }: EmailContentFormatterProps) => {
   // Replace any instances of "Hello [Name]" or similar with "Dear Food Lover"
-  const formattedContent = content
+  let formattedContent = content
     .replace(/Hello\s*\[.*?\]|Dear\s*\[.*?\]/gi, "Dear Food Lover")
+    .replace(/\[Your Name\][\s\S]*?\[Website URL\]/g, '') // Remove the entire signature block
+    .replace(/\[Restaurant Name\]/g, restaurantName)
     .split('\n')
     .map(paragraph => 
       paragraph.trim() ? `<p style="margin: 0 0 15px 0; line-height: 1.6; text-align: left;">${paragraph}</p>` : ''
