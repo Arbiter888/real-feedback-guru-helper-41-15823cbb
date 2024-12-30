@@ -102,16 +102,22 @@ function wrapEmailContent(content: string, restaurantInfo: ReviewData['restauran
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { reviewText, refinedReview, receiptData, serverName, customerName, voucherDetails, restaurantInfo } = await req.json() as ReviewData;
+    const requestData = await req.json();
+    console.log('Received request data:', requestData);
 
-    if (!customerName || !restaurantInfo) {
+    // Validate required fields
+    if (!requestData.customerName || !requestData.restaurantInfo?.restaurantName) {
+      console.error('Missing required fields:', requestData);
       throw new Error("Missing required fields");
     }
+
+    const data: ReviewData = requestData;
 
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -125,7 +131,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
           {
             role: 'system',
@@ -141,12 +147,12 @@ serve(async (req) => {
           },
           {
             role: 'user',
-            content: `Generate a thank you email for a customer of ${restaurantInfo.restaurantName}.
-            ${reviewText ? `Their review: "${reviewText}"` : ''}
-            ${refinedReview ? `Enhanced review: "${refinedReview}"` : ''}
-            ${serverName ? `Server name: ${serverName}` : ''}
-            ${receiptData ? `Order details: Total $${receiptData.total_amount}, Items: ${receiptData.items.map(item => item.name).join(', ')}` : ''}
-            ${voucherDetails ? `Include this offer: ${voucherDetails.title} (${voucherDetails.discountValue}) - ${voucherDetails.description}` : ''}`
+            content: `Generate a thank you email for ${data.customerName} who visited ${data.restaurantInfo.restaurantName}.
+            ${data.reviewText ? `Their review: "${data.reviewText}"` : ''}
+            ${data.refinedReview ? `Enhanced review: "${data.refinedReview}"` : ''}
+            ${data.serverName ? `Server name: ${data.serverName}` : ''}
+            ${data.receiptData ? `Order details: Total $${data.receiptData.total_amount}, Items: ${data.receiptData.items.map(item => item.name).join(', ')}` : ''}
+            ${data.voucherDetails ? `Include this offer: ${data.voucherDetails.title} (${data.voucherDetails.discountValue}) - ${data.voucherDetails.description}` : ''}`
           }
         ],
         temperature: 0.7,
@@ -154,16 +160,22 @@ serve(async (req) => {
     });
 
     const aiResponse = await response.json();
+    console.log('AI Response:', aiResponse);
+
+    if (!aiResponse.choices?.[0]?.message?.content) {
+      throw new Error("Failed to generate email content");
+    }
+
     const generatedContent = aiResponse.choices[0].message.content;
 
     // Wrap the content with our styled template
-    const formattedEmail = wrapEmailContent(generatedContent, restaurantInfo);
+    const formattedEmail = wrapEmailContent(generatedContent, data.restaurantInfo);
 
     const followUpEmail = {
-      email_subject: `Thank you for visiting ${restaurantInfo.restaurantName}!`,
+      email_subject: `Thank you for visiting ${data.restaurantInfo.restaurantName}!`,
       email_content: formattedEmail,
-      voucher_details: voucherDetails ? {
-        ...voucherDetails,
+      voucher_details: data.voucherDetails ? {
+        ...data.voucherDetails,
         code: `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
       } : undefined,
       scheduled_for: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
