@@ -31,11 +31,20 @@ serve(async (req) => {
         model: 'gpt-4o',
         messages: [
           {
+            role: 'system',
+            content: `You are a menu analysis expert. Analyze restaurant menus and extract structured data including:
+              - Menu items with names and prices
+              - Categories/sections
+              - Special items or promotions
+              - Dietary information where available
+              Return the data as a clean JSON array grouped by categories.`,
+          },
+          {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: 'Analyze this menu image and extract all menu items with their prices. Return ONLY a JSON array with objects containing "name", "price" (in GBP), and "category" fields. Group items by their categories. Do not include any markdown formatting, explanations, or additional text - just the raw JSON array.',
+                text: 'Analyze this menu image and extract all menu items with their prices. Group items by their categories. Include any dietary information or special notes.',
               },
               {
                 type: 'image_url',
@@ -46,7 +55,7 @@ serve(async (req) => {
             ],
           },
         ],
-        max_tokens: 1000,
+        max_tokens: 1500,
       }),
     });
 
@@ -65,15 +74,12 @@ serve(async (req) => {
 
     let menuAnalysis;
     try {
-      // Try to parse the response content as JSON
       menuAnalysis = JSON.parse(data.choices[0].message.content.trim());
     } catch (parseError) {
       console.error('Failed to parse OpenAI response as JSON:', parseError);
       console.log('Raw content:', data.choices[0].message.content);
       
-      // If parsing fails, try to extract JSON from markdown
-      const content = data.choices[0].message.content;
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      const jsonMatch = data.choices[0].message.content.match(/\[[\s\S]*\]/);
       if (jsonMatch) {
         menuAnalysis = JSON.parse(jsonMatch[0]);
       } else {

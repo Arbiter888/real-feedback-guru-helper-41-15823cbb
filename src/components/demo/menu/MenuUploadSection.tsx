@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { MenuVersionList } from "./MenuVersionList";
+import { MenuPreview } from "./MenuPreview";
 
 interface MenuUploadSectionProps {
   onMenuAnalyzed: (analysis: any) => void;
@@ -12,7 +14,33 @@ interface MenuUploadSectionProps {
 
 export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [currentVersion, setCurrentVersion] = useState<any>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchMenuVersions();
+  }, []);
+
+  const fetchMenuVersions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('restaurant_menu_versions')
+        .select('*')
+        .order('version_number', { ascending: false });
+
+      if (error) throw error;
+
+      setVersions(data || []);
+      const activeVersion = data?.find(v => v.is_active);
+      if (activeVersion) {
+        setCurrentVersion(activeVersion);
+        onMenuAnalyzed(activeVersion.analysis);
+      }
+    } catch (error) {
+      console.error('Error fetching menu versions:', error);
+    }
+  };
 
   const handleMenuUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -43,22 +71,32 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
 
       if (analysisError) throw analysisError;
 
-      // Save menu URL and analysis to demo preferences
-      const { error: updateError } = await supabase
-        .from('demo_preferences')
-        .update({
+      // Create new menu version
+      const newVersionNumber = versions.length > 0 
+        ? Math.max(...versions.map(v => v.version_number)) + 1 
+        : 1;
+
+      const { data: versionData, error: versionError } = await supabase
+        .from('restaurant_menu_versions')
+        .insert({
           menu_url: publicUrl,
-          menu_analysis: analysisData.menuAnalysis,
+          version_number: newVersionNumber,
+          analysis: analysisData.menuAnalysis,
+          is_active: true,
         })
-        .eq('id', 'current-demo-id'); // You'll need to replace this with actual ID
+        .select()
+        .single();
 
-      if (updateError) throw updateError;
+      if (versionError) throw versionError;
 
+      // Update versions list and set current version
+      await fetchMenuVersions();
+      setCurrentVersion(versionData);
       onMenuAnalyzed(analysisData.menuAnalysis);
       
       toast({
         title: "Menu uploaded successfully",
-        description: "Your menu has been analyzed and saved.",
+        description: "Your menu has been analyzed and saved as a new version.",
       });
     } catch (error) {
       console.error('Menu upload error:', error);
@@ -73,9 +111,9 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
   };
 
   return (
-    <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
+    <div className="space-y-6">
       <div>
-        <Label htmlFor="menu-upload">Upload Menu</Label>
+        <Label>Upload Menu</Label>
         <div className="mt-2">
           <Input
             id="menu-upload"
@@ -105,6 +143,20 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
           </Button>
         </div>
       </div>
+
+      {versions.length > 0 && (
+        <>
+          <MenuPreview 
+            menuUrl={currentVersion?.menu_url} 
+            analysis={currentVersion?.analysis} 
+          />
+          <MenuVersionList
+            versions={versions}
+            currentVersionId={currentVersion?.id}
+            onVersionSelect={setCurrentVersion}
+          />
+        </>
+      )}
     </div>
   );
 };

@@ -459,6 +459,50 @@ export type Database = {
         }
         Relationships: []
       }
+      restaurant_menu_versions: {
+        Row: {
+          analysis: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          menu_url: string
+          metadata: Json | null
+          restaurant_id: string | null
+          sections: Json | null
+          version_number: number
+        }
+        Insert: {
+          analysis?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          menu_url: string
+          metadata?: Json | null
+          restaurant_id?: string | null
+          sections?: Json | null
+          version_number: number
+        }
+        Update: {
+          analysis?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          menu_url?: string
+          metadata?: Json | null
+          restaurant_id?: string | null
+          sections?: Json | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_menu_versions_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurant_offers: {
         Row: {
           created_at: string
