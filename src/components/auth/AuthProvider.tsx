@@ -33,42 +33,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          setUser(session.user);
-          if (location.pathname === '/auth/login') {
-            navigate('/dashboard');
-          }
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error in auth initialization:', error);
-        setUser(null);
-      }
-    };
+    // For demo purposes, we'll simulate a logged-in user
+    const demoUser = {
+      id: 'demo-user',
+      email: 'demo@example.com',
+      role: 'authenticated',
+    } as User;
+    
+    setUser(demoUser);
 
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === 'TOKEN_REFRESHED') {
-          setUser(session?.user ?? null);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          navigate('/restaurant-review');
-        } else if (event === 'SIGNED_IN') {
-          setUser(session?.user ?? null);
-          navigate('/dashboard');
-        }
-      }
-    );
-
-    return () => {
-      subscription.unsubscribe();
-    };
+    // If on login page, redirect to dashboard
+    if (location.pathname === '/auth/login') {
+      navigate('/dashboard');
+    }
   }, [navigate, location.pathname]);
 
   return (
