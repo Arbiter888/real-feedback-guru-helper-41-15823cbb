@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Mail, Loader2, ChevronDown, ChevronUp, Send } from "lucide-react";
+import { Mail, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Customer, CustomerMetadata } from "@/types/customer";
@@ -7,18 +7,9 @@ import { VoucherSuggestionCard } from "./vouchers/VoucherSuggestionCard";
 import { CustomerReviewDetails } from "./reviews/CustomerReviewDetails";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { EmailPreviewCard } from "../email/EmailPreviewCard";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { CustomerEmailDialog } from "./email/CustomerEmailDialog";
 
 interface CustomerListProps {
   customers: Customer[];
@@ -120,7 +111,6 @@ export const CustomerList = ({
         description: `Thank you email sent to ${customer.email}`,
       });
 
-      // Clear the generated email for this customer
       setGeneratedEmails(prev => {
         const newEmails = { ...prev };
         delete newEmails[customer.id];
@@ -155,7 +145,6 @@ export const CustomerList = ({
         const suggestion = voucherSuggestions[customer.id];
         const isExpanded = expandedCustomers.has(customer.id);
         const isGeneratingEmail = generatingEmailFor === customer.id;
-        const isSendingEmail = sendingEmailFor === customer.id;
         const generatedEmail = generatedEmails[customer.id];
         
         return (
@@ -240,40 +229,14 @@ export const CustomerList = ({
         );
       })}
 
-      <AlertDialog open={showSendConfirm} onOpenChange={setShowSendConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send Thank You Email</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to send this email to {selectedEmailData?.email}?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                const customer = customers.find(c => c.email === selectedEmailData?.email);
-                if (customer) {
-                  handleSendEmail(customer, selectedEmailData);
-                }
-              }}
-              disabled={sendingEmailFor !== null}
-            >
-              {sendingEmailFor !== null ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Email
-                </>
-              )}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CustomerEmailDialog
+        isOpen={showSendConfirm}
+        onOpenChange={setShowSendConfirm}
+        selectedEmailData={selectedEmailData}
+        onSendEmail={handleSendEmail}
+        customer={customers.find(c => c.email === selectedEmailData?.email) || null}
+        sendingEmailFor={sendingEmailFor}
+      />
 
       {customers.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
