@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, FileType, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { DemoMenuSelector } from "../menu/DemoMenuSelector";
 
 interface MenuUploadSectionProps {
   onMenuAnalyzed: (analysis: any) => void;
@@ -20,22 +22,19 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
 
     setIsUploading(true);
     try {
-      // Upload menu image to Supabase Storage
       const fileExt = file.name.split('.').pop();
       const filePath = `${crypto.randomUUID()}.${fileExt}`;
       
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('restaurant_menus')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('restaurant_menus')
         .getPublicUrl(filePath);
 
-      // Analyze menu using edge function
       const { data: analysisData, error: analysisError } = await supabase.functions
         .invoke('analyze-menu', {
           body: { menuUrl: publicUrl },
@@ -62,38 +61,55 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
   };
 
   return (
-    <div className="space-y-4 bg-white/50 rounded-lg p-4 border">
-      <div>
-        <Label htmlFor="menu-upload">Upload Menu</Label>
-        <div className="mt-2">
+    <div className="space-y-6">
+      <Card className="p-6">
+        <Label className="text-lg font-semibold mb-4 block">Upload Menu</Label>
+        <div className="space-y-4">
           <Input
             id="menu-upload"
             type="file"
-            accept="image/*"
+            accept=".jpg,.jpeg,.png,.pdf,.doc,.docx"
             onChange={handleMenuUpload}
             disabled={isUploading}
             className="hidden"
           />
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById('menu-upload')?.click()}
-            disabled={isUploading}
-            className="w-full"
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing Menu...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Choose Menu Image
-              </>
-            )}
-          </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('menu-upload')?.click()}
+              disabled={isUploading}
+              className="h-24 flex flex-col items-center justify-center gap-2"
+            >
+              <Image className="h-8 w-8" />
+              Choose Menu Image
+              <span className="text-xs text-muted-foreground">
+                Supports JPG, PNG
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('menu-upload')?.click()}
+              disabled={isUploading}
+              className="h-24 flex flex-col items-center justify-center gap-2"
+            >
+              <FileType className="h-8 w-8" />
+              Upload Document
+              <span className="text-xs text-muted-foreground">
+                Supports PDF, DOC
+              </span>
+            </Button>
+          </div>
+
+          {isUploading && (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="ml-2">Analyzing menu...</span>
+            </div>
+          )}
         </div>
-      </div>
+      </Card>
+
+      <DemoMenuSelector onMenuSelected={onMenuAnalyzed} />
     </div>
   );
 };
