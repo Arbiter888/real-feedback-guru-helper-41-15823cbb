@@ -109,16 +109,43 @@ serve(async (req) => {
     console.log('Received request data:', requestData);
 
     if (!requestData.customerName || !requestData.restaurantInfo?.restaurantName) {
-      console.error('Missing required fields:', requestData);
       throw new Error("Missing required fields");
     }
 
     const data: ReviewData = requestData;
-
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
+
+    // Fetch menu data
+    const { data: menuVersions } = await supabaseClient
+      .from('restaurant_menu_versions')
+      .select('*')
+      .eq('is_active', true)
+      .limit(1)
+      .single();
+
+    const menuData = menuVersions?.analysis;
+
+    // Generate personalized recommendations based on previous orders
+    let recommendations = [];
+    if (data.receiptData?.items) {
+      const orderedCategories = new Set(
+        data.receiptData.items.map(item => 
+          menuData?.sections?.find(section => 
+            section.items.some(menuItem => 
+              menuItem.name.toLowerCase().includes(item.name.toLowerCase())
+            )
+          )?.name
+        ).filter(Boolean)
+      );
+
+      recommendations = menuData?.sections
+        ?.filter(section => !orderedCategories.has(section.name))
+        .flatMap(section => section.items)
+        .slice(0, 2) || [];
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -132,14 +159,14 @@ serve(async (req) => {
           {
             role: 'system',
             content: `You are an expert at creating personalized thank you emails for restaurant customers. 
-            Create warm, engaging content that references specific details from their visit and review.
+            Include specific menu recommendations based on their previous orders and available menu items.
             
             IMPORTANT FORMATTING RULES:
-            - Use HTML tags for formatting (<strong>, <p>, etc.)
-            - Keep paragraphs concise and readable
-            - Maintain consistent restaurant branding
-            - Don't include any contact information or social media links in the main content
-            - Focus on the customer's specific experience and the voucher details`
+            - Use HTML tags for formatting
+            - Keep paragraphs concise
+            - Include specific menu recommendations
+            - Reference ordered items when available
+            - Suggest complementary dishes`
           },
           {
             role: 'user',
@@ -147,8 +174,10 @@ serve(async (req) => {
             ${data.reviewText ? `Their review: "${data.reviewText}"` : ''}
             ${data.refinedReview ? `Enhanced review: "${data.refinedReview}"` : ''}
             ${data.serverName ? `Server name: ${data.serverName}` : ''}
-            ${data.receiptData ? `Order details: Total $${data.receiptData.total_amount}, Items: ${data.receiptData.items.map(item => item.name).join(', ')}` : ''}
-            ${data.voucherDetails ? `Include this offer: ${data.voucherDetails.title} (${data.voucherDetails.discountValue}) - ${data.voucherDetails.description}` : ''}`
+            ${data.receiptData ? `Order details: ${JSON.stringify(data.receiptData)}` : ''}
+            ${data.voucherDetails ? `Offer: ${JSON.stringify(data.voucherDetails)}` : ''}
+            Available menu items: ${JSON.stringify(menuData)}
+            Recommended items: ${JSON.stringify(recommendations)}`
           }
         ],
         temperature: 0.7,

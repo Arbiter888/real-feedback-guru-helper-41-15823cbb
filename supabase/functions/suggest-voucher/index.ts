@@ -15,43 +15,49 @@ serve(async (req) => {
   try {
     const { reviewText, refinedReview, receiptData, customerName } = await req.json();
 
-    // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get the latest active menu version
+    // Get menu data
     const { data: menuVersion } = await supabase
       .from('restaurant_menu_versions')
-      .select('analysis')
+      .select('*')
       .eq('is_active', true)
-      .order('version_number', { ascending: false })
       .limit(1)
       .single();
 
-    console.log('Current menu version:', menuVersion);
+    const menuData = menuVersion?.analysis;
+
+    // Calculate average prices per category
+    const categoryAverages = menuData?.sections?.reduce((acc, section) => {
+      const prices = section.items.map(item => item.price);
+      acc[section.name] = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+      return acc;
+    }, {});
 
     const prompt = `
-      Based on the following information, suggest a personalized voucher for the customer:
+      Based on the following information, suggest a personalized voucher:
 
       Customer Review: ${reviewText}
       Refined Review: ${refinedReview || 'Not available'}
       Receipt Data: ${JSON.stringify(receiptData || {})}
       Customer Name: ${customerName}
-      
-      ${menuVersion?.analysis ? `Current Menu Items: ${JSON.stringify(menuVersion.analysis)}` : ''}
+      Menu Data: ${JSON.stringify(menuData)}
+      Category Averages: ${JSON.stringify(categoryAverages)}
 
       Generate a voucher that:
       1. References specific menu items or categories they might enjoy
-      2. Considers their spending patterns from the receipt
-      3. Creates an incentive for a return visit
-      4. Has a clear value proposition
+      2. Considers their spending patterns
+      3. Creates an incentive for trying new menu items
+      4. Has a clear value proposition based on menu prices
+      5. Encourages exploration of different menu sections
 
       Return a JSON object with:
       - title: catchy voucher title
       - description: detailed description
-      - validDays: number of days voucher is valid
+      - validDays: number of days valid
       - discountValue: specific discount amount or percentage
     `;
 
