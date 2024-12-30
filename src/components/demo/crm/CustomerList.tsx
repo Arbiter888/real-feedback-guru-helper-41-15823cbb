@@ -257,8 +257,9 @@ export const CustomerList = ({
                   handleSendEmail(customer, selectedEmailData);
                 }
               }}
+              disabled={sendingEmailFor !== null}
             >
-              {isSendingEmail ? (
+              {sendingEmailFor !== null ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Sending...
