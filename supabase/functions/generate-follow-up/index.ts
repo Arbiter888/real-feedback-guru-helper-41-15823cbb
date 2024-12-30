@@ -32,7 +32,6 @@ interface ReviewData {
 }
 
 function wrapEmailContent(content: string, restaurantInfo: ReviewData['restaurantInfo']): string {
-  // Define a base style for the email content
   const emailStyle = `
     <style>
       .email-content {
@@ -65,7 +64,6 @@ function wrapEmailContent(content: string, restaurantInfo: ReviewData['restauran
     </style>
   `;
 
-  // Create the contact links section with the correct restaurant info
   const contactLinks = `
     <div class="signature">
       ${restaurantInfo.phoneNumber ? `
@@ -102,7 +100,6 @@ function wrapEmailContent(content: string, restaurantInfo: ReviewData['restauran
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -111,7 +108,6 @@ serve(async (req) => {
     const requestData = await req.json();
     console.log('Received request data:', requestData);
 
-    // Validate required fields
     if (!requestData.customerName || !requestData.restaurantInfo?.restaurantName) {
       console.error('Missing required fields:', requestData);
       throw new Error("Missing required fields");
@@ -167,31 +163,19 @@ serve(async (req) => {
     }
 
     const generatedContent = aiResponse.choices[0].message.content;
-
-    // Wrap the content with our styled template
     const formattedEmail = wrapEmailContent(generatedContent, data.restaurantInfo);
 
-    const followUpEmail = {
+    const emailData = {
       email_subject: `Thank you for visiting ${data.restaurantInfo.restaurantName}!`,
       email_content: formattedEmail,
       voucher_details: data.voucherDetails ? {
         ...data.voucherDetails,
         code: `THANK${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-      } : undefined,
-      scheduled_for: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      status: 'pending'
+      } : undefined
     };
 
-    const { data: insertedEmail, error: insertError } = await supabaseClient
-      .from('follow_up_emails')
-      .insert(followUpEmail)
-      .select()
-      .single();
-
-    if (insertError) throw insertError;
-
     return new Response(
-      JSON.stringify(insertedEmail),
+      JSON.stringify(emailData),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

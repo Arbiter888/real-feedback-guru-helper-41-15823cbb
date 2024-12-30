@@ -74,19 +74,48 @@ export const CustomerList = ({
   const handleGenerateEmail = async (customerId: string, voucherDetails?: any) => {
     setGeneratingEmailFor(customerId);
     try {
-      await onGenerateFollowUp(customerId, voucherDetails);
-      setExpandedCustomers(prev => new Set(prev).add(customerId));
       const customer = customers.find(c => c.id === customerId);
-      if (customer) {
-        setGeneratedEmails(prev => ({
-          ...prev,
-          [customerId]: {
-            email: customer.email,
-            subject: `Thank you for visiting ${restaurantInfo.restaurantName}!`,
-            content: "Generated email content...",
-          }
-        }));
+      if (!customer) {
+        throw new Error("Customer not found");
       }
+
+      const { data, error } = await supabase.functions.invoke("generate-follow-up", {
+        body: { 
+          customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
+          reviewText: customer.metadata?.initial_review,
+          refinedReview: customer.metadata?.refined_review,
+          receiptData: customer.metadata?.receipt_data,
+          serverName: customer.metadata?.server_name,
+          voucherDetails,
+          restaurantInfo
+        },
+      });
+
+      if (error) throw error;
+
+      setGeneratedEmails(prev => ({
+        ...prev,
+        [customerId]: {
+          email: customer.email,
+          email_subject: data.email_subject,
+          email_content: data.email_content,
+          voucher_details: data.voucher_details
+        }
+      }));
+
+      setExpandedCustomers(prev => new Set(prev).add(customerId));
+
+      toast({
+        title: "Email generated",
+        description: "Thank you email has been generated successfully.",
+      });
+    } catch (error) {
+      console.error("Error generating email:", error);
+      toast({
+        title: "Generation failed",
+        description: "Failed to generate thank you email.",
+        variant: "destructive",
+      });
     } finally {
       setGeneratingEmailFor(null);
     }
