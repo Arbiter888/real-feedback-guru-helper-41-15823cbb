@@ -6,18 +6,23 @@ interface CustomerActionsProps {
   onGenerateEmail: () => void;
   isGeneratingEmail: boolean;
   voucherSuggestion?: any;
+  onEditVoucher?: () => void;
 }
 
 export const CustomerActions = ({ 
   onGenerateEmail, 
   isGeneratingEmail,
-  voucherSuggestion 
+  voucherSuggestion,
+  onEditVoucher
 }: CustomerActionsProps) => {
   return (
     <div className="flex items-start gap-4">
       {voucherSuggestion && (
         <div className="flex-1">
-          <VoucherDisplay suggestion={voucherSuggestion} />
+          <VoucherDisplay 
+            suggestion={voucherSuggestion} 
+            onEdit={onEditVoucher}
+          />
         </div>
       )}
       <Button

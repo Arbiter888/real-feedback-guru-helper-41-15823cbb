@@ -44,6 +44,11 @@ export const CustomerCard = ({
 }: CustomerCardProps) => {
   const metadata = isCustomerMetadata(customer.metadata) ? customer.metadata : null;
   const suggestion = voucherSuggestions[customer.id];
+  const [isEditingVoucher, setIsEditingVoucher] = useState(false);
+
+  const handleGenerateEmailClick = () => {
+    onGenerateEmail(customer.id, voucherSuggestions[customer.id]);
+  };
 
   return (
     <Card className="p-6">
@@ -73,19 +78,22 @@ export const CustomerCard = ({
               </div>
             </div>
             <div className="flex gap-2">
-              <VoucherSuggestionCard
-                customer={customer}
-                onVoucherGenerated={(voucher) => {
-                  setVoucherSuggestions(prev => ({
-                    ...prev,
-                    [customer.id]: voucher
-                  }));
-                }}
-              />
+              {!suggestion && (
+                <VoucherSuggestionCard
+                  customer={customer}
+                  onVoucherGenerated={(voucher) => {
+                    setVoucherSuggestions(prev => ({
+                      ...prev,
+                      [customer.id]: voucher
+                    }));
+                  }}
+                />
+              )}
               <CustomerActions
-                onGenerateEmail={() => onGenerateEmail(customer.id, voucherSuggestions[customer.id])}
+                onGenerateEmail={handleGenerateEmailClick}
                 isGeneratingEmail={isGeneratingEmail}
                 voucherSuggestion={suggestion}
+                onEditVoucher={() => setIsEditingVoucher(true)}
               />
             </div>
           </div>
