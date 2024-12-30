@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Mail, Loader2, ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Customer, CustomerMetadata, isCustomerMetadata } from "@/types/customer";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
+import { CustomerActions } from "./actions/CustomerActions";
 import { VoucherSuggestionCard } from "./vouchers/VoucherSuggestionCard";
 import { CustomerReviewDetails } from "./reviews/CustomerReviewDetails";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -10,6 +10,7 @@ import { EmailPreviewCard } from "../email/EmailPreviewCard";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CustomerEmailDialog } from "./email/CustomerEmailDialog";
+import { Customer, CustomerMetadata, isCustomerMetadata } from "@/types/customer";
 
 interface CustomerListProps {
   customers: Customer[];
@@ -42,6 +43,7 @@ export const CustomerList = ({
   const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
   const [showSendConfirm, setShowSendConfirm] = useState(false);
   const [selectedEmailData, setSelectedEmailData] = useState<any>(null);
+  const [displayCount, setDisplayCount] = useState(5);
   const { toast } = useToast();
 
   const formatDate = (dateString: string) => {
@@ -52,13 +54,6 @@ export const CustomerList = ({
       console.error("Error formatting date:", error);
       return "Invalid date";
     }
-  };
-
-  const getMetadata = (customer: Customer): CustomerMetadata => {
-    if (typeof customer.metadata === 'object' && customer.metadata !== null) {
-      return customer.metadata as CustomerMetadata;
-    }
-    return {};
   };
 
   const toggleCustomer = (customerId: string) => {
@@ -79,7 +74,6 @@ export const CustomerList = ({
         throw new Error("Customer not found");
       }
 
-      // Type check the metadata
       const metadata = isCustomerMetadata(customer.metadata) ? customer.metadata : null;
 
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
@@ -124,43 +118,12 @@ export const CustomerList = ({
     }
   };
 
-  const handleSendEmail = async (customer: Customer, emailData: any) => {
-    setSendingEmailFor(customer.id);
-    try {
-      const { error } = await supabase.functions.invoke("send-customer-email", {
-        body: {
-          to: customer.email,
-          subject: emailData.email_subject,
-          htmlContent: emailData.email_content,
-          restaurantInfo
-        },
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Email sent successfully",
-        description: `Thank you email sent to ${customer.email}`,
-      });
-
-      setGeneratedEmails(prev => {
-        const newEmails = { ...prev };
-        delete newEmails[customer.id];
-        return newEmails;
-      });
-    } catch (error) {
-      console.error("Error sending email:", error);
-      toast({
-        title: "Failed to send email",
-        description: "There was an error sending the email. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSendingEmailFor(null);
-      setShowSendConfirm(false);
-      setSelectedEmailData(null);
-    }
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + 5);
   };
+
+  const displayedCustomers = customers.slice(0, displayCount);
+  const hasMoreCustomers = displayCount < customers.length;
 
   if (isLoading) {
     return (
@@ -172,8 +135,8 @@ export const CustomerList = ({
 
   return (
     <div className="space-y-4">
-      {customers.map((customer) => {
-        const metadata = getMetadata(customer);
+      {displayedCustomers.map((customer) => {
+        const metadata = isCustomerMetadata(customer.metadata) ? customer.metadata : null;
         const suggestion = voucherSuggestions[customer.id];
         const isExpanded = expandedCustomers.has(customer.id);
         const isGeneratingEmail = generatingEmailFor === customer.id;
@@ -216,24 +179,11 @@ export const CustomerList = ({
                         }));
                       }}
                     />
-                    <Button
-                      onClick={() => handleGenerateEmail(customer.id, voucherSuggestions[customer.id])}
-                      variant="default"
-                      size="sm"
-                      disabled={!suggestion || isGeneratingEmail}
-                    >
-                      {isGeneratingEmail ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
-                      ) : (
-                        <>
-                          <Mail className="mr-2 h-4 w-4" />
-                          Generate Thank You Email
-                        </>
-                      )}
-                    </Button>
+                    <CustomerActions
+                      onGenerateEmail={() => handleGenerateEmail(customer.id, voucherSuggestions[customer.id])}
+                      isGeneratingEmail={isGeneratingEmail}
+                      voucherSuggestion={suggestion}
+                    />
                   </div>
                 </div>
 
@@ -260,6 +210,19 @@ export const CustomerList = ({
           </Card>
         );
       })}
+
+      {hasMoreCustomers && (
+        <div className="flex justify-center mt-4">
+          <Button 
+            variant="outline" 
+            onClick={handleLoadMore}
+            className="w-full max-w-md"
+          >
+            <ChevronDown className="mr-2 h-4 w-4" />
+            Load More
+          </Button>
+        </div>
+      )}
 
       <CustomerEmailDialog
         isOpen={showSendConfirm}
