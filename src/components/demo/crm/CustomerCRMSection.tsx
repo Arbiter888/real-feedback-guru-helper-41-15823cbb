@@ -39,14 +39,12 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
 
       if (emailError) throw emailError;
 
-      // Transform the data to ensure receipt_data is properly structured
       return emailContacts?.map((contact: any) => {
         let metadata: CustomerMetadata = {};
         
         if (contact.metadata) {
           metadata = {
             ...contact.metadata,
-            // Ensure receipt_data is properly structured from either source
             receipt_data: contact.metadata.receipt_data || contact.metadata.receipt_analysis
           };
         }
@@ -64,7 +62,6 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
     if (!customer) return;
     
     try {
-      // Type guard to ensure metadata is CustomerMetadata
       if (!isCustomerMetadata(customer.metadata)) {
         throw new Error("Invalid metadata format");
       }
@@ -73,15 +70,7 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
         body: { 
           customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
           voucherDetails,
-          restaurantInfo: {
-            restaurantName: restaurantInfo.restaurantName,
-            websiteUrl: restaurantInfo.websiteUrl,
-            facebookUrl: restaurantInfo.facebookUrl,
-            instagramUrl: restaurantInfo.instagramUrl,
-            phoneNumber: restaurantInfo.phoneNumber,
-            googleMapsUrl: restaurantInfo.googleMapsUrl,
-          },
-          // Include review data if available
+          restaurantInfo,
           ...(customer.metadata && {
             reviewText: customer.metadata.initial_review,
             refinedReview: customer.metadata.refined_review,
@@ -120,26 +109,13 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
           </div>
         </div>
 
-        {generatedEmail && (
-          <EmailPreviewCard
-            email={generatedEmail}
-            onSendEmail={() => {
-              toast({
-                title: "Email scheduled",
-                description: "The thank you email has been scheduled to be sent.",
-              });
-              setGeneratedEmail(null);
-            }}
-            restaurantInfo={restaurantInfo}
-          />
-        )}
-
         <CustomerList
           customers={customers || []}
           isLoading={isLoading}
           onSelectCustomer={setSelectedCustomerId}
           selectedCustomerId={selectedCustomerId}
           onGenerateFollowUp={handleGenerateFollowUp}
+          restaurantInfo={restaurantInfo}
         />
       </div>
     </Card>

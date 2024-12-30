@@ -1,11 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { Mail, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Loader2, ChevronDown, ChevronUp, Send } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Customer, CustomerMetadata } from "@/types/customer";
 import { VoucherSuggestionCard } from "./vouchers/VoucherSuggestionCard";
 import { CustomerReviewDetails } from "./reviews/CustomerReviewDetails";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { EmailPreviewCard } from "../email/EmailPreviewCard";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CustomerListProps {
   customers: Customer[];
@@ -13,6 +26,14 @@ interface CustomerListProps {
   onSelectCustomer: (id: string) => void;
   selectedCustomerId: string | null;
   onGenerateFollowUp: (customerId: string, voucherDetails?: any) => void;
+  restaurantInfo: {
+    restaurantName: string;
+    websiteUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    phoneNumber?: string;
+    googleMapsUrl?: string;
+  };
 }
 
 export const CustomerList = ({
@@ -20,11 +41,17 @@ export const CustomerList = ({
   isLoading,
   onSelectCustomer,
   selectedCustomerId,
-  onGenerateFollowUp
+  onGenerateFollowUp,
+  restaurantInfo
 }: CustomerListProps) => {
   const [voucherSuggestions, setVoucherSuggestions] = useState<Record<string, any>>({});
   const [expandedCustomers, setExpandedCustomers] = useState<Set<string>>(new Set());
   const [generatingEmailFor, setGeneratingEmailFor] = useState<string | null>(null);
+  const [generatedEmails, setGeneratedEmails] = useState<Record<string, any>>({});
+  const [sendingEmailFor, setSendingEmailFor] = useState<string | null>(null);
+  const [showSendConfirm, setShowSendConfirm] = useState(false);
+  const [selectedEmailData, setSelectedEmailData] = useState<any>(null);
+  const { toast } = useToast();
 
   const formatDate = (dateString: string) => {
     try {
@@ -57,8 +84,59 @@ export const CustomerList = ({
     setGeneratingEmailFor(customerId);
     try {
       await onGenerateFollowUp(customerId, voucherDetails);
+      setExpandedCustomers(prev => new Set(prev).add(customerId));
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        setGeneratedEmails(prev => ({
+          ...prev,
+          [customerId]: {
+            email: customer.email,
+            subject: `Thank you for visiting ${restaurantInfo.restaurantName}!`,
+            content: "Generated email content...",
+          }
+        }));
+      }
     } finally {
       setGeneratingEmailFor(null);
+    }
+  };
+
+  const handleSendEmail = async (customer: Customer, emailData: any) => {
+    setSendingEmailFor(customer.id);
+    try {
+      const { error } = await supabase.functions.invoke("send-customer-email", {
+        body: {
+          to: customer.email,
+          subject: emailData.email_subject,
+          htmlContent: emailData.email_content,
+          restaurantInfo
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email sent successfully",
+        description: `Thank you email sent to ${customer.email}`,
+      });
+
+      // Clear the generated email for this customer
+      setGeneratedEmails(prev => {
+        const newEmails = { ...prev };
+        delete newEmails[customer.id];
+        return newEmails;
+      });
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast({
+        title: "Failed to send email",
+        description: "There was an error sending the email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingEmailFor(null);
+      setShowSendConfirm(false);
+      setSelectedEmailData(null);
     }
   };
 
@@ -77,12 +155,13 @@ export const CustomerList = ({
         const suggestion = voucherSuggestions[customer.id];
         const isExpanded = expandedCustomers.has(customer.id);
         const isGeneratingEmail = generatingEmailFor === customer.id;
+        const isSendingEmail = sendingEmailFor === customer.id;
+        const generatedEmail = generatedEmails[customer.id];
         
         return (
           <Card key={customer.id} className="p-6">
             <Collapsible open={isExpanded} onOpenChange={() => toggleCustomer(customer.id)}>
               <div className="space-y-4">
-                {/* Customer Header - Always Visible */}
                 <div className="flex justify-between items-start">
                   <div className="flex items-start gap-4">
                     <CollapsibleTrigger className="hover:bg-accent p-1 rounded-md">
@@ -137,15 +216,63 @@ export const CustomerList = ({
                   </div>
                 </div>
 
-                {/* Collapsible Content */}
                 <CollapsibleContent className="space-y-4">
                   <CustomerReviewDetails metadata={metadata} />
+                  
+                  {generatedEmail && (
+                    <div className="mt-4">
+                      <EmailPreviewCard
+                        email={generatedEmail}
+                        onSendEmail={() => {
+                          setSelectedEmailData(generatedEmail);
+                          setShowSendConfirm(true);
+                        }}
+                        restaurantInfo={restaurantInfo}
+                        recipientEmail={customer.email}
+                        allowEdit={true}
+                      />
+                    </div>
+                  )}
                 </CollapsibleContent>
               </div>
             </Collapsible>
           </Card>
         );
       })}
+
+      <AlertDialog open={showSendConfirm} onOpenChange={setShowSendConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send Thank You Email</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to send this email to {selectedEmailData?.email}?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const customer = customers.find(c => c.email === selectedEmailData?.email);
+                if (customer) {
+                  handleSendEmail(customer, selectedEmailData);
+                }
+              }}
+            >
+              {isSendingEmail ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Send Email
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {customers.length === 0 && (
         <div className="text-center py-8 text-muted-foreground">
