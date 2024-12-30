@@ -9,6 +9,7 @@ import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
 import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 import { CustomerCRMSection } from "@/components/demo/crm/CustomerCRMSection";
 import { RestaurantInfoSection } from "./sections/RestaurantInfoSection";
+import { MenuSection } from "./sections/MenuSection";
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
 
 interface RestaurantInfo {
@@ -21,6 +22,7 @@ interface RestaurantInfo {
   phoneNumber: string;
   bookingUrl: string;
   preferredBookingMethod: 'phone' | 'website';
+  menuAnalysis?: any;
 }
 
 export default function DashboardPage() {
@@ -86,6 +88,9 @@ export default function DashboardPage() {
             restaurantInfo={restaurantInfo}
             setRestaurantInfo={setRestaurantInfo}
           />
+          
+          {/* Menu Management Section */}
+          <MenuSection restaurantInfo={restaurantInfo} />
           
           {/* Review Page Creation Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
