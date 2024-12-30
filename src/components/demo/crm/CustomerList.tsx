@@ -10,6 +10,7 @@ import { EmailPreviewCard } from "../email/EmailPreviewCard";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CustomerEmailDialog } from "./email/CustomerEmailDialog";
+import { LoadMoreButton } from "./components/LoadMoreButton";
 
 interface CustomerListProps {
   customers: Customer[];
@@ -27,6 +28,8 @@ interface CustomerListProps {
   };
 }
 
+const ITEMS_PER_PAGE = 5;
+
 export const CustomerList = ({
   customers,
   isLoading,
@@ -35,6 +38,8 @@ export const CustomerList = ({
   onGenerateFollowUp,
   restaurantInfo
 }: CustomerListProps) => {
+  const [displayCount, setDisplayCount] = useState(ITEMS_PER_PAGE);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [voucherSuggestions, setVoucherSuggestions] = useState<Record<string, any>>({});
   const [expandedCustomers, setExpandedCustomers] = useState<Set<string>>(new Set());
   const [generatingEmailFor, setGeneratingEmailFor] = useState<string | null>(null);
@@ -43,6 +48,17 @@ export const CustomerList = ({
   const [showSendConfirm, setShowSendConfirm] = useState(false);
   const [selectedEmailData, setSelectedEmailData] = useState<any>(null);
   const { toast } = useToast();
+
+  const handleLoadMore = async () => {
+    setLoadingMore(true);
+    // Simulate loading delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+    setLoadingMore(false);
+  };
+
+  const displayedCustomers = customers.slice(0, displayCount);
+  const remainingCount = Math.max(0, customers.length - displayCount);
 
   const formatDate = (dateString: string) => {
     try {
@@ -79,7 +95,6 @@ export const CustomerList = ({
         throw new Error("Customer not found");
       }
 
-      // Type check the metadata
       const metadata = isCustomerMetadata(customer.metadata) ? customer.metadata : null;
 
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
@@ -172,7 +187,7 @@ export const CustomerList = ({
 
   return (
     <div className="space-y-4">
-      {customers.map((customer) => {
+      {displayedCustomers.map((customer) => {
         const metadata = getMetadata(customer);
         const suggestion = voucherSuggestions[customer.id];
         const isExpanded = expandedCustomers.has(customer.id);
@@ -260,6 +275,12 @@ export const CustomerList = ({
           </Card>
         );
       })}
+
+      <LoadMoreButton
+        remainingCount={remainingCount}
+        isLoading={loadingMore}
+        onClick={handleLoadMore}
+      />
 
       <CustomerEmailDialog
         isOpen={showSendConfirm}
