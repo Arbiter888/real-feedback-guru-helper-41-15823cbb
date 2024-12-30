@@ -11,7 +11,13 @@ interface MenuPreviewProps {
 export const MenuPreview = ({ menuUrl, analysis }: MenuPreviewProps) => {
   const [showImage, setShowImage] = useState(true);
 
+  // Early return if no menu URL
   if (!menuUrl) return null;
+
+  // Convert analysis to array if it's not already
+  const menuSections = Array.isArray(analysis) 
+    ? analysis 
+    : analysis?.menuAnalysis || analysis?.sections || [];
 
   return (
     <div className="space-y-4">
@@ -52,19 +58,23 @@ export const MenuPreview = ({ menuUrl, analysis }: MenuPreviewProps) => {
         <Card className="p-4">
           <h4 className="font-medium mb-3">Analysis Results</h4>
           <div className="space-y-3">
-            {analysis?.map((section: any, index: number) => (
-              <div key={index} className="space-y-2">
-                <h5 className="font-medium text-primary">{section.category}</h5>
-                <ul className="space-y-1">
-                  {section.items?.map((item: any, itemIndex: number) => (
-                    <li key={itemIndex} className="flex justify-between text-sm">
-                      <span>{item.name}</span>
-                      <span className="font-medium">£{item.price}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {menuSections && menuSections.length > 0 ? (
+              menuSections.map((section: any, index: number) => (
+                <div key={index} className="space-y-2">
+                  <h5 className="font-medium text-primary">{section.category}</h5>
+                  <ul className="space-y-1">
+                    {section.items?.map((item: any, itemIndex: number) => (
+                      <li key={itemIndex} className="flex justify-between text-sm">
+                        <span>{item.name}</span>
+                        <span className="font-medium">${item.price}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            ) : (
+              <p className="text-muted-foreground text-sm">No menu analysis available</p>
+            )}
           </div>
         </Card>
       </div>
