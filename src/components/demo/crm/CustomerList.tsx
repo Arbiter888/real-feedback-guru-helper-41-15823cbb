@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Mail, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Customer, CustomerMetadata } from "@/types/customer";
+import { Customer, CustomerMetadata, isCustomerMetadata } from "@/types/customer";
 import { VoucherSuggestionCard } from "./vouchers/VoucherSuggestionCard";
 import { CustomerReviewDetails } from "./reviews/CustomerReviewDetails";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -79,13 +79,16 @@ export const CustomerList = ({
         throw new Error("Customer not found");
       }
 
+      // Type check the metadata
+      const metadata = isCustomerMetadata(customer.metadata) ? customer.metadata : null;
+
       const { data, error } = await supabase.functions.invoke("generate-follow-up", {
         body: { 
           customerName: `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || customer.email,
-          reviewText: customer.metadata?.initial_review,
-          refinedReview: customer.metadata?.refined_review,
-          receiptData: customer.metadata?.receipt_data,
-          serverName: customer.metadata?.server_name,
+          reviewText: metadata?.initial_review,
+          refinedReview: metadata?.refined_review,
+          receiptData: metadata?.receipt_data,
+          serverName: metadata?.server_name,
           voucherDetails,
           restaurantInfo
         },
