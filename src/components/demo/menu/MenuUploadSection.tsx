@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, Loader2, Eye } from "lucide-react";
+import { Upload, Loader2, Eye, FileType, Image } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MenuVersionList } from "./MenuVersionList";
 import { MenuPreview } from "./MenuPreview";
 import { DemoMenuSelector } from "./DemoMenuSelector";
+import { Card } from "@/components/ui/card";
 
 interface MenuUploadSectionProps {
   onMenuAnalyzed: (analysis: any) => void;
@@ -90,9 +91,9 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
 
   return (
     <div className="space-y-6">
-      <div>
-        <Label>Upload Menu</Label>
-        <div className="mt-2 space-y-4">
+      <Card className="p-6">
+        <Label className="text-lg font-semibold mb-4 block">Upload Menu</Label>
+        <div className="space-y-4">
           <Input
             id="menu-upload"
             type="file"
@@ -101,26 +102,41 @@ export const MenuUploadSection = ({ onMenuAnalyzed }: MenuUploadSectionProps) =>
             disabled={isUploading}
             className="hidden"
           />
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById('menu-upload')?.click()}
-            disabled={isUploading}
-            className="w-full"
-          >
-            {isUploading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing Menu...
-              </>
-            ) : (
-              <>
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Menu (Images, PDF, or Document)
-              </>
-            )}
-          </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('menu-upload')?.click()}
+              disabled={isUploading}
+              className="h-24 flex flex-col items-center justify-center gap-2"
+            >
+              <Image className="h-8 w-8" />
+              Choose Menu Image
+              <span className="text-xs text-muted-foreground">
+                Supports JPG, PNG
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => document.getElementById('menu-upload')?.click()}
+              disabled={isUploading}
+              className="h-24 flex flex-col items-center justify-center gap-2"
+            >
+              <FileType className="h-8 w-8" />
+              Upload Document
+              <span className="text-xs text-muted-foreground">
+                Supports PDF, DOC
+              </span>
+            </Button>
+          </div>
+
+          {isUploading && (
+            <div className="flex items-center justify-center py-4">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="ml-2">Analyzing menu...</span>
+            </div>
+          )}
         </div>
-      </div>
+      </Card>
 
       <DemoMenuSelector 
         onMenuSelected={async (menuVersion) => {
