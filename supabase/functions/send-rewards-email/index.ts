@@ -10,7 +10,14 @@ serve(async (req) => {
   }
 
   try {
-    const { email, tipAmount, tipReward, reviewRewardCode, serverName } = await req.json();
+    const { 
+      email, 
+      tipAmount, 
+      tipReward, 
+      reviewRewardCode, 
+      serverName,
+      restaurantInfo 
+    } = await req.json();
 
     const emailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -21,8 +28,8 @@ serve(async (req) => {
           
           ${tipAmount ? `
             <div style="margin-bottom: 25px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #FFD5E2;">
-              <h3 style="color: #E94E87; margin-top: 0;">Tip Reward</h3>
-              <p>Thank you for tipping ${serverName} £${tipAmount}!</p>
+              <h3 style="color: #E94E87; margin-top: 0;">Tip Reward for ${serverName}</h3>
+              <p>Thank you for your £${tipAmount} tip!</p>
               <p style="font-size: 18px; font-weight: bold;">Your Reward: £${tipReward.toFixed(2)}</p>
               <div style="background: #F8F8F8; padding: 10px; border-radius: 5px; margin-top: 10px;">
                 <p style="margin: 0; font-family: monospace; font-size: 16px; color: #E94E87;">TIP${tipAmount}BACK</p>
@@ -39,6 +46,16 @@ serve(async (req) => {
                 <p style="margin: 0; font-family: monospace; font-size: 16px; color: #E94E87;">${reviewRewardCode}</p>
               </div>
               <p style="font-size: 12px; color: #666; margin-top: 10px;">Valid for 30 days</p>
+            </div>
+          ` : ''}
+
+          ${restaurantInfo ? `
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #FFD5E2;">
+              <h3 style="color: #333;">Connect With Us</h3>
+              ${restaurantInfo.websiteUrl ? `<p><strong>Website:</strong> <a href="${restaurantInfo.websiteUrl}" style="color: #E94E87;">${restaurantInfo.websiteUrl}</a></p>` : ''}
+              ${restaurantInfo.facebookUrl ? `<p><strong>Facebook:</strong> <a href="${restaurantInfo.facebookUrl}" style="color: #E94E87;">Follow us on Facebook</a></p>` : ''}
+              ${restaurantInfo.instagramUrl ? `<p><strong>Instagram:</strong> <a href="${restaurantInfo.instagramUrl}" style="color: #E94E87;">Follow us on Instagram</a></p>` : ''}
+              ${restaurantInfo.phoneNumber ? `<p><strong>Phone:</strong> ${restaurantInfo.phoneNumber}</p>` : ''}
             </div>
           ` : ''}
         </div>

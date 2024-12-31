@@ -28,19 +28,7 @@ export const RewardsSignup = ({
       className="glass-card p-8 rounded-xl border border-gray-100 bg-white/50 backdrop-blur-sm"
     >
       <div className="space-y-8">
-        <div className="text-center space-y-4">
-          <motion.div 
-            className="flex items-center justify-center gap-2"
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <Gift className="w-8 h-8 text-primary animate-bounce" />
-            <h3 className="text-2xl font-bold text-gray-900">
-              Join EatUP! Rewards
-            </h3>
-          </motion.div>
-          
+        <div className="space-y-4">
           <motion.ul 
             className="space-y-3"
             initial={{ opacity: 0 }}

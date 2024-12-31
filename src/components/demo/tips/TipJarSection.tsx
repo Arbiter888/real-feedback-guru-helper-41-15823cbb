@@ -65,6 +65,10 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
 
     setIsProcessing(true);
     try {
+      // Get restaurant info from localStorage if available
+      const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+      const restaurantInfo = savedRestaurantInfo ? JSON.parse(savedRestaurantInfo) : {};
+
       // Send welcome email with rewards
       const { error: emailError } = await supabase.functions.invoke('send-rewards-email', {
         body: {
@@ -72,7 +76,8 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
           tipAmount: selectedTip,
           tipReward: selectedTip ? selectedTip * 0.5 : 0,
           reviewRewardCode: rewardCode,
-          serverName
+          serverName,
+          restaurantInfo
         }
       });
 
