@@ -1,6 +1,5 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,6 +14,9 @@ serve(async (req) => {
   try {
     const { reviewText, refinedReview, receiptData, customerName } = await req.json();
 
+    // Log the received data for debugging
+    console.log('Received data:', { reviewText, refinedReview, receiptData, customerName });
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -26,25 +28,30 @@ serve(async (req) => {
       .select('*')
       .eq('is_active', true)
       .limit(1)
-      .single();
+      .maybeSingle();
 
     const menuData = menuVersion?.analysis;
 
-    // Calculate average prices per category
-    const categoryAverages = menuData?.sections?.reduce((acc, section) => {
-      const prices = section.items.map(item => item.price);
-      acc[section.name] = prices.reduce((sum, price) => sum + price, 0) / prices.length;
+    // Calculate average prices per category if menu data exists
+    const categoryAverages = menuData?.sections?.reduce((acc: Record<string, number>, section: any) => {
+      if (section.items && section.items.length > 0) {
+        const prices = section.items.map((item: any) => item.price).filter(Boolean);
+        if (prices.length > 0) {
+          acc[section.name] = prices.reduce((sum: number, price: number) => sum + price, 0) / prices.length;
+        }
+      }
       return acc;
-    }, {});
+    }, {}) || {};
 
+    // Prepare the prompt with proper JSON stringification
     const prompt = `
       Based on the following information, suggest a personalized voucher:
 
-      Customer Review: ${reviewText}
-      Refined Review: ${refinedReview || 'Not available'}
+      Customer Review: ${reviewText || 'Not provided'}
+      Refined Review: ${refinedReview || 'Not provided'}
       Receipt Data: ${JSON.stringify(receiptData || {})}
-      Customer Name: ${customerName}
-      Menu Data: ${JSON.stringify(menuData)}
+      Customer Name: ${customerName || 'Customer'}
+      Menu Data: ${JSON.stringify(menuData || {})}
       Category Averages: ${JSON.stringify(categoryAverages)}
 
       Generate a voucher that:
@@ -55,10 +62,12 @@ serve(async (req) => {
       5. Encourages exploration of different menu sections
 
       Return a JSON object with:
-      - title: catchy voucher title
-      - description: detailed description
-      - validDays: number of days valid
-      - discountValue: specific discount amount or percentage
+      {
+        "title": "catchy voucher title",
+        "description": "detailed description",
+        "validDays": number of days valid (integer),
+        "discountValue": "specific discount amount or percentage"
+      }
     `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -68,25 +77,50 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4',
         messages: [
-          { role: 'system', content: 'You are a marketing expert specializing in restaurant loyalty programs.' },
-          { role: 'user', content: prompt }
+          { 
+            role: 'system', 
+            content: 'You are a marketing expert specializing in restaurant loyalty programs. Always respond with valid JSON only.' 
+          },
+          { 
+            role: 'user', 
+            content: prompt 
+          }
         ],
         temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
+      const error = await response.text();
+      console.error('OpenAI API error:', error);
       throw new Error('Failed to generate voucher suggestion');
     }
 
     const data = await response.json();
-    const suggestion = JSON.parse(data.choices[0].message.content);
+    const suggestionText = data.choices[0].message.content;
+    
+    // Parse the suggestion, ensuring it's valid JSON
+    let suggestion;
+    try {
+      // Remove any markdown formatting if present
+      const cleanJson = suggestionText.replace(/```json\n?|\n?```/g, '').trim();
+      suggestion = JSON.parse(cleanJson);
+    } catch (error) {
+      console.error('Error parsing OpenAI response:', error);
+      console.log('Raw response:', suggestionText);
+      throw new Error('Invalid response format from OpenAI');
+    }
 
     return new Response(
       JSON.stringify(suggestion),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
   } catch (error) {
     console.error('Error in suggest-voucher function:', error);
@@ -94,7 +128,10 @@ serve(async (req) => {
       JSON.stringify({ error: error.message }),
       { 
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        }
       }
     );
   }
