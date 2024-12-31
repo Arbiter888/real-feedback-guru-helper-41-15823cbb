@@ -6,6 +6,7 @@ import { TipRewardDisplay } from "./TipRewardDisplay";
 import { RewardsSignup } from "./RewardsSignup";
 import { TipJarHeader } from "./TipJarHeader";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/integrations/supabase/client";
 
 interface TipJarSectionProps {
   serverName: string | null;
@@ -53,10 +54,45 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
       return;
     }
 
+    if (!selectedTip && !rewardCode) {
+      toast({
+        title: "No rewards selected",
+        description: "Please select a tip amount or complete your review first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send welcome email with rewards
+      const { error: emailError } = await supabase.functions.invoke('send-rewards-email', {
+        body: {
+          email,
+          tipAmount: selectedTip,
+          tipReward: selectedTip ? selectedTip * 0.5 : 0,
+          reviewRewardCode: rewardCode,
+          serverName
+        }
+      });
+
+      if (emailError) throw emailError;
+
+      // Save tip voucher if applicable
+      if (selectedTip) {
+        const { error: voucherError } = await supabase
+          .from('tip_vouchers')
+          .insert({
+            tip_amount: selectedTip,
+            voucher_amount: selectedTip * 0.5,
+            voucher_code: `TIP${selectedTip}BACK`,
+            customer_email: email,
+            server_name: serverName,
+            expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+          });
+
+        if (voucherError) throw voucherError;
+      }
       
       toast({
         title: "Welcome to EatUP! Rewards!",
@@ -64,6 +100,7 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
       });
       setEmail("");
     } catch (error) {
+      console.error('Error processing rewards:', error);
       toast({
         title: "Error",
         description: "Failed to process your request. Please try again.",
