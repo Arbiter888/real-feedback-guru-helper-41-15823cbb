@@ -5,6 +5,7 @@ import { TipAmountButton } from "./TipAmountButton";
 import { TipRewardDisplay } from "./TipRewardDisplay";
 import { RewardsSignup } from "./RewardsSignup";
 import { TipJarHeader } from "./TipJarHeader";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface TipJarSectionProps {
   serverName: string | null;
@@ -88,35 +89,46 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
     <Card className="p-6 space-y-6 bg-gradient-to-br from-white via-pink-50/30 to-white">
       <TipJarHeader serverName={serverName} />
 
-      {!selectedTip && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {suggestedTips.map((amount) => (
-            <TipAmountButton
-              key={amount}
-              amount={amount}
-              rewardAmount={amount * 0.5}
-              onClick={handleTip}
+      <AnimatePresence mode="wait">
+        {!selectedTip ? (
+          <motion.div
+            key="tip-selection"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
+          >
+            {suggestedTips.map((amount) => (
+              <TipAmountButton
+                key={amount}
+                amount={amount}
+                rewardAmount={amount * 0.5}
+                onClick={handleTip}
+              />
+            ))}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="rewards-display"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <TipRewardDisplay 
+              selectedTip={selectedTip}
+              rewardCode={rewardCode}
             />
-          ))}
-        </div>
-      )}
 
-      {selectedTip && (
-        <TipRewardDisplay 
-          selectedTip={selectedTip}
-          rewardCode={rewardCode}
-        />
-      )}
-
-      {(selectedTip || rewardCode) && (
-        <RewardsSignup
-          email={email}
-          onEmailChange={setEmail}
-          onJoinClick={handleJoinRewards}
-          tipAmount={selectedTip}
-          rewardCode={rewardCode}
-        />
-      )}
+            <RewardsSignup
+              email={email}
+              onEmailChange={setEmail}
+              onJoinClick={handleJoinRewards}
+              tipAmount={selectedTip}
+              rewardCode={rewardCode}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 };

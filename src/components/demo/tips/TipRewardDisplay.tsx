@@ -1,4 +1,4 @@
-import { PartyPopper, Star, Gift, PlusCircle } from "lucide-react";
+import { PartyPopper, Star, Gift } from "lucide-react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -18,26 +18,25 @@ export const TipRewardDisplay = ({ selectedTip, rewardCode }: TipRewardDisplayPr
       animate={{ opacity: 1, scale: 1 }}
       className="space-y-6"
     >
-      {/* Total Rewards Summary */}
       <Card className="p-6 bg-gradient-to-br from-pink-50 via-white to-pink-50">
         <div className="flex items-center justify-center gap-2 mb-4">
-          <PartyPopper className="w-6 h-6 text-primary" />
+          <PartyPopper className="w-6 h-6 text-primary animate-bounce" />
           <h3 className="text-2xl font-semibold text-gray-900">
             Total Rewards Value: £{totalRewardValue.toFixed(2)}
           </h3>
         </div>
-        
-        <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-6">
-          <PlusCircle className="w-4 h-4 text-primary" />
-          <span>Combine both rewards for maximum savings!</span>
-        </div>
       </Card>
 
-      {/* Detailed Rewards Tabs */}
       <Tabs defaultValue="tip" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="tip">Tip Reward</TabsTrigger>
-          <TabsTrigger value="review">Review Reward</TabsTrigger>
+          <TabsTrigger value="tip" className="data-[state=active]:bg-primary/10">
+            <Star className="w-4 h-4 mr-2" />
+            Tip Reward
+          </TabsTrigger>
+          <TabsTrigger value="review" className="data-[state=active]:bg-primary/10">
+            <Gift className="w-4 h-4 mr-2" />
+            Review Reward
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="tip">
@@ -78,10 +77,6 @@ export const TipRewardDisplay = ({ selectedTip, rewardCode }: TipRewardDisplayPr
           </Card>
         </TabsContent>
       </Tabs>
-      
-      <p className="text-xs text-center text-gray-500">
-        Both rewards valid for 30 days
-      </p>
     </motion.div>
   );
 };
