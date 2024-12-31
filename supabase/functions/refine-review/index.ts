@@ -44,12 +44,11 @@ serve(async (req) => {
 - Including the total amount spent near the end of the review, if provided
 - Adding personal touches about service and atmosphere
 - Never starting with "Review:" or any other header
-
-Remember to:
-- Keep the server's name and specific positive interactions
-- Describe food in an engaging, sensory way
-- Maintain a warm, conversational tone throughout
-- Connect dishes to the overall dining experience
+- When describing menu modifications or preferences:
+  - Make it clear when something was a customer request/choice
+  - Use phrases like "I ordered X without Y" or "I chose X, requesting it without Y"
+  - Avoid implying modifications are default serving styles
+  - Show appreciation for accommodation of preferences
 ${serverName ? `- Include positive mentions of ${serverName}'s service` : ''}
 ${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
 
