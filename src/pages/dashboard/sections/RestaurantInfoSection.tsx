@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ServerManagementSection } from "./ServerManagementSection";
-import { MenuUploadSection } from "./MenuUploadSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -43,13 +42,6 @@ export const RestaurantInfoSection = ({
     setRestaurantInfo({
       ...restaurantInfo,
       serverNames: names
-    });
-  };
-
-  const handleMenuAnalyzed = (analysis: any) => {
-    setRestaurantInfo({
-      ...restaurantInfo,
-      menuAnalysis: analysis
     });
   };
 
@@ -155,8 +147,6 @@ export const RestaurantInfoSection = ({
             placeholder="Enter your booking page URL"
           />
         </div>
-
-        <MenuUploadSection onMenuAnalyzed={handleMenuAnalyzed} />
 
         <ServerManagementSection
           serverNames={restaurantInfo.serverNames || []}
