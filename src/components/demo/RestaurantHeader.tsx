@@ -35,11 +35,11 @@ export const RestaurantHeader = ({ name, isCustomDemo = false }: RestaurantHeade
         <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary via-pink-500 to-secondary bg-clip-text text-transparent">
           Try EatUP! For Your Restaurant
         </h1>
-        <p className="text-sm md:text-base text-muted-foreground mb-2">
-          Turn Reviews into a Thriving Loyalty Program
-        </p>
-        <p className="text-sm text-muted-foreground max-w-lg">
-          See how EatUP! helps you collect reviews, build your mailing list, and keep customers coming back with AI-powered personalized rewards and weekly promotional campaigns.
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-2">
+          Turn Tips & Reviews into Customer Loyalty
+        </h2>
+        <p className="text-sm md:text-base text-muted-foreground max-w-lg">
+          See how EatUP! helps you reward great service, collect reviews, and build your mailing list with our innovative dual-rewards system that keeps customers coming back.
         </p>
       </div>
     </div>
