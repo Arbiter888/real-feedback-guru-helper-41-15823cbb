@@ -65,7 +65,7 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="text-3xl md:text-5xl font-bold tracking-tight mb-4 md:mb-6 bg-gradient-to-r from-[#8B5CF6] via-[#D946EF] to-[#1EAEDB] text-transparent bg-clip-text px-6 md:px-12 leading-tight pb-1"
         >
-          Turn Reviews into Loyal Customers
+          Turn Tips & Reviews into Customer Loyalty
         </motion.h1>
         
         <motion.p
@@ -74,7 +74,7 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="text-base md:text-xl text-muted-foreground mb-8 md:mb-12 max-w-2xl mx-auto px-2"
         >
-          Collect reviews, grow your mailing list, and send AI-powered personalized rewards that keep diners coming back
+          Reward your staff and grow your mailing list with our innovative dual-rewards system
         </motion.p>
 
         <motion.div
@@ -87,9 +87,9 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
             <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
               <Star className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
             </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Review Collection & Rewards</h3>
+            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Smart Tip Rewards</h3>
             <p className="text-sm md:text-base text-muted-foreground">
-              Turn happy customers into loyal members with AI-enhanced review generation and instant personalized reward vouchers
+              Recognize and reward your servers while building customer loyalty through our innovative tip-based rewards system
             </p>
           </div>
           
@@ -97,9 +97,9 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
             <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
               <Gift className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
             </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Smart Loyalty Program</h3>
+            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Dual Rewards System</h3>
             <p className="text-sm md:text-base text-muted-foreground">
-              4-visit progressive reward system with AI-suggested personalized offers and weekly email campaigns to members
+              Double the engagement with rewards for both generous tipping and detailed reviews, creating a win-win for staff and customers
             </p>
           </div>
           
@@ -107,9 +107,9 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
             <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
               <MessageSquare className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
             </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Customer Insights & Marketing</h3>
+            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Automated Email Marketing</h3>
             <p className="text-sm md:text-base text-muted-foreground">
-              Build your mailing list, analyze reviews and receipts with AI, and run targeted email campaigns
+              Seamlessly collect customer emails and automate personalized marketing campaigns to keep them coming back
             </p>
           </div>
         </motion.div>
@@ -125,7 +125,7 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
             <h2 className="text-xl md:text-2xl font-bold">Try Our AI Survey Demo</h2>
           </div>
           <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
-            See how our AI helps collect detailed customer feedback while suggesting personalized rewards based on their preferences and dining history.
+            Experience how our AI helps collect detailed customer feedback while suggesting personalized rewards based on their preferences and dining history.
           </p>
           <Button
             onClick={onSurveyDemo}
