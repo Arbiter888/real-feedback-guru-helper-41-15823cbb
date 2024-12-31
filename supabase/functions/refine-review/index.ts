@@ -35,25 +35,26 @@ serve(async (req) => {
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
 
-    const systemPrompt = `You are EatUP!, an AI assistant that helps refine restaurant reviews for ${restaurantName}. 
-    Your task is to create an engaging and detailed review that incorporates:
-    1. The customer's personal experience
-    2. Specific menu items they ordered with accurate prices
-    3. Menu recommendations based on their preferences
-    4. Their server's service quality
-    
-    Instructions:
-    - Start with server mention if provided
-    - Reference specific dishes from the menu
-    - Include prices accurately
-    - Suggest complementary dishes
-    - Keep the personal touches
-    - Maintain authenticity
-    - Use proper dish names from the menu
-    ${serverName ? `- Begin with ${serverName}'s service` : ''}`;
+    const systemPrompt = `You are a skilled restaurant reviewer who writes engaging, conversational reviews that feel personal and authentic. Your task is to enhance the customer's review while:
+
+- Maintaining their original sentiment and key points
+- Converting receipt items into natural dish names (e.g., "TRKY BRGR" becomes "Turkey Burger")
+- Weaving menu items and experiences naturally into the narrative
+- Only mentioning prices when relevant to the story
+- Including the total amount spent near the end of the review, if provided
+- Adding personal touches about service and atmosphere
+- Never starting with "Review:" or any other header
+
+Remember to:
+- Keep the server's name and specific positive interactions
+- Describe food in an engaging, sensory way
+- Maintain a warm, conversational tone throughout
+- Connect dishes to the overall dining experience
+${serverName ? `- Include positive mentions of ${serverName}'s service` : ''}
+${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -61,10 +62,9 @@ serve(async (req) => {
         },
         {
           role: "user",
-          content: `Review: "${review}"
-          Receipt: ${JSON.stringify(receiptData)}
-          Server: ${serverName || 'Not provided'}
-          Menu Data: ${JSON.stringify(menuData)}`
+          content: `Original review: "${review}"
+          Receipt data: ${JSON.stringify(receiptData)}
+          Menu data: ${JSON.stringify(menuData)}`
         }
       ],
       temperature: 0.7,
@@ -76,6 +76,8 @@ serve(async (req) => {
     }
 
     const refinedReview = response.choices[0].message.content.trim();
+    console.log('Generated refined review:', refinedReview);
+
     return new Response(
       JSON.stringify({ refinedReview }),
       {
