@@ -17,6 +17,7 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
   const { toast } = useToast();
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
   const [email, setEmail] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
   
   if (!serverName) return null;
 
@@ -40,6 +41,37 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
       title: `Thank you for tipping ${serverName}!`,
       description: `Your £${amount} tip will be processed and you'll receive £${(amount * 0.5).toFixed(2)} back as credit.`,
     });
+  };
+
+  const handleJoinRewards = async () => {
+    if (!email) {
+      toast({
+        title: "Email required",
+        description: "Please enter your email to join the rewards program.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Welcome to EatUP! Rewards!",
+        description: "Check your email for your reward vouchers.",
+      });
+      setEmail("");
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process your request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const suggestedTips = getSuggestedTips(totalAmount || 0);
@@ -75,6 +107,7 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
                     amount={amount}
                     rewardAmount={amount * 0.5}
                     onClick={handleTip}
+                    isSelected={selectedTip === amount}
                   />
                 ))}
               </div>
@@ -98,23 +131,10 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
             <RewardsSignup
               email={email}
               onEmailChange={setEmail}
-              onJoinClick={() => {
-                if (!email) {
-                  toast({
-                    title: "Email required",
-                    description: "Please enter your email to join the rewards program.",
-                    variant: "destructive",
-                  });
-                  return;
-                }
-                toast({
-                  title: "Welcome to EatUP! Rewards!",
-                  description: "Check your email for your reward vouchers.",
-                });
-                setEmail("");
-              }}
+              onJoinClick={handleJoinRewards}
               tipAmount={selectedTip}
               rewardCode={rewardCode}
+              isLoading={isProcessing}
             />
           </motion.div>
         )}
