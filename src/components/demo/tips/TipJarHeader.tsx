@@ -10,20 +10,20 @@ export const TipJarHeader = ({ serverName }: TipJarHeaderProps) => {
     <motion.div 
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="text-center space-y-3"
+      className="text-center space-y-4"
     >
       <div className="flex items-center justify-center gap-2">
-        <Gift className="w-6 h-6 text-primary" />
-        <h3 className="text-2xl font-semibold text-gray-900">
+        <Gift className="w-8 h-8 text-primary" />
+        <h2 className="text-3xl font-bold text-gray-900">
           Appreciate {serverName}'s service?
-        </h3>
+        </h2>
       </div>
-      <div className="flex items-center justify-center gap-2 text-sm font-medium text-primary/90">
-        <Sparkles className="w-4 h-4" />
+      <div className="flex items-center justify-center gap-2 text-lg font-medium text-primary/90">
+        <Sparkles className="w-5 h-5" />
         <p className="animate-fade-in">
           Tip today, get 50% back as credit for your next visit!
         </p>
-        <Sparkles className="w-4 h-4" />
+        <Sparkles className="w-5 h-5" />
       </div>
     </motion.div>
   );

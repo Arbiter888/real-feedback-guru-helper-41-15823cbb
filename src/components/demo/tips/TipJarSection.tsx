@@ -42,69 +42,33 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
     });
   };
 
-  const handleJoinRewards = async () => {
-    if (!email) {
-      toast({
-        title: "Email required",
-        description: "Please enter your email to join the rewards program.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/send-rewards-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          tipAmount: selectedTip,
-          tipReward: selectedTip ? selectedTip * 0.5 : 0,
-          reviewRewardCode: rewardCode,
-          serverName,
-        }),
-      });
-
-      if (!response.ok) throw new Error("Failed to send email");
-
-      toast({
-        title: "Welcome to EatUP! Rewards!",
-        description: "Check your email for your reward vouchers.",
-      });
-      
-      setEmail("");
-    } catch (error) {
-      console.error("Error joining rewards:", error);
-      toast({
-        title: "Error",
-        description: "Failed to process your request. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const suggestedTips = getSuggestedTips(totalAmount || 0);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-6"
+      className="space-y-8"
     >
+      {/* Header Section */}
       <Card className="overflow-hidden bg-gradient-to-br from-white/80 via-white/90 to-white/80 backdrop-blur-lg border border-white/20 shadow-xl">
-        <div className="p-6 space-y-8">
+        <div className="p-6">
           <TipJarHeader serverName={serverName} />
+        </div>
+      </Card>
 
-          <AnimatePresence mode="wait">
-            {!selectedTip ? (
-              <motion.div
-                key="tip-selection"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4"
-              >
+      {/* Tip Selection Grid */}
+      <AnimatePresence mode="wait">
+        {!selectedTip ? (
+          <motion.div
+            key="tip-selection"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card className="p-6 bg-gradient-to-br from-white/70 via-white/80 to-white/70 backdrop-blur-lg border border-white/20 shadow-lg">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {suggestedTips.map((amount) => (
                   <TipAmountButton
                     key={amount}
@@ -113,32 +77,48 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
                     onClick={handleTip}
                   />
                 ))}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="rewards-display"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-8"
-              >
-                <TipRewardDisplay 
-                  selectedTip={selectedTip}
-                  rewardCode={rewardCode}
-                />
+              </div>
+            </Card>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="rewards-display"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-8"
+          >
+            {/* Combined Rewards Card */}
+            <TipRewardDisplay 
+              selectedTip={selectedTip}
+              rewardCode={rewardCode}
+            />
 
-                <RewardsSignup
-                  email={email}
-                  onEmailChange={setEmail}
-                  onJoinClick={handleJoinRewards}
-                  tipAmount={selectedTip}
-                  rewardCode={rewardCode}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      </Card>
+            {/* Single Signup Section */}
+            <RewardsSignup
+              email={email}
+              onEmailChange={setEmail}
+              onJoinClick={() => {
+                if (!email) {
+                  toast({
+                    title: "Email required",
+                    description: "Please enter your email to join the rewards program.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                toast({
+                  title: "Welcome to EatUP! Rewards!",
+                  description: "Check your email for your reward vouchers.",
+                });
+                setEmail("");
+              }}
+              tipAmount={selectedTip}
+              rewardCode={rewardCode}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
