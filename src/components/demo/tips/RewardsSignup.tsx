@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gift, Star, Calendar, PartyPopper } from "lucide-react";
+import { Gift, Star, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface RewardsSignupProps {
   email: string;
@@ -18,7 +19,12 @@ export const RewardsSignup = ({
   rewardCode 
 }: RewardsSignupProps) => {
   return (
-    <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-gray-100 animate-fade-in">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.2 }}
+      className="glass-card p-6 rounded-xl border border-gray-100"
+    >
       <div className="flex items-center justify-center gap-2 mb-4">
         <Gift className="w-6 h-6 text-primary" />
         <h4 className="text-xl font-semibold text-gray-900">
@@ -30,7 +36,7 @@ export const RewardsSignup = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {tipAmount && (
             <div className="flex items-start gap-3 p-3 bg-pink-50/50 rounded-lg">
-              <PartyPopper className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+              <Star className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
               <div>
                 <p className="font-medium text-gray-900">Tip Reward</p>
                 <p className="text-sm text-gray-600">
@@ -41,7 +47,7 @@ export const RewardsSignup = ({
           )}
           {rewardCode && (
             <div className="flex items-start gap-3 p-3 bg-pink-50/50 rounded-lg">
-              <Star className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+              <Gift className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
               <div>
                 <p className="font-medium text-gray-900">Review Reward</p>
                 <p className="text-sm text-gray-600">
@@ -68,7 +74,7 @@ export const RewardsSignup = ({
             />
             <Button 
               onClick={onJoinClick}
-              className="bg-primary hover:bg-primary-dark transition-colors whitespace-nowrap"
+              className="bg-primary hover:bg-primary-dark transition-colors whitespace-nowrap button-hover"
             >
               <Gift className="w-4 h-4 mr-2" />
               Join Now
@@ -79,6 +85,6 @@ export const RewardsSignup = ({
           </p>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

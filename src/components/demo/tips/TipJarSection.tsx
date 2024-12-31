@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { TipAmountButton } from "./TipAmountButton";
 import { TipRewardDisplay } from "./TipRewardDisplay";
 import { RewardsSignup } from "./RewardsSignup";
+import { TipJarHeader } from "./TipJarHeader";
 
 interface TipJarSectionProps {
   serverName: string | null;
@@ -85,17 +86,8 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
 
   return (
     <Card className="p-6 space-y-6 bg-gradient-to-br from-white via-pink-50/30 to-white">
-      {/* Header Section */}
-      <div className="text-center space-y-3">
-        <h3 className="text-2xl font-semibold text-gray-900">
-          Appreciate {serverName}'s service?
-        </h3>
-        <p className="text-sm text-primary font-medium">
-          Tip today, get 50% back as credit for your next visit! 🎁
-        </p>
-      </div>
+      <TipJarHeader serverName={serverName} />
 
-      {/* Tip Amount Buttons */}
       {!selectedTip && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {suggestedTips.map((amount) => (
@@ -109,10 +101,13 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
         </div>
       )}
 
-      {/* Reward Display */}
-      {selectedTip && <TipRewardDisplay selectedTip={selectedTip} />}
+      {selectedTip && (
+        <TipRewardDisplay 
+          selectedTip={selectedTip}
+          rewardCode={rewardCode}
+        />
+      )}
 
-      {/* Unified Signup Section */}
       {(selectedTip || rewardCode) && (
         <RewardsSignup
           email={email}
