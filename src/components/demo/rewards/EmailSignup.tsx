@@ -60,6 +60,7 @@ export const EmailSignup = ({
 
       if (listError) throw listError;
 
+      // Save review data
       await saveReviewData(email, listData, {
         reviewText: reviewText?.trim() || '',
         refinedReview: refinedReview?.trim(),
@@ -70,9 +71,26 @@ export const EmailSignup = ({
         restaurantName: customRestaurantName
       });
 
+      // Get restaurant info from localStorage if available
+      const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+      const restaurantInfo = savedRestaurantInfo ? JSON.parse(savedRestaurantInfo) : {};
+
+      // Send welcome email
+      const { error: emailError } = await supabase.functions.invoke('send-welcome-email', {
+        body: {
+          to: email,
+          rewardCode,
+          restaurantName: customRestaurantName || "The Local Kitchen & Bar",
+          googleMapsUrl: customGoogleMapsUrl,
+          restaurantInfo
+        }
+      });
+
+      if (emailError) throw emailError;
+
       toast({
         title: "Success!",
-        description: "Thank you for signing up! Your review has been submitted.",
+        description: "Thank you for signing up! Check your email for your welcome reward.",
       });
 
       // Clear the form
