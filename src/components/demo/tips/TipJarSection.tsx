@@ -86,49 +86,59 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
   const suggestedTips = getSuggestedTips(totalAmount || 0);
 
   return (
-    <Card className="p-6 space-y-6 bg-gradient-to-br from-white via-pink-50/30 to-white">
-      <TipJarHeader serverName={serverName} />
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="space-y-6"
+    >
+      <Card className="overflow-hidden bg-gradient-to-br from-white/80 via-white/90 to-white/80 backdrop-blur-lg border border-white/20 shadow-xl">
+        <div className="p-6 space-y-8">
+          <TipJarHeader serverName={serverName} />
 
-      <AnimatePresence mode="wait">
-        {!selectedTip ? (
-          <motion.div
-            key="tip-selection"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-3"
-          >
-            {suggestedTips.map((amount) => (
-              <TipAmountButton
-                key={amount}
-                amount={amount}
-                rewardAmount={amount * 0.5}
-                onClick={handleTip}
-              />
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            key="rewards-display"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            <TipRewardDisplay 
-              selectedTip={selectedTip}
-              rewardCode={rewardCode}
-            />
+          <AnimatePresence mode="wait">
+            {!selectedTip ? (
+              <motion.div
+                key="tip-selection"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+              >
+                {suggestedTips.map((amount) => (
+                  <TipAmountButton
+                    key={amount}
+                    amount={amount}
+                    rewardAmount={amount * 0.5}
+                    onClick={handleTip}
+                  />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="rewards-display"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-8"
+              >
+                <TipRewardDisplay 
+                  selectedTip={selectedTip}
+                  rewardCode={rewardCode}
+                />
 
-            <RewardsSignup
-              email={email}
-              onEmailChange={setEmail}
-              onJoinClick={handleJoinRewards}
-              tipAmount={selectedTip}
-              rewardCode={rewardCode}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Card>
+                <RewardsSignup
+                  email={email}
+                  onEmailChange={setEmail}
+                  onJoinClick={handleJoinRewards}
+                  tipAmount={selectedTip}
+                  rewardCode={rewardCode}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </Card>
+    </motion.div>
   );
 };
