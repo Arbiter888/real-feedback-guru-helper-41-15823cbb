@@ -17,9 +17,16 @@ export const RestaurantHeader = ({ name, isCustomDemo = false }: RestaurantHeade
         <h1 className="text-2xl md:text-4xl font-bold text-primary text-center">
           Join {name}'s EatUP! Rewards
         </h1>
-        <p className="text-muted-foreground text-center max-w-lg">
-          Share your experience and unlock personalized rewards plus exclusive weekly offers
-        </p>
+        <div className="text-muted-foreground text-center max-w-lg space-y-4">
+          <p className="font-medium text-lg">Get rewarded twice:</p>
+          <ol className="space-y-2 list-decimal list-inside">
+            <li>Earn instant credit back on your tips</li>
+            <li>Receive special rewards for your reviews</li>
+          </ol>
+          <p className="text-sm italic">
+            Plus unlock exclusive weekly offers when you join our mailing list!
+          </p>
+        </div>
       </div>
     );
   }
