@@ -1,5 +1,4 @@
 import { GeneratedReward } from "./rewards/GeneratedReward";
-import { EmailCapture } from "./rewards/EmailCapture";
 import { RewardsList } from "./rewards/RewardsList";
 
 interface RewardsSectionProps {
@@ -21,11 +20,6 @@ export const RewardsSection = ({
 
       <div className="rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-br from-pink-50 via-white to-pink-50 p-4 sm:p-6">
-          <EmailCapture 
-            rewardCode={rewardCode} 
-            customGoogleMapsUrl={customGoogleMapsUrl}
-            customRestaurantName={customRestaurantName}
-          />
           <RewardsList 
             hasUploadedReceipt={hasUploadedReceipt}
             customRestaurantName={customRestaurantName}

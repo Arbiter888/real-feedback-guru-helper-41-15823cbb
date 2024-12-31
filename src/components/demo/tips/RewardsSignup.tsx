@@ -28,6 +28,13 @@ export const RewardsSignup = ({
       className="glass-card p-8 rounded-xl border border-gray-100 bg-white/50 backdrop-blur-sm"
     >
       <div className="space-y-8">
+        <div className="flex items-center justify-center gap-3">
+          <Gift className="h-8 w-8 text-[#E94E87]" />
+          <h3 className="font-bold text-2xl bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] text-transparent bg-clip-text">
+            Join EatUP! Rewards
+          </h3>
+        </div>
+
         <div className="space-y-4">
           <motion.ul 
             className="space-y-3"
