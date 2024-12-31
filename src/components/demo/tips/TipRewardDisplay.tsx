@@ -1,4 +1,4 @@
-import { PartyPopper, Star } from "lucide-react";
+import { PartyPopper, Star, Gift } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface TipRewardDisplayProps {
