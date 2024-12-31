@@ -13,56 +13,42 @@ import {
 } from "@/components/ui/dialog";
 import { MenuPreview } from "./MenuPreview";
 
-const DEMO_MENUS = [
-  { cuisine: 'Indian', emoji: '🇮🇳', color: 'bg-orange-100 hover:bg-orange-200' },
-  { cuisine: 'Thai', emoji: '🇹🇭', color: 'bg-red-100 hover:bg-red-200' },
-  { cuisine: 'Italian', emoji: '🇮🇹', color: 'bg-green-100 hover:bg-green-200' },
-  { cuisine: 'American Diner', emoji: '🍔', color: 'bg-blue-100 hover:bg-blue-200' },
-  { cuisine: 'French', emoji: '🇫🇷', color: 'bg-purple-100 hover:bg-purple-200' },
-];
-
 interface DemoMenuSelectorProps {
   onMenuSelected: (menuVersion: any) => void;
-  activeMenuId?: string;
 }
 
-export const DemoMenuSelector = ({ onMenuSelected, activeMenuId }: DemoMenuSelectorProps) => {
+export const DemoMenuSelector = ({ onMenuSelected }: DemoMenuSelectorProps) => {
   const [selectedMenu, setSelectedMenu] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const loadDemoMenu = async (cuisine: string) => {
+  const loadDemoMenus = async () => {
     try {
       const { data, error } = await supabase
         .from('restaurant_menu_versions')
         .select('*')
-        .eq('metadata->cuisine', cuisine)
-        .single();
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Error loading demo menu:', error);
-      return null;
+      console.error('Error loading demo menus:', error);
+      return [];
     }
   };
 
-  const handlePreviewMenu = async (cuisine: string) => {
-    const menu = await loadDemoMenu(cuisine);
+  const handlePreviewMenu = async (menu: any) => {
     setSelectedMenu(menu);
   };
 
-  const handleSelectMenu = async (cuisine: string) => {
+  const handleSelectMenu = async (menu: any) => {
     setIsLoading(true);
     try {
-      const menu = await loadDemoMenu(cuisine);
-      if (menu) {
-        await onMenuSelected(menu);
-        toast({
-          title: "Demo menu selected",
-          description: `${cuisine} menu has been loaded successfully.`,
-        });
-      }
+      await onMenuSelected(menu);
+      toast({
+        title: "Demo menu selected",
+        description: `${menu.analysis.cuisine} menu has been loaded successfully.`,
+      });
     } catch (error) {
       console.error('Error selecting menu:', error);
       toast({
@@ -79,15 +65,14 @@ export const DemoMenuSelector = ({ onMenuSelected, activeMenuId }: DemoMenuSelec
     <div className="space-y-4">
       <Label className="text-sm font-medium">Or choose from our demo menus:</Label>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {DEMO_MENUS.map(({ cuisine, emoji, color }) => (
+        {['Indian', 'Thai', 'Italian', 'American Diner', 'French'].map((cuisine) => (
           <div key={cuisine} className="flex gap-2">
             <Button
               variant="outline"
-              className={`flex-1 ${color} ${activeMenuId === cuisine ? 'ring-2 ring-primary' : ''}`}
-              onClick={() => handleSelectMenu(cuisine)}
+              className="flex-1"
+              onClick={() => handleSelectMenu({ analysis: { cuisine } })}
               disabled={isLoading}
             >
-              <span className="mr-2">{emoji}</span>
               {cuisine} Menu
             </Button>
             <Dialog>
@@ -95,17 +80,14 @@ export const DemoMenuSelector = ({ onMenuSelected, activeMenuId }: DemoMenuSelec
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => handlePreviewMenu(cuisine)}
+                  onClick={() => handlePreviewMenu({ analysis: { cuisine } })}
                 >
                   <Eye className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-3xl">
                 <DialogHeader>
-                  <DialogTitle>
-                    <span className="mr-2">{emoji}</span>
-                    {cuisine} Menu Preview
-                  </DialogTitle>
+                  <DialogTitle>{cuisine} Menu Preview</DialogTitle>
                 </DialogHeader>
                 {selectedMenu && (
                   <MenuPreview
