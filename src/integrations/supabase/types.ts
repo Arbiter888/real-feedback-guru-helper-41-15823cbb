@@ -1022,6 +1022,45 @@ export type Database = {
         }
         Relationships: []
       }
+      tip_vouchers: {
+        Row: {
+          created_at: string
+          customer_email: string
+          expires_at: string
+          id: string
+          server_name: string
+          status: string
+          tip_amount: number
+          used_at: string | null
+          voucher_amount: number
+          voucher_code: string
+        }
+        Insert: {
+          created_at?: string
+          customer_email: string
+          expires_at: string
+          id?: string
+          server_name: string
+          status?: string
+          tip_amount: number
+          used_at?: string | null
+          voucher_amount: number
+          voucher_code: string
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string
+          expires_at?: string
+          id?: string
+          server_name?: string
+          status?: string
+          tip_amount?: number
+          used_at?: string | null
+          voucher_amount?: number
+          voucher_code?: string
+        }
+        Relationships: []
+      }
       voucher_sequences: {
         Row: {
           created_at: string
