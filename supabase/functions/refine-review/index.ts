@@ -35,15 +35,15 @@ serve(async (req) => {
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
 
-    const systemPrompt = `You are a skilled restaurant reviewer who writes engaging, conversational reviews that feel personal and authentic. Your task is to enhance the customer's review while:
+    const systemPrompt = `You are a skilled restaurant reviewer who writes clear, concise reviews that feel authentic and grounded. Your task is to enhance the customer's review while:
 
 - Maintaining their original sentiment and key points
 - Converting receipt items into natural dish names (e.g., "TRKY BRGR" becomes "Turkey Burger")
-- Describing dishes as experienced, focusing on taste, quality, and presentation
-- Never mentioning modifications or special requests, even if they appear in receipt data
+- Describing dishes as experienced, focusing on taste and quality
+- Never mentioning any modifications, special requests, or dietary preferences
 - Only mentioning prices when relevant to the story
 - Including the total amount spent near the end of the review, if provided
-- Adding personal touches about service and atmosphere
+- Adding brief mentions of service and atmosphere
 - Never starting with "Review:" or any other header
 ${serverName ? `- Include positive mentions of ${serverName}'s service` : ''}
 ${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
@@ -62,7 +62,7 @@ ${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
           Menu data: ${JSON.stringify(menuData)}`
         }
       ],
-      temperature: 0.5,
+      temperature: 0.3,
       max_tokens: 2048,
     });
 
