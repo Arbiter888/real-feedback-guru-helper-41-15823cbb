@@ -39,16 +39,12 @@ serve(async (req) => {
 
 - Maintaining their original sentiment and key points
 - Converting receipt items into natural dish names (e.g., "TRKY BRGR" becomes "Turkey Burger")
-- Weaving menu items and experiences naturally into the narrative
+- Describing dishes as experienced, focusing on taste, quality, and presentation
+- Never mentioning modifications or special requests, even if they appear in receipt data
 - Only mentioning prices when relevant to the story
 - Including the total amount spent near the end of the review, if provided
 - Adding personal touches about service and atmosphere
 - Never starting with "Review:" or any other header
-- When describing menu modifications or preferences:
-  - Make it clear when something was a customer request/choice
-  - Use phrases like "I ordered X without Y" or "I chose X, requesting it without Y"
-  - Avoid implying modifications are default serving styles
-  - Show appreciation for accommodation of preferences
 ${serverName ? `- Include positive mentions of ${serverName}'s service` : ''}
 ${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
 
