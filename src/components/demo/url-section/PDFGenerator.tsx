@@ -68,7 +68,8 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         "1. Scan the QR code",
         "2. Share your dining experience",
         "3. Add your receipt photo",
-        "4. Get instant rewards for both tips & reviews"
+        "4. Get instant credit back on tips",
+        "5. Get special rewards for reviews"
       ];
 
       steps.forEach((step, index) => {
