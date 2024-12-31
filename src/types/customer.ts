@@ -1,4 +1,5 @@
 import { Json } from "@/integrations/supabase/types";
+import { TipMetadata } from "./tip";
 
 export interface CustomerMetadata {
   initial_review?: string;
@@ -29,6 +30,7 @@ export interface CustomerMetadata {
     review_enhanced_at?: string;
     copied_to_google_at?: string;
   };
+  tips?: TipMetadata;
 }
 
 export interface Customer {
@@ -41,7 +43,6 @@ export interface Customer {
   metadata: CustomerMetadata | Json;
 }
 
-// Type guard to check if an object is CustomerMetadata
 export function isCustomerMetadata(obj: any): obj is CustomerMetadata {
   return obj && (
     typeof obj.initial_review === 'string' ||
@@ -49,6 +50,7 @@ export function isCustomerMetadata(obj: any): obj is CustomerMetadata {
     typeof obj.server_name === 'string' ||
     obj.receipt_data !== undefined ||
     obj.receipt_analysis !== undefined ||
-    obj.review_steps_completed !== undefined
+    obj.review_steps_completed !== undefined ||
+    obj.tips !== undefined
   );
 }

@@ -1137,6 +1137,14 @@ export type Database = {
         restaurant_name: string | null
         submission_date: string | null
       }
+      tip_metadata: {
+        tip_amount: number | null
+        server_name: string | null
+        tip_date: string | null
+        voucher_code: string | null
+        voucher_status: string | null
+        voucher_used_at: string | null
+      }
     }
   }
 }

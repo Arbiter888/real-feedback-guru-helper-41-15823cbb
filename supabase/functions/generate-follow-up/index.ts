@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { formatTipHistory } from "./utils.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -28,6 +29,9 @@ interface ReviewData {
     instagramUrl?: string;
     phoneNumber?: string;
     googleMapsUrl?: string;
+  };
+  metadata?: {
+    tips?: any;
   };
 }
 
@@ -147,6 +151,9 @@ serve(async (req) => {
         .slice(0, 2) || [];
     }
 
+    // Include tip history in the prompt
+    const tipHistory = data.metadata?.tips ? formatTipHistory(data.metadata.tips) : '';
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -160,13 +167,15 @@ serve(async (req) => {
             role: 'system',
             content: `You are an expert at creating personalized thank you emails for restaurant customers. 
             Include specific menu recommendations based on their previous orders and available menu items.
+            If they have a tipping history, acknowledge their generosity and mention their rewards.
             
             IMPORTANT FORMATTING RULES:
             - Use HTML tags for formatting
             - Keep paragraphs concise
             - Include specific menu recommendations
             - Reference ordered items when available
-            - Suggest complementary dishes`
+            - Suggest complementary dishes
+            - Mention tip rewards if available`
           },
           {
             role: 'user',
@@ -176,6 +185,7 @@ serve(async (req) => {
             ${data.serverName ? `Server name: ${data.serverName}` : ''}
             ${data.receiptData ? `Order details: ${JSON.stringify(data.receiptData)}` : ''}
             ${data.voucherDetails ? `Offer: ${JSON.stringify(data.voucherDetails)}` : ''}
+            ${tipHistory}
             Available menu items: ${JSON.stringify(menuData)}
             Recommended items: ${JSON.stringify(recommendations)}`
           }

@@ -1,57 +1,56 @@
-import { MessageSquare, Receipt, Bot } from "lucide-react";
 import { CustomerMetadata } from "@/types/customer";
+import { CustomerTipHistory } from "../tips/CustomerTipHistory";
+import { Card } from "@/components/ui/card";
+import { Receipt, Star } from "lucide-react";
 
 interface CustomerReviewDetailsProps {
   metadata: CustomerMetadata;
 }
 
 export const CustomerReviewDetails = ({ metadata }: CustomerReviewDetailsProps) => {
-  if (!metadata.initial_review) return null;
+  if (!metadata) return null;
 
   return (
-    <div className="grid gap-4">
-      {/* Initial Review */}
-      <div className="bg-slate-50 p-4 rounded-lg">
-        <div className="flex items-center gap-2 mb-2">
-          <MessageSquare className="h-4 w-4 text-primary" />
-          <h4 className="font-medium">Initial Review</h4>
-        </div>
-        <p className="text-sm">{metadata.initial_review}</p>
-      </div>
-
-      {/* Receipt Data */}
-      {metadata.receipt_data && (
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Receipt className="h-4 w-4 text-primary" />
-            <h4 className="font-medium">Receipt Details</h4>
+    <div className="space-y-6">
+      {metadata.initial_review && (
+        <Card className="p-4 space-y-2">
+          <div className="flex items-center gap-2 text-primary">
+            <Star className="h-5 w-5" />
+            <h4 className="font-semibold">Initial Review</h4>
           </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">
-              Total Amount: ${metadata.receipt_data.total_amount.toFixed(2)}
-            </p>
-            <div className="space-y-1">
-              {metadata.receipt_data.items.map((item, index) => (
-                <div key={index} className="text-sm flex justify-between">
-                  <span>{item.name}</span>
-                  <span>${item.price.toFixed(2)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          <p className="text-gray-600">{metadata.initial_review}</p>
+        </Card>
       )}
 
-      {/* Enhanced Review */}
       {metadata.refined_review && (
-        <div className="bg-slate-50 p-4 rounded-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Bot className="h-4 w-4 text-primary" />
-            <h4 className="font-medium">Enhanced Review</h4>
+        <Card className="p-4 space-y-2">
+          <div className="flex items-center gap-2 text-primary">
+            <Star className="h-5 w-5 fill-current" />
+            <h4 className="font-semibold">Enhanced Review</h4>
           </div>
-          <p className="text-sm">{metadata.refined_review}</p>
-        </div>
+          <p className="text-gray-600">{metadata.refined_review}</p>
+        </Card>
       )}
+
+      {metadata.receipt_data && (
+        <Card className="p-4 space-y-2">
+          <div className="flex items-center gap-2 text-primary">
+            <Receipt className="h-5 w-5" />
+            <h4 className="font-semibold">Receipt Details</h4>
+          </div>
+          <p className="font-medium">Total: £{metadata.receipt_data.total_amount}</p>
+          <div className="space-y-1">
+            {metadata.receipt_data.items.map((item, index) => (
+              <div key={index} className="flex justify-between text-sm">
+                <span>{item.name}</span>
+                <span>£{item.price}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {metadata.tips && <CustomerTipHistory tips={metadata.tips} />}
     </div>
   );
 };
