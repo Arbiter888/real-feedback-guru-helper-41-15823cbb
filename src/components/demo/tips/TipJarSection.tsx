@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Heart, PartyPopper, Gift } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Input } from "@/components/ui/input";
+import { TipAmountButton } from "./TipAmountButton";
+import { TipRewardDisplay } from "./TipRewardDisplay";
+import { RewardsSignup } from "./RewardsSignup";
 
 interface TipJarSectionProps {
   serverName: string | null;
@@ -14,16 +14,13 @@ interface TipJarSectionProps {
 export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSectionProps) => {
   const { toast } = useToast();
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
-  const [showReward, setShowReward] = useState(false);
   const [email, setEmail] = useState("");
   
   if (!serverName) return null;
 
   const getSuggestedTips = (total: number) => {
-    const tips = [5]; // Minimum £5 tip
-    
+    const tips = [5];
     if (total) {
-      // Add 10%, 15%, 20% of the bill, rounded to nearest pound
       const percentages = [0.10, 0.15, 0.20];
       percentages.forEach(percentage => {
         const suggestedTip = Math.max(5, Math.round(total * percentage));
@@ -32,14 +29,11 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
         }
       });
     }
-    
     return tips.sort((a, b) => a - b);
   };
 
-  const handleTip = async (amount: number) => {
+  const handleTip = (amount: number) => {
     setSelectedTip(amount);
-    setShowReward(true);
-    
     toast({
       title: `Thank you for tipping ${serverName}!`,
       description: `Your £${amount} tip will be processed and you'll receive £${(amount * 0.5).toFixed(2)} back as credit.`,
@@ -57,7 +51,6 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
     }
 
     try {
-      // Send email with both vouchers
       const response = await fetch("/api/send-rewards-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,9 +85,9 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
 
   return (
     <Card className="p-6 space-y-6 bg-gradient-to-br from-white via-pink-50/30 to-white">
-      {/* Top Section */}
+      {/* Header Section */}
       <div className="text-center space-y-3">
-        <h3 className="text-xl font-semibold text-gray-900">
+        <h3 className="text-2xl font-semibold text-gray-900">
           Appreciate {serverName}'s service?
         </h3>
         <p className="text-sm text-primary font-medium">
@@ -103,85 +96,31 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
       </div>
 
       {/* Tip Amount Buttons */}
-      {!showReward && (
+      {!selectedTip && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {suggestedTips.map((amount) => (
-            <div key={amount} className="flex flex-col items-center gap-1">
-              <Button
-                variant="outline"
-                className="w-full hover:bg-primary/5 hover:border-primary/30 transition-all"
-                onClick={() => handleTip(amount)}
-              >
-                £{amount}
-              </Button>
-              <span className="text-xs text-primary-dark font-medium">
-                Get £{(amount * 0.5).toFixed(2)} back
-              </span>
-            </div>
+            <TipAmountButton
+              key={amount}
+              amount={amount}
+              rewardAmount={amount * 0.5}
+              onClick={handleTip}
+            />
           ))}
         </div>
       )}
 
-      {/* Reward Section (shown after tipping) */}
-      {showReward && selectedTip && (
-        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-xl border border-pink-100 shadow-sm text-center space-y-4">
-          <div className="flex items-center justify-center gap-2">
-            <PartyPopper className="w-5 h-5 text-primary" />
-            <span className="text-xl font-semibold text-gray-900">
-              Congratulations!
-            </span>
-          </div>
-          <p className="text-gray-600">
-            You've tipped £{selectedTip} and earned a £{(selectedTip * 0.5).toFixed(2)} credit for your next visit!
-          </p>
-          <div className="bg-pink-50/50 p-4 rounded-lg border border-pink-100">
-            <p className="text-sm text-gray-500 mb-2">Your Tip Reward Code:</p>
-            <p className="text-lg font-mono font-bold text-primary">TIP{selectedTip}BACK</p>
-            <p className="text-xs text-gray-500 mt-2">Valid for 30 days</p>
-          </div>
-        </div>
-      )}
+      {/* Reward Display */}
+      {selectedTip && <TipRewardDisplay selectedTip={selectedTip} />}
 
-      {/* Unified Sign-up Section */}
-      {(showReward || rewardCode) && (
-        <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-gray-100">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <Gift className="w-5 h-5 text-primary" />
-            <h4 className="text-lg font-semibold text-gray-900">
-              Join Our EatUP! Rewards Program!
-            </h4>
-          </div>
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600 text-center">
-              Get your rewards sent straight to your inbox:
-              {showReward && (
-                <span className="block font-medium text-primary">
-                  • £{(selectedTip! * 0.5).toFixed(2)} tip reward credit
-                </span>
-              )}
-              {rewardCode && (
-                <span className="block font-medium text-primary">
-                  • Special review completion reward
-                </span>
-              )}
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="flex-1"
-              />
-              <Button 
-                onClick={handleJoinRewards}
-                className="bg-primary hover:bg-primary-dark transition-colors"
-              >
-                Join Now
-              </Button>
-            </div>
-          </div>
-        </div>
+      {/* Unified Signup Section */}
+      {(selectedTip || rewardCode) && (
+        <RewardsSignup
+          email={email}
+          onEmailChange={setEmail}
+          onJoinClick={handleJoinRewards}
+          tipAmount={selectedTip}
+          rewardCode={rewardCode}
+        />
       )}
     </Card>
   );
