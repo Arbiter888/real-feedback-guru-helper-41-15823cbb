@@ -67,7 +67,7 @@ ${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
           Menu data: ${JSON.stringify(menuData)}`
         }
       ],
-      temperature: 0.7,
+      temperature: 0.5,
       max_tokens: 2048,
     });
 
