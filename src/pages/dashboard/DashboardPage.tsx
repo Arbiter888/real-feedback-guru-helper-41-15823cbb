@@ -90,9 +90,9 @@ export default function DashboardPage() {
           {/* Review Page Creation Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="text-center py-8">
-              <h2 className="text-2xl font-semibold mb-4">Create Your Review Page</h2>
+              <h2 className="text-2xl font-semibold mb-4">Create Your Review & Rewards Collection Page</h2>
               <p className="text-muted-foreground mb-6">
-                Start collecting reviews and managing your restaurant's online presence
+                Generate a professional PDF with QR code for your payment counter. Make it easy for customers to recognize great service and share their experience while getting rewarded.
               </p>
               <CreateReviewPageButton 
                 setGeneratedUrl={setGeneratedUrl}
@@ -101,6 +101,23 @@ export default function DashboardPage() {
               
               {generatedUrl && (
                 <div className="mt-8">
+                  <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
+                    <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
+                    <ol className="space-y-3 text-sm text-gray-600">
+                      <li className="flex gap-2">
+                        <span className="font-semibold text-primary">1.</span>
+                        A beautifully designed review and rewards collection page
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="font-semibold text-primary">2.</span>
+                        Professional PDF with QR code for your counter
+                      </li>
+                      <li className="flex gap-2">
+                        <span className="font-semibold text-primary">3.</span>
+                        Automated dual-rewards system for tips and reviews
+                      </li>
+                    </ol>
+                  </div>
                   <ReviewPageUrlSection
                     restaurantName={restaurantInfo.restaurantName}
                     googleMapsUrl={restaurantInfo.googleMapsUrl}
