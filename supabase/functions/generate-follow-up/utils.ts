@@ -1,4 +1,18 @@
-import { TipMetadata } from "../../../src/types/tip";
+// Define types locally instead of importing from frontend
+interface TipVoucherMetadata {
+  tip_amount: number;
+  server_name: string;
+  tip_date: string;
+  voucher_amount: number;
+  voucher_code: string;
+  voucher_status: string;
+  voucher_used_at: string | null;
+  expires_at: string;
+}
+
+interface TipMetadata {
+  [voucherCode: string]: TipVoucherMetadata;
+}
 
 export function formatTipHistory(tips: TipMetadata): string {
   if (!tips || Object.keys(tips).length === 0) return '';
