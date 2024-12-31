@@ -38,18 +38,18 @@ export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: Rev
             <Building2 className="h-6 w-6 md:h-8 md:w-8 text-white" />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Create Your Review Collection Page
+            Create Your Review & Rewards Collection Page
           </h2>
           <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto">
             Generate a professional PDF with QR code that you can display at your payment counter. 
-            Make it easy for customers to share their experience and get rewarded.
+            Make it easy for customers to recognize great service and share their experience while getting rewarded.
           </p>
           <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
             <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
             <ol className="space-y-3 text-sm text-gray-600">
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">1.</span>
-                A beautifully designed review collection page
+                A beautifully designed review and rewards collection page
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">2.</span>
@@ -57,7 +57,7 @@ export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: Rev
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">3.</span>
-                Automated reward system for customer reviews
+                Automated dual-rewards system for tips and reviews
               </li>
             </ol>
           </div>
