@@ -34,22 +34,22 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
 
       // Add EatUP! logo with corrected dimensions for proper aspect ratio
       const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
-      pdf.addImage(logoUrl, 'PNG', 20, 20, 90, 30); // Adjusted width and height for proper aspect ratio
+      pdf.addImage(logoUrl, 'PNG', 20, 20, 90, 30);
 
       // Add decorative header bar
       pdf.setFillColor(EATUP_PINK);
       pdf.rect(0, 70, 210, 2, 'F');
 
-      // Restaurant name
+      // Restaurant name and program title
       pdf.setTextColor(EATUP_DARK);
       pdf.setFontSize(24);
       pdf.setFont("helvetica", "bold");
-      pdf.text(restaurantName, 20, 90);
+      pdf.text(`${restaurantName}'s EatUP! Rewards`, 20, 90);
 
       // Subtitle
       pdf.setFontSize(16);
       pdf.setFont("helvetica", "normal");
-      pdf.text("Share Your Experience & Join Our Rewards Program", 20, 100);
+      pdf.text("Get rewarded twice with every visit!", 20, 100);
 
       // QR Code section with white background and border
       pdf.setFillColor(255, 255, 255);
@@ -57,7 +57,7 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.roundedRect(20, 110, 90, 90, 3, 3, 'FD');
       pdf.addImage(qrCodeUrl, "PNG", 25, 115, 80, 80);
 
-      // Instructions section with proper font and spacing
+      // How it works section
       pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
       pdf.text("How it works:", 120, 120);
@@ -66,9 +66,9 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.setFont("helvetica", "normal");
       const steps = [
         "1. Scan the QR code",
-        "2. Share your experience",
+        "2. Share your dining experience",
         "3. Add your receipt photo",
-        "4. Join our rewards program"
+        "4. Get instant rewards for both tips & reviews"
       ];
 
       steps.forEach((step, index) => {
@@ -86,9 +86,9 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.setFont("helvetica", "normal");
       pdf.setFontSize(12);
       const journeyText = [
-        "• Share your dining experience from today's visit",
-        "• Receive a thank you email with a special voucher for your next visit",
-        "• Get exclusive weekly offers and rewards in your inbox"
+        "• Earn instant credit back on your tips",
+        "• Receive special rewards for your reviews",
+        "• Get exclusive weekly offers in your inbox"
       ];
 
       journeyText.forEach((text, index) => {
