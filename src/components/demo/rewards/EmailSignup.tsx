@@ -1,28 +1,25 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { saveReviewData } from "./ReviewDataManager";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Gift, Mail, Check, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface EmailSignupProps {
   rewardCode: string | null;
-  customGoogleMapsUrl?: string;
-  customRestaurantName?: string;
-  reviewRewardAmount?: number;
-  totalRewardValue: number;
   tipAmount?: number;
   tipRewardCode?: string;
   tipRewardAmount?: number;
+  totalRewardValue: number;
 }
 
 export const EmailSignup = ({ 
   rewardCode,
-  customGoogleMapsUrl,
-  customRestaurantName,
-  reviewRewardAmount = 10,
-  totalRewardValue,
   tipAmount,
   tipRewardCode,
-  tipRewardAmount
+  tipRewardAmount,
+  totalRewardValue
 }: EmailSignupProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -62,33 +59,13 @@ export const EmailSignup = ({
         console.log('Parsed review info:', reviewInfo);
       }
 
-      // First, get or create the restaurant's email list
       const { data: listData, error: listError } = await supabase
         .rpc('get_or_create_restaurant_email_list', {
-          restaurant_name: customRestaurantName || "The Local Kitchen & Bar"
+          restaurant_name: reviewInfo?.restaurantName || "The Local Kitchen & Bar"
         });
 
       if (listError) throw listError;
 
-      // Save review data if it exists
-      if (reviewInfo) {
-        await saveReviewData(email, listData, {
-          reviewText: reviewInfo.reviewText?.trim() || '',
-          refinedReview: reviewInfo.refinedReview?.trim(),
-          analysisResult: reviewInfo.analysisResult,
-          serverName: reviewInfo.serverName?.trim(),
-          rewardCode,
-          googleMapsUrl: customGoogleMapsUrl,
-          restaurantName: customRestaurantName,
-          reviewRewardAmount
-        });
-      }
-
-      // Get restaurant info from localStorage if available
-      const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
-      const restaurantInfo = savedRestaurantInfo ? JSON.parse(savedRestaurantInfo) : {};
-
-      // Send welcome email with all rewards
       const { error: emailError } = await supabase.functions.invoke('send-rewards-email', {
         body: {
           email,
@@ -96,28 +73,11 @@ export const EmailSignup = ({
           tipReward: tipRewardAmount,
           tipRewardCode,
           reviewRewardCode: rewardCode,
-          restaurantInfo,
-          reviewRewardAmount
+          restaurantInfo: reviewInfo?.restaurantInfo
         }
       });
 
       if (emailError) throw emailError;
-
-      // Save tip voucher if applicable
-      if (tipAmount && tipRewardAmount && tipRewardCode) {
-        const { error: voucherError } = await supabase
-          .from('tip_vouchers')
-          .insert({
-            tip_amount: tipAmount,
-            voucher_amount: tipRewardAmount,
-            voucher_code: tipRewardCode,
-            customer_email: email,
-            server_name: reviewInfo?.serverName || '',
-            expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-          });
-
-        if (voucherError) throw voucherError;
-      }
 
       toast({
         title: "Success!",
@@ -138,41 +98,72 @@ export const EmailSignup = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4 bg-pink-50/50 p-6 rounded-xl border border-pink-100">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="mt-6 p-6 bg-gradient-to-br from-pink-50/50 via-white to-pink-50/50 rounded-xl border border-pink-100"
+    >
+      <div className="space-y-6">
         <div className="flex items-center justify-center gap-3">
-          <h3 className="font-bold text-2xl bg-gradient-to-r from-[#E94E87] via-[#FF6B9C] to-[#FF9B9B] text-transparent bg-clip-text">
+          <Gift className="h-6 w-6 text-primary" />
+          <h3 className="text-xl font-semibold text-gray-900">
             Join EatUP! Rewards
           </h3>
         </div>
 
+        <motion.ul 
+          className="space-y-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <li className="flex items-center gap-2 text-gray-700">
+            <Check className="w-5 h-5 text-primary" />
+            <span>Get instant access to £{totalRewardValue.toFixed(2)} in rewards</span>
+          </li>
+          <li className="flex items-center gap-2 text-gray-700">
+            <Check className="w-5 h-5 text-primary" />
+            <span>Exclusive weekly offers and promotions</span>
+          </li>
+          <li className="flex items-center gap-2 text-gray-700">
+            <Check className="w-5 h-5 text-primary" />
+            <span>Early access to special events</span>
+          </li>
+        </motion.ul>
+
         <div className="space-y-4">
-          <p className="text-center text-gray-600">
-            Get instant access to £{totalRewardValue.toFixed(2)} in rewards plus exclusive weekly offers
-          </p>
-
-          <div className="space-y-4">
-            <div className="relative">
-              <input
-                type="email"
-                placeholder="Enter your email to receive rewards"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
-                disabled={isLoading}
-              />
-            </div>
-
-            <button
-              onClick={handleEmailSignup}
-              disabled={isLoading || !email}
-              className="w-full py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Processing..." : "Get Your Rewards"}
-            </button>
+          <div className="relative">
+            <Input
+              type="email"
+              placeholder="Enter your email to receive rewards"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="pl-10 h-12"
+              disabled={isLoading}
+            />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           </div>
+
+          <Button 
+            onClick={handleEmailSignup}
+            disabled={isLoading || !email}
+            className="w-full h-12"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <Gift className="h-5 w-5 mr-2" />
+                <span>Get Your Rewards</span>
+              </>
+            )}
+          </Button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
