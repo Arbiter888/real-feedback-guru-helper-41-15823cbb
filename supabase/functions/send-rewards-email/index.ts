@@ -63,32 +63,31 @@ const handler = async (req: Request): Promise<Response> => {
           Thank you for sharing your dining experience! We've prepared your rewards for both today and your next visit.
         </p>
 
-        ${reviewRewardCode ? `
-          <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-            <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
-              Today's Review Reward 🌟
-            </h2>
-            
-            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
-              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Show this code to your server today:</p>
-              <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
-                ${reviewRewardCode}
-              </p>
-              <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                Get 10% off your bill today!
-              </p>
-            </div>
+        <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+            Your Review Reward for Next Visit ⭐
+          </h2>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+            <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+              ${reviewRewardCode}
+            </p>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+              Get 10% off your next meal!<br>
+              Valid until ${formattedExpirationDate}
+            </p>
           </div>
-        ` : ''}
+        </div>
 
         ${tipRewardCode ? `
           <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
             <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
-              Your Next Visit Tip Credit 🎁
+              Your Additional Tip Credit 🎁
             </h2>
             
             <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
-              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code along with your review reward:</p>
               <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
                 ${tipRewardCode}
               </p>
@@ -98,7 +97,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
 
             <p style="color: #333; font-size: 16px; text-align: center; margin-top: 20px;">
-              That's <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
+              That's an additional <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
             </p>
           </div>
         ` : ''}
@@ -120,6 +119,7 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
+    console.log("Sending email to:", email);
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -129,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "EatUP! Rewards <rewards@eatup.co>",
         to: [email],
-        subject: `Your Rewards Are Here! 🎁`,
+        subject: `Your EatUP! Rewards Are Here! 🎁`,
         html: htmlContent,
       }),
     });
@@ -139,6 +139,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const data = await res.json();
+    console.log("Email sent successfully:", data);
     
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
