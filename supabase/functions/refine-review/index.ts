@@ -35,18 +35,35 @@ serve(async (req) => {
       apiKey: Deno.env.get('OPENAI_API_KEY'),
     });
 
-    const systemPrompt = `You are a skilled restaurant reviewer who writes clear, concise reviews that feel authentic and grounded. Your task is to enhance the customer's review while:
+    // Base system prompt that focuses on enhancing without inventing details
+    let systemPrompt = `You are a skilled restaurant reviewer who enhances customer reviews while maintaining strict accuracy. Your task is to:
 
-- Maintaining their original sentiment and key points
-- Converting receipt items into natural dish names (e.g., "TRKY BRGR" becomes "Turkey Burger")
-- Describing dishes as experienced, focusing on taste and quality
-- Never mentioning any modifications, special requests, or dietary preferences
-- Only mentioning prices when relevant to the story
-- Including the total amount spent near the end of the review, if provided
-- Adding brief mentions of service and atmosphere
-- Never starting with "Review:" or any other header
-${serverName ? `- Include positive mentions of ${serverName}'s service` : ''}
-${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
+1. Maintain the original sentiment and key points exactly as stated
+2. Improve the structure and flow of the review
+3. Never add or invent details that weren't mentioned in the original review
+4. Only mention specific dishes, prices, or menu items if they were explicitly mentioned in the original review or provided in receipt data
+5. Keep the tone authentic and personal
+${serverName ? `6. Include positive mentions of ${serverName}'s service if mentioned in the original review` : ''}
+${restaurantName ? `7. Reference the restaurant as "${restaurantName}"` : ''}
+
+Important: Do not make assumptions or add details about:
+- Specific dishes unless mentioned
+- Prices unless provided
+- Atmosphere unless specifically described
+- Service details beyond what was mentioned
+- Any sensory details (taste, smell, presentation) unless explicitly stated`;
+
+    // Add receipt-specific instructions only if receipt data is provided
+    if (receiptData) {
+      systemPrompt += `\n\nReceipt data is provided, so you may:
+1. Convert receipt items into natural dish names
+2. Include the total amount spent near the end of the review
+3. Reference specific items from the receipt`;
+    }
+
+    console.log('Using system prompt:', systemPrompt);
+    console.log('Original review:', review);
+    console.log('Receipt data:', receiptData);
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -62,7 +79,7 @@ ${restaurantName ? `- Reference the restaurant as "${restaurantName}"` : ''}`;
           Menu data: ${JSON.stringify(menuData)}`
         }
       ],
-      temperature: 0.3,
+      temperature: 0.2, // Lower temperature for more consistent, conservative output
       max_tokens: 2048,
     });
 
