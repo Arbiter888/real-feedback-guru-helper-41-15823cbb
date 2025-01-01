@@ -19,12 +19,14 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
   const { toast } = useToast();
   const [qrGenerated, setQrGenerated] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
 
   const generateQRCode = async () => {
     try {
       setIsGenerating(true);
-      const qrCodeUrl = await generateAndUploadQRCode(url);
-      onQRGenerated(qrCodeUrl);
+      const generatedQrCodeUrl = await generateAndUploadQRCode(url);
+      setQrCodeUrl(generatedQrCodeUrl);
+      onQRGenerated(generatedQrCodeUrl);
       setQrGenerated(true);
       
       toast({
@@ -44,8 +46,10 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
   };
 
   const downloadQRCode = async () => {
+    if (!qrCodeUrl) return;
+    
     try {
-      const response = await fetch(qrGenerated);
+      const response = await fetch(qrCodeUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
