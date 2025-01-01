@@ -14,14 +14,14 @@ export const TipJarHeader = ({ serverName }: TipJarHeaderProps) => {
     >
       <div className="flex items-center justify-center gap-2">
         <Gift className="w-8 h-8 text-primary" />
-        <h2 className="text-3xl font-bold text-gray-900">
-          Appreciate {serverName}'s service?
+        <h2 className="text-2xl font-bold text-gray-900">
+          Add a tip for {serverName}?
         </h2>
       </div>
       <div className="flex items-center justify-center gap-2 text-lg font-medium text-primary/90">
         <Sparkles className="w-5 h-5" />
         <p className="animate-fade-in">
-          Tip today, get 50% back as credit for your next visit!
+          Get 50% back as credit for your next visit!
         </p>
         <Sparkles className="w-5 h-5" />
       </div>

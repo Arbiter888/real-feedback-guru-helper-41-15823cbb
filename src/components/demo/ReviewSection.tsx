@@ -3,7 +3,7 @@ import { RewardsSection } from "./RewardsSection";
 import { ThoughtsStep } from "./steps/ThoughtsStep";
 import { UploadStep } from "./steps/UploadStep";
 import { RefineStep } from "./steps/RefineStep";
-import { ServerSelectionStep } from "./steps/ServerSelectionStep";
+import { ServerSelectionStep } from "./ServerSelectionStep";
 import { RestaurantInfo } from "./RestaurantInfo";
 import { AiFeedbackSection } from "./AiFeedbackSection";
 import { IntroSection } from "./sections/IntroSection";
@@ -53,6 +53,9 @@ export const ReviewSection = ({
     handleTipSelected
   } = useReviewSection(customRestaurantName, customGoogleMapsUrl, customServerNames);
 
+  // Only show tip jar after review is completed (either original or refined)
+  const showTipJar = rewardCode && selectedServer && (reviewText || refinedReview);
+
   return (
     <Card>
       <CardContent className="space-y-8 pt-6">
@@ -96,10 +99,10 @@ export const ReviewSection = ({
           onCopyAndRedirect={handleCopyAndRedirect}
         />
 
-        {rewardCode && analysisResult && selectedServer && (
+        {showTipJar && (
           <TipJarSection 
             serverName={selectedServer}
-            totalAmount={analysisResult.total_amount}
+            totalAmount={analysisResult?.total_amount}
             tipRewardPercentage={tipRewardPercentage}
             reviewRewardAmount={reviewRewardAmount}
             onTipSelected={handleTipSelected}

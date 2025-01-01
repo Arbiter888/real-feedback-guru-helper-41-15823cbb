@@ -6,9 +6,8 @@ import { TipJarHeader } from "./TipJarHeader";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface TipJarSectionProps {
-  serverName: string | null;
+  serverName: string;
   totalAmount?: number;
-  rewardCode?: string | null;
   tipRewardPercentage?: number;
   reviewRewardAmount?: number;
   onTipSelected: (amount: number) => void;
@@ -18,12 +17,11 @@ export const TipJarSection = ({
   serverName, 
   totalAmount, 
   tipRewardPercentage = 50,
+  reviewRewardAmount = 10,
   onTipSelected
 }: TipJarSectionProps) => {
   const { toast } = useToast();
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
-  
-  if (!serverName) return null;
 
   const getSuggestedTips = (total: number) => {
     const tips = [5];
@@ -55,24 +53,21 @@ export const TipJarSection = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-8"
+      className="space-y-4"
     >
-      <Card className="overflow-hidden bg-gradient-to-br from-white/80 via-white/90 to-white/80 backdrop-blur-lg border border-white/20 shadow-xl">
+      <Card className="overflow-hidden bg-gradient-to-br from-pink-50/80 via-white/90 to-pink-50/80 backdrop-blur-lg border border-pink-100/50 shadow-lg">
         <div className="p-6">
           <TipJarHeader serverName={serverName} />
-        </div>
-      </Card>
-
-      <AnimatePresence mode="wait">
-        {!selectedTip && (
-          <motion.div
-            key="tip-selection"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Card className="p-6 bg-gradient-to-br from-white/70 via-white/80 to-white/70 backdrop-blur-lg border border-white/20 shadow-lg">
+          
+          <AnimatePresence mode="wait">
+            <motion.div
+              key="tip-selection"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="mt-6"
+            >
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {suggestedTips.map((amount) => (
                   <TipAmountButton
@@ -84,10 +79,10 @@ export const TipJarSection = ({
                   />
                 ))}
               </div>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </Card>
     </motion.div>
   );
 };
