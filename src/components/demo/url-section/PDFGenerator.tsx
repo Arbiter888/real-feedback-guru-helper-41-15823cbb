@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileDown } from "lucide-react";
+import { FileDown, Loader2 } from "lucide-react";
 import jsPDF from "jspdf";
 import { generateSinglePage } from "./pdf/SinglePageGenerator";
 import { generateTableCards } from "./pdf/TableCardsGenerator";
+import { useToast } from "@/hooks/use-toast";
 
 interface PDFGeneratorProps {
   url: string;
@@ -21,9 +22,17 @@ export const PDFGenerator = ({
   tipRewardPercentage = 50
 }: PDFGeneratorProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
 
   const generatePDF = async () => {
-    if (!qrCodeUrl) return;
+    if (!qrCodeUrl) {
+      toast({
+        title: "Error",
+        description: "Please generate a QR code first",
+        variant: "destructive",
+      });
+      return;
+    }
     
     setIsGenerating(true);
     try {
@@ -53,8 +62,18 @@ export const PDFGenerator = ({
       
       // Save the PDF
       doc.save(`${restaurantName.toLowerCase().replace(/\s+/g, '-')}-eatup-rewards.pdf`);
+      
+      toast({
+        title: "Success",
+        description: "PDF generated successfully",
+      });
     } catch (error) {
       console.error('Error generating PDF:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -66,8 +85,17 @@ export const PDFGenerator = ({
       variant="outline"
       disabled={!qrCodeUrl || isGenerating}
     >
-      <FileDown className="h-4 w-4 mr-2" />
-      {isGenerating ? "Generating PDF..." : "Download PDF"}
+      {isGenerating ? (
+        <>
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          Generating PDF...
+        </>
+      ) : (
+        <>
+          <FileDown className="h-4 w-4 mr-2" />
+          Download PDF
+        </>
+      )}
     </Button>
   );
 };
