@@ -21,7 +21,25 @@ export const GeneratedReward = ({
 }: GeneratedRewardProps) => {
   if (!rewardCode && !tipRewardCode) return null;
 
+  // Calculate example savings based on a £100 bill for illustration
+  const exampleBillAmount = 100;
+  const reviewSavings = (exampleBillAmount * (reviewRewardAmount / 100)).toFixed(2);
   const totalRewardValue = (tipRewardAmount || 0) + (rewardCode ? reviewRewardAmount : 0);
+  
+  const getRewardsMessage = () => {
+    if (tipAmount && tipRewardAmount) {
+      return `Save £${reviewSavings} on today's bill plus earn £${tipRewardAmount.toFixed(2)} credit for your next visit`;
+    }
+    return `Save ${reviewRewardAmount}% on today's bill (£${reviewSavings} off a £${exampleBillAmount} bill)`;
+  };
+
+  const getServerInstructions = () => {
+    const instructions = [`${reviewRewardAmount}% off the current bill`];
+    if (tipAmount) {
+      instructions.push(`Add £${tipAmount.toFixed(2)} tip to the final amount`);
+    }
+    return instructions;
+  };
   
   return (
     <div className="space-y-6">
@@ -30,8 +48,20 @@ export const GeneratedReward = ({
         <div className="flex items-center justify-center gap-2">
           <Gift className="h-5 w-5 text-primary" />
           <h3 className="text-xl font-semibold">
-            Total Rewards Value: £{totalRewardValue.toFixed(2)}
+            {getRewardsMessage()}
           </h3>
+        </div>
+      </Card>
+
+      {/* Server Instructions */}
+      <Card className="p-4 bg-green-50/50 border-green-100">
+        <div className="space-y-2">
+          <p className="font-medium text-gray-900">Show this to your server to receive:</p>
+          <ul className="list-disc pl-6 space-y-1">
+            {getServerInstructions().map((instruction, index) => (
+              <li key={index} className="text-gray-700">{instruction}</li>
+            ))}
+          </ul>
         </div>
       </Card>
 
@@ -61,7 +91,9 @@ export const GeneratedReward = ({
                 <div className="space-y-2">
                   <p className="font-medium text-gray-900">Review Reward Details</p>
                   <p className="text-sm text-gray-600">
-                    Special reward for sharing your experience
+                    Get {reviewRewardAmount}% off your current bill
+                    <br />
+                    Example: £{reviewSavings} savings on a £{exampleBillAmount} bill
                   </p>
                   {rewardCode && (
                     <motion.div 
@@ -91,9 +123,14 @@ export const GeneratedReward = ({
                 <div className="space-y-2">
                   <p className="font-medium text-gray-900">Tip Reward Details</p>
                   {tipAmount && tipRewardAmount ? (
-                    <p className="text-sm text-gray-600">
-                      £{tipRewardAmount.toFixed(2)} credit from your £{tipAmount} tip
-                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm text-gray-600">
+                        £{tipAmount.toFixed(2)} tip will be added to your bill
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Earn £{tipRewardAmount.toFixed(2)} credit for your next visit
+                      </p>
+                    </div>
                   ) : (
                     <p className="text-sm text-gray-600">No tip reward added yet</p>
                   )}
