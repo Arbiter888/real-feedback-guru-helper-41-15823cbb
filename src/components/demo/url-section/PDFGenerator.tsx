@@ -3,8 +3,14 @@ import { Button } from "@/components/ui/button";
 import { FileDown, Loader2 } from "lucide-react";
 import jsPDF from "jspdf";
 import { generateSinglePage } from "./pdf/SinglePageGenerator";
-import { generateTableCards } from "./pdf/TableCardsGenerator";
+import { generateQRCodeGrid } from "./pdf/QRCodeGridGenerator";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PDFGeneratorProps {
   url: string;
@@ -36,13 +42,11 @@ export const PDFGenerator = ({
     
     setIsGenerating(true);
     try {
-      // Create new PDF
       const doc = new jsPDF({
         format: 'a4',
         unit: 'mm'
       });
       
-      // Generate first page with single QR code
       await generateSinglePage({
         doc,
         url,
@@ -52,16 +56,14 @@ export const PDFGenerator = ({
         tipRewardPercentage,
       });
 
-      // Generate second page with table cards
-      await generateTableCards({
+      await generateQRCodeGrid({
         doc,
         qrCodeUrl,
         reviewRewardAmount,
         tipRewardPercentage,
       });
       
-      // Save the PDF
-      doc.save(`${restaurantName.toLowerCase().replace(/\s+/g, '-')}-eatup-rewards.pdf`);
+      doc.save(`${restaurantName.toLowerCase().replace(/\s+/g, '-')}-eatup-qr-codes.pdf`);
       
       toast({
         title: "Success",
@@ -80,22 +82,31 @@ export const PDFGenerator = ({
   };
 
   return (
-    <Button
-      onClick={generatePDF}
-      variant="outline"
-      disabled={!qrCodeUrl || isGenerating}
-    >
-      {isGenerating ? (
-        <>
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Generating PDF...
-        </>
-      ) : (
-        <>
-          <FileDown className="h-4 w-4 mr-2" />
-          Download PDF
-        </>
-      )}
-    </Button>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={generatePDF}
+            variant="outline"
+            disabled={!qrCodeUrl || isGenerating}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <FileDown className="h-4 w-4 mr-2" />
+                Download PDF
+              </>
+            )}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Download a PDF with your QR code and printable copies</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { QrCode, Loader2 } from "lucide-react";
+import { QrCode, Download, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateAndUploadQRCode } from "@/utils/qrCodeUtils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface QRCodeGeneratorProps {
   url: string;
@@ -37,29 +43,82 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
     }
   };
 
+  const downloadQRCode = async () => {
+    try {
+      const response = await fetch(qrGenerated);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'eatup-qr-code.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to download QR code.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-2">
-      <Button
-        onClick={generateQRCode}
-        variant="outline"
-        className="flex-shrink-0"
-        disabled={isGenerating}
-      >
-        {isGenerating ? (
-          <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Generating...
-          </>
-        ) : (
-          <>
-            <QrCode className="h-4 w-4 mr-2" />
-            Generate QR Code
-          </>
+      <div className="flex gap-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={generateQRCode}
+                variant="outline"
+                className="flex-shrink-0"
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <QrCode className="h-4 w-4 mr-2" />
+                    Generate QR Code
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Generate a QR code for your review page</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        {qrGenerated && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={downloadQRCode}
+                  variant="outline"
+                  className="flex-shrink-0"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download QR
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Download QR code as PNG image</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
-      </Button>
+      </div>
+      
       {!qrGenerated && (
         <p className="text-sm text-muted-foreground">
-          Generate a QR code first to enable PDF download
+          Generate a QR code first to enable downloads
         </p>
       )}
     </div>
