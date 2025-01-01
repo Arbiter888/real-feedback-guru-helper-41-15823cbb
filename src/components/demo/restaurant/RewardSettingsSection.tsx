@@ -15,19 +15,23 @@ export const RewardSettingsSection = ({
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="reviewRewardAmount">Review Reward Amount (£)</Label>
+        <Label htmlFor="reviewRewardAmount">Review Reward (% off current bill)</Label>
         <Input
           id="reviewRewardAmount"
           type="number"
           min="0"
-          step="0.01"
+          max="100"
+          step="1"
           value={reviewRewardAmount}
           onChange={(e) => onInfoChange('reviewRewardAmount', parseFloat(e.target.value))}
-          placeholder="Enter review reward amount"
+          placeholder="Enter review reward percentage"
         />
+        <p className="text-sm text-muted-foreground">
+          Percentage discount applied to their current bill
+        </p>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="tipRewardPercentage">Tip Reward Percentage (%)</Label>
+        <Label htmlFor="tipRewardPercentage">Tip Reward (% credit)</Label>
         <Input
           id="tipRewardPercentage"
           type="number"
@@ -38,6 +42,9 @@ export const RewardSettingsSection = ({
           onChange={(e) => onInfoChange('tipRewardPercentage', parseFloat(e.target.value))}
           placeholder="Enter tip reward percentage"
         />
+        <p className="text-sm text-muted-foreground">
+          Percentage of tip given as credit on next visit
+        </p>
       </div>
     </div>
   );
