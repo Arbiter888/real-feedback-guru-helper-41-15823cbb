@@ -100,16 +100,18 @@ export const EmailSignup = ({
           <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
             <h4 className="font-medium text-lg mb-2">Your Rewards Summary:</h4>
             <ul className="space-y-2">
-              {rewardCode && (
-                <li className="flex items-center gap-2 text-gray-700">
-                  <Check className="w-5 h-5 text-primary" />
-                  <span>Get 10% off your bill today for your review</span>
-                </li>
-              )}
+              <li className="flex items-center gap-2 text-gray-700">
+                <Check className="w-5 h-5 text-primary" />
+                <span>Get 10% off your bill today when you share your experience</span>
+              </li>
+              <li className="flex items-center gap-2 text-gray-700">
+                <Check className="w-5 h-5 text-primary" />
+                <span>Receive a personalized welcome voucher for your next visit</span>
+              </li>
               {tipRewardAmount && tipRewardCode && (
                 <li className="flex items-center gap-2 text-gray-700">
                   <Check className="w-5 h-5 text-primary" />
-                  <span>£{tipRewardAmount.toFixed(2)} tip credit for your next visit</span>
+                  <span>Earn £{tipRewardAmount.toFixed(2)} tip credit back for your next meal</span>
                 </li>
               )}
             </ul>
@@ -138,7 +140,7 @@ export const EmailSignup = ({
           <div className="relative">
             <Input
               type="email"
-              placeholder="Enter your email to get your rewards"
+              placeholder="Enter your email to receive rewards"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10 h-12"
