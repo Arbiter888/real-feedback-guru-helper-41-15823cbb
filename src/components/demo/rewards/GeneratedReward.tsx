@@ -1,6 +1,5 @@
 import { Gift, Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { EmailSignup } from "./EmailSignup";
 
@@ -57,66 +56,8 @@ export const GeneratedReward = ({
         </div>
       </Card>
 
-      {/* Reward Details */}
+      {/* Email Signup */}
       <Card className="p-6">
-        <Tabs defaultValue={tipRewardCode ? "tip" : "review"} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="review" className="data-[state=active]:bg-primary/10">
-              <Gift className="w-4 h-4 mr-2" />
-              Review Reward
-            </TabsTrigger>
-            <TabsTrigger value="tip" disabled={!tipRewardCode} className="data-[state=active]:bg-primary/10">
-              <Star className="w-4 h-4 mr-2" />
-              Tip Reward
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="review">
-            <div className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Gift className="w-5 h-5 text-primary" />
-                <p className="font-medium">Review Reward Details</p>
-              </div>
-              <p className="text-sm text-gray-600">
-                Get {reviewRewardAmount}% off your current bill
-              </p>
-              {rewardCode && (
-                <div className="pt-3 border-t border-pink-100">
-                  <p className="text-sm text-gray-500 mb-1">Your Review Reward Code:</p>
-                  <p className="text-lg font-mono font-bold text-primary">{rewardCode}</p>
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="tip">
-            <div className="p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Star className="w-5 h-5 text-primary" />
-                <p className="font-medium">Tip Reward Details</p>
-              </div>
-              {tipAmount && tipRewardAmount ? (
-                <>
-                  <p className="text-sm text-gray-600">
-                    £{tipAmount.toFixed(2)} tip will be added to your bill
-                    <br />
-                    Earn £{tipRewardAmount.toFixed(2)} credit for your next visit
-                  </p>
-                  {tipRewardCode && (
-                    <div className="pt-3 border-t border-pink-100">
-                      <p className="text-sm text-gray-500 mb-1">Your Tip Reward Code:</p>
-                      <p className="text-lg font-mono font-bold text-primary">{tipRewardCode}</p>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="text-sm text-gray-600">No tip reward added yet</p>
-              )}
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Email Signup */}
         <EmailSignup 
           rewardCode={rewardCode}
           tipAmount={tipAmount}
