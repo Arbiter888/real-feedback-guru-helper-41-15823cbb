@@ -14,20 +14,22 @@ export const generateQRCodeGrid = async ({
   reviewRewardAmount,
   tipRewardPercentage,
 }: QRCodeGridGeneratorProps) => {
-  // Add new page in landscape orientation
-  doc.addPage([297, 210]);
+  // Add new page in portrait orientation (A4: 210x297mm)
+  doc.addPage([210, 297]);
   
   // Set white background
   doc.setFillColor(255, 255, 255);
-  doc.rect(0, 0, 297, 210, "F");
+  doc.rect(0, 0, 210, 297, "F");
 
-  // Grid configuration
+  // Grid configuration for portrait layout
   const cols = 2;
-  const rows = 2;
-  const qrSize = 80;
-  const padding = 20;
-  const startX = (297 - (cols * qrSize + (cols - 1) * padding)) / 2;
-  const startY = (210 - (rows * qrSize + (rows - 1) * padding)) / 2;
+  const rows = 3;
+  const qrSize = 70; // Slightly smaller QR codes to fit 6 per page
+  const padding = 15;
+  
+  // Calculate starting positions to center the grid
+  const startX = (210 - (cols * qrSize + (cols - 1) * padding)) / 2;
+  const startY = (297 - (rows * qrSize + (rows - 1) * padding)) / 2;
 
   // Load QR code image
   const qrImg = await loadImage(qrCodeUrl);
@@ -68,5 +70,5 @@ export const generateQRCodeGrid = async ({
   // Add instructions at bottom
   doc.setFontSize(10);
   doc.setTextColor(128, 128, 128);
-  doc.text("Cut along the marks to create individual QR codes", 148.5, 190, { align: "center" });
+  doc.text("Cut along the marks to create individual QR codes", 105, 280, { align: "center" });
 };
