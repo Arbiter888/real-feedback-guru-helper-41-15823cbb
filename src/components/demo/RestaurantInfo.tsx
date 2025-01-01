@@ -8,7 +8,7 @@ import { ServerManagementSection } from "./restaurant/ServerManagementSection";
 import { RestaurantContactCard } from "./RestaurantContactCard";
 
 interface RestaurantInfoProps {
-  onRestaurantInfoSaved: (name: string, url: string, email: string, serverNames: string[]) => void;
+  onRestaurantInfoSaved: (name: string, url: string, email: string, serverNames: string[], reviewRewardAmount: number, tipRewardPercentage: number) => void;
 }
 
 export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) => {
@@ -19,6 +19,8 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   const [facebookUrl, setFacebookUrl] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
   const [serverNames, setServerNames] = useState<string[]>([]);
+  const [reviewRewardAmount, setReviewRewardAmount] = useState(10);
+  const [tipRewardPercentage, setTipRewardPercentage] = useState(50);
   const [isSaving, setIsSaving] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const { toast } = useToast();
@@ -35,35 +37,45 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       setFacebookUrl(parsedInfo.facebookUrl || '');
       setInstagramUrl(parsedInfo.instagramUrl || '');
       setServerNames(parsedInfo.serverNames || []);
+      setReviewRewardAmount(parsedInfo.reviewRewardAmount || 10);
+      setTipRewardPercentage(parsedInfo.tipRewardPercentage || 50);
       console.log("RestaurantInfo: Loaded server names:", parsedInfo.serverNames);
       onRestaurantInfoSaved(
         parsedInfo.restaurantName, 
         parsedInfo.googleMapsUrl, 
         parsedInfo.contactEmail || '', 
-        parsedInfo.serverNames || []
+        parsedInfo.serverNames || [],
+        parsedInfo.reviewRewardAmount || 10,
+        parsedInfo.tipRewardPercentage || 50
       );
     }
   }, [onRestaurantInfoSaved]);
 
-  const handleInfoChange = (field: string, value: string) => {
+  const handleInfoChange = (field: string, value: string | number) => {
     switch (field) {
       case 'restaurantName':
-        setRestaurantName(value);
+        setRestaurantName(value as string);
         break;
       case 'googleMapsUrl':
-        setGoogleMapsUrl(value);
+        setGoogleMapsUrl(value as string);
         break;
       case 'contactEmail':
-        setContactEmail(value);
+        setContactEmail(value as string);
         break;
       case 'websiteUrl':
-        setWebsiteUrl(value);
+        setWebsiteUrl(value as string);
         break;
       case 'facebookUrl':
-        setFacebookUrl(value);
+        setFacebookUrl(value as string);
         break;
       case 'instagramUrl':
-        setInstagramUrl(value);
+        setInstagramUrl(value as string);
+        break;
+      case 'reviewRewardAmount':
+        setReviewRewardAmount(value as number);
+        break;
+      case 'tipRewardPercentage':
+        setTipRewardPercentage(value as number);
         break;
     }
   };
@@ -80,9 +92,11 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       facebookUrl,
       instagramUrl,
       serverNames: names,
+      reviewRewardAmount,
+      tipRewardPercentage,
     };
     localStorage.setItem('restaurantInfo', JSON.stringify(updatedInfo));
-    onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, names);
+    onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, names, reviewRewardAmount, tipRewardPercentage);
   };
 
   const handleSavePreferences = () => {
@@ -107,10 +121,12 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
         facebookUrl,
         instagramUrl,
         serverNames,
+        reviewRewardAmount,
+        tipRewardPercentage,
       };
       
       localStorage.setItem('restaurantInfo', JSON.stringify(restaurantInfo));
-      onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, serverNames);
+      onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, serverNames, reviewRewardAmount, tipRewardPercentage);
       
       setShowSuccess(true);
       toast({
@@ -140,6 +156,8 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
           restaurantName={restaurantName}
           googleMapsUrl={googleMapsUrl}
           contactEmail={contactEmail}
+          reviewRewardAmount={reviewRewardAmount}
+          tipRewardPercentage={tipRewardPercentage}
           onInfoChange={handleInfoChange}
           showSuccess={showSuccess}
         />

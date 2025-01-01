@@ -143,7 +143,9 @@ export type Database = {
           phone_number: string | null
           preferred_booking_method: string | null
           restaurant_name: string
+          review_reward_amount: number | null
           server_names: string[] | null
+          tip_reward_percentage: number | null
           website_description: string | null
           website_gallery: Json | null
           website_hero_image: string | null
@@ -163,7 +165,9 @@ export type Database = {
           phone_number?: string | null
           preferred_booking_method?: string | null
           restaurant_name: string
+          review_reward_amount?: number | null
           server_names?: string[] | null
+          tip_reward_percentage?: number | null
           website_description?: string | null
           website_gallery?: Json | null
           website_hero_image?: string | null
@@ -183,7 +187,9 @@ export type Database = {
           phone_number?: string | null
           preferred_booking_method?: string | null
           restaurant_name?: string
+          review_reward_amount?: number | null
           server_names?: string[] | null
+          tip_reward_percentage?: number | null
           website_description?: string | null
           website_gallery?: Json | null
           website_hero_image?: string | null
