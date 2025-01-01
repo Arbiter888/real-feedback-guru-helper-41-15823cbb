@@ -120,7 +120,7 @@ export const EmailSignup = ({
         >
           <li className="flex items-center gap-2 text-gray-700">
             <Check className="w-5 h-5 text-primary" />
-            <span>Get your £{totalRewardValue.toFixed(2)} tip credit voucher sent instantly to your email</span>
+            <span>Get your £{tipRewardAmount?.toFixed(2)} tip credit voucher sent instantly to your email</span>
           </li>
           <li className="flex items-center gap-2 text-gray-700">
             <Check className="w-5 h-5 text-primary" />
