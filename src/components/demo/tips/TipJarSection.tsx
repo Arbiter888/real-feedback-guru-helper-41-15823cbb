@@ -12,9 +12,17 @@ interface TipJarSectionProps {
   serverName: string | null;
   totalAmount?: number;
   rewardCode?: string | null;
+  tipRewardPercentage?: number;
+  reviewRewardAmount?: number;
 }
 
-export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSectionProps) => {
+export const TipJarSection = ({ 
+  serverName, 
+  totalAmount, 
+  rewardCode,
+  tipRewardPercentage = 50,
+  reviewRewardAmount = 10
+}: TipJarSectionProps) => {
   const { toast } = useToast();
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
   const [email, setEmail] = useState("");
@@ -38,9 +46,10 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
 
   const handleTip = (amount: number) => {
     setSelectedTip(amount);
+    const rewardAmount = (amount * (tipRewardPercentage / 100)).toFixed(2);
     toast({
       title: `Thank you for tipping ${serverName}!`,
-      description: `Your £${amount} tip will be processed and you'll receive £${(amount * 0.5).toFixed(2)} back as credit.`,
+      description: `Your £${amount} tip will be processed and you'll receive £${rewardAmount} back as credit.`,
     });
   };
 
@@ -124,14 +133,12 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
       animate={{ opacity: 1 }}
       className="space-y-8"
     >
-      {/* Header Section */}
       <Card className="overflow-hidden bg-gradient-to-br from-white/80 via-white/90 to-white/80 backdrop-blur-lg border border-white/20 shadow-xl">
         <div className="p-6">
           <TipJarHeader serverName={serverName} />
         </div>
       </Card>
 
-      {/* Tip Selection Grid */}
       <AnimatePresence mode="wait">
         {!selectedTip ? (
           <motion.div
@@ -147,7 +154,7 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
                   <TipAmountButton
                     key={amount}
                     amount={amount}
-                    rewardAmount={amount * 0.5}
+                    rewardAmount={amount * (tipRewardPercentage / 100)}
                     onClick={handleTip}
                     isSelected={selectedTip === amount}
                   />
@@ -163,13 +170,13 @@ export const TipJarSection = ({ serverName, totalAmount, rewardCode }: TipJarSec
             transition={{ duration: 0.3 }}
             className="space-y-8"
           >
-            {/* Combined Rewards Card */}
             <TipRewardDisplay 
               selectedTip={selectedTip}
               rewardCode={rewardCode}
+              tipRewardPercentage={tipRewardPercentage}
+              reviewRewardAmount={reviewRewardAmount}
             />
 
-            {/* Single Signup Section */}
             <RewardsSignup
               email={email}
               onEmailChange={setEmail}

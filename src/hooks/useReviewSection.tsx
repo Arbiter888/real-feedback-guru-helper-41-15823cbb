@@ -24,15 +24,30 @@ export const useReviewSection = (
     customRestaurantName || "The Local Kitchen & Bar"
   );
   const { toast } = useToast();
+  const [reviewRewardAmount, setReviewRewardAmount] = useState(10);
+  const [tipRewardPercentage, setTipRewardPercentage] = useState(50);
 
   useEffect(() => {
     console.log("Loading server names from localStorage");
     const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
     if (savedRestaurantInfo) {
-      const { serverNames: savedServerNames } = JSON.parse(savedRestaurantInfo);
+      const { 
+        serverNames: savedServerNames,
+        reviewRewardAmount: savedRewardAmount,
+        tipRewardPercentage: savedTipPercentage
+      } = JSON.parse(savedRestaurantInfo);
+      
       if (Array.isArray(savedServerNames)) {
         console.log("Found server names:", savedServerNames);
         setServerNames(savedServerNames);
+      }
+      
+      if (savedRewardAmount) {
+        setReviewRewardAmount(savedRewardAmount);
+      }
+      
+      if (savedTipPercentage) {
+        setTipRewardPercentage(savedTipPercentage);
       }
     }
   }, []);
@@ -41,13 +56,21 @@ export const useReviewSection = (
     name: string,
     url: string,
     email: string,
-    updatedServerNames?: string[]
+    updatedServerNames?: string[],
+    newReviewRewardAmount?: number,
+    newTipRewardPercentage?: number
   ) => {
     console.log("Preferences saved with server names:", updatedServerNames);
     setRestaurantName(name);
     setGoogleMapsUrl(url);
     if (updatedServerNames) {
       setServerNames(updatedServerNames);
+    }
+    if (newReviewRewardAmount) {
+      setReviewRewardAmount(newReviewRewardAmount);
+    }
+    if (newTipRewardPercentage) {
+      setTipRewardPercentage(newTipRewardPercentage);
     }
   };
 
@@ -215,6 +238,8 @@ export const useReviewSection = (
     rewardCode,
     googleMapsUrl,
     restaurantName,
+    reviewRewardAmount,
+    tipRewardPercentage,
     handlePreferencesSaved,
     handleReceiptUpload,
     handleRefineReview,

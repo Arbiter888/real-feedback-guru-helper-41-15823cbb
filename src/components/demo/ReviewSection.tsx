@@ -41,6 +41,8 @@ export const ReviewSection = ({
     rewardCode,
     googleMapsUrl,
     restaurantName,
+    reviewRewardAmount,
+    tipRewardPercentage,
     handlePreferencesSaved,
     handleReceiptUpload,
     handleRefineReview,
@@ -94,6 +96,8 @@ export const ReviewSection = ({
           <TipJarSection 
             serverName={selectedServer}
             totalAmount={analysisResult.total_amount}
+            tipRewardPercentage={tipRewardPercentage}
+            reviewRewardAmount={reviewRewardAmount}
           />
         )}
 
@@ -102,6 +106,7 @@ export const ReviewSection = ({
           hasUploadedReceipt={!!analysisResult}
           customRestaurantName={restaurantName}
           customGoogleMapsUrl={googleMapsUrl}
+          reviewRewardAmount={reviewRewardAmount}
         />
 
         {onTakeAiSurvey && (

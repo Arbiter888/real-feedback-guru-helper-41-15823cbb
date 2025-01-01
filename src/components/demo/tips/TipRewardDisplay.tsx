@@ -6,11 +6,18 @@ import { Card } from "@/components/ui/card";
 interface TipRewardDisplayProps {
   selectedTip: number;
   rewardCode?: string | null;
+  tipRewardPercentage?: number;
+  reviewRewardAmount?: number;
 }
 
-export const TipRewardDisplay = ({ selectedTip, rewardCode }: TipRewardDisplayProps) => {
-  const rewardAmount = selectedTip * 0.5;
-  const totalRewardValue = rewardCode ? rewardAmount + 10 : rewardAmount;
+export const TipRewardDisplay = ({ 
+  selectedTip, 
+  rewardCode,
+  tipRewardPercentage = 50,
+  reviewRewardAmount = 10
+}: TipRewardDisplayProps) => {
+  const rewardAmount = selectedTip * (tipRewardPercentage / 100);
+  const totalRewardValue = rewardCode ? rewardAmount + reviewRewardAmount : rewardAmount;
   
   return (
     <motion.div
