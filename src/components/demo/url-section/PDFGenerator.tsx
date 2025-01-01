@@ -30,7 +30,7 @@ export const PDFGenerator = ({
       // Add title
       doc.setFontSize(24);
       doc.setTextColor(233, 78, 135); // #E94E87
-      doc.text("Scan & Share Your Experience!", 105, 20, { align: "center" });
+      doc.text("Share Your Experience & Get Rewarded!", 105, 20, { align: "center" });
       
       // Add restaurant name
       doc.setFontSize(18);
@@ -40,12 +40,16 @@ export const PDFGenerator = ({
       // Add rewards information
       doc.setFontSize(16);
       doc.setTextColor(233, 78, 135);
-      doc.text("Your Rewards:", 105, 50, { align: "center" });
+      doc.text("Triple Rewards Await You:", 105, 50, { align: "center" });
       
+      // Add reward details
       doc.setFontSize(14);
       doc.setTextColor(51, 51, 51);
-      doc.text(`£${reviewRewardAmount} for sharing your review`, 105, 60, { align: "center" });
-      doc.text(`${tipRewardPercentage}% of your tip back as credit`, 105, 70, { align: "center" });
+      doc.text([
+        `1. Get ${reviewRewardAmount}% off your current bill`,
+        `2. Receive ${tipRewardPercentage}% of your tip as future credit`,
+        "3. Exclusive personalized voucher when you join"
+      ], 105, 65, { align: "center" });
 
       // Add QR code
       const img = new Image();
@@ -53,23 +57,24 @@ export const PDFGenerator = ({
       await new Promise((resolve) => {
         img.onload = resolve;
       });
-      doc.addImage(img, "PNG", 65, 85, 80, 80);
+      doc.addImage(img, "PNG", 65, 95, 80, 80);
       
       // Add instructions
       doc.setFontSize(12);
       doc.setTextColor(102, 102, 102);
       doc.text([
         "1. Scan the QR code",
-        "2. Share your experience",
-        "3. Get rewarded instantly!"
-      ], 105, 180, { align: "center" });
+        "2. Share your dining experience",
+        "3. Join our rewards program",
+        "4. Get instantly rewarded!"
+      ], 105, 190, { align: "center" });
       
       // Add URL as text
       doc.setFontSize(10);
-      doc.text(url, 105, 200, { align: "center" });
+      doc.text(url, 105, 210, { align: "center" });
       
       // Save the PDF
-      doc.save(`${restaurantName.toLowerCase().replace(/\s+/g, '-')}-review-qr.pdf`);
+      doc.save(`${restaurantName.toLowerCase().replace(/\s+/g, '-')}-rewards-qr.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
     } finally {

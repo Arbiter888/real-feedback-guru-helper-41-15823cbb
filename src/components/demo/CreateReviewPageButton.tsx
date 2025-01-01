@@ -137,18 +137,22 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="reviewReward">Review Reward Amount (£)</Label>
+          <Label htmlFor="reviewReward">Review Reward (% off current bill)</Label>
           <Input
             id="reviewReward"
             type="number"
             min="0"
-            step="0.01"
+            max="100"
+            step="1"
             value={reviewRewardAmount}
             onChange={(e) => setReviewRewardAmount(parseFloat(e.target.value))}
           />
+          <p className="text-sm text-muted-foreground">
+            Percentage discount applied to their current bill
+          </p>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="tipReward">Tip Reward Percentage (%)</Label>
+          <Label htmlFor="tipReward">Tip Reward (% credit)</Label>
           <Input
             id="tipReward"
             type="number"
@@ -158,6 +162,9 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             value={tipRewardPercentage}
             onChange={(e) => setTipRewardPercentage(parseFloat(e.target.value))}
           />
+          <p className="text-sm text-muted-foreground">
+            Percentage of tip given as credit on next visit
+          </p>
         </div>
       </div>
       <Button
