@@ -89,35 +89,70 @@ export default function DashboardPage() {
           {/* Review Page Creation Section */}
           <div className="bg-white rounded-xl shadow-lg p-6">
             <div className="text-center py-8">
-              <h2 className="text-2xl font-semibold mb-4">Create Your Review & Rewards Collection Page</h2>
-              <p className="text-muted-foreground mb-6">
-                Generate professional materials to collect reviews & rewards:
-              </p>
-              <ul className="text-sm md:text-base text-gray-600 max-w-xl mx-auto text-left list-disc pl-8 mb-6">
-                <li>Display table cards with QR codes at each table</li>
-                <li>Place the QR code on receipts and menus</li>
-                <li>Show the professional PDF display at your counter</li>
-              </ul>
-              <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto mb-8">
-                Make it easy for customers to recognize great service and get rewarded while dining with you.
-              </p>
-              
-              <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
-                <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
-                <ol className="space-y-3 text-sm text-gray-600">
-                  <li className="flex gap-2">
-                    <span className="font-semibold text-primary">1.</span>
-                    A beautifully designed review and rewards collection page
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-semibold text-primary">2.</span>
-                    Professional table cards with QR codes
-                  </li>
-                  <li className="flex gap-2">
-                    <span className="font-semibold text-primary">3.</span>
-                    Branded QR codes with "Get Rewarded for Tips & Reviews" text
-                  </li>
-                </ol>
+              <h2 className="text-3xl font-bold mb-2">Launch Your Restaurant's Digital Rewards Hub</h2>
+              <p className="text-xl text-gray-600 mb-8">Turn Happy Diners into Loyal Customers</p>
+
+              <div className="space-y-8 max-w-2xl mx-auto">
+                {/* Engage Customers Section */}
+                <div className="text-left">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Engage Customers Everywhere:</h3>
+                  <ul className="space-y-2 text-gray-600">
+                    <li className="flex items-center">
+                      <span className="mr-2">•</span>
+                      Place QR-coded table cards for easy access
+                    </li>
+                    <li className="flex items-center">
+                      <span className="mr-2">•</span>
+                      Add QR codes to receipts for post-dining engagement
+                    </li>
+                    <li className="flex items-center">
+                      <span className="mr-2">•</span>
+                      Display professional signage at your entrance and counter
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Reward & Collect Section */}
+                <div className="text-left">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Reward & Collect:</h3>
+                  <ul className="space-y-2 text-gray-600">
+                    <li className="flex items-center">
+                      <span className="mr-2">•</span>
+                      Instantly reward customers for their reviews
+                    </li>
+                    <li className="flex items-center">
+                      <span className="mr-2">•</span>
+                      Gather valuable feedback about your service
+                    </li>
+                    <li className="flex items-center">
+                      <span className="mr-2">•</span>
+                      Build your customer database effortlessly
+                    </li>
+                  </ul>
+                </div>
+
+                {/* What You'll Get Section */}
+                <div className="text-left border-t border-pink-200 pt-6">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Your Complete Digital Rewards Kit:</h3>
+                  <ol className="space-y-3 text-gray-600">
+                    <li className="flex gap-2">
+                      <span className="font-semibold text-primary">1.</span>
+                      Custom-branded review & rewards collection page
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-semibold text-primary">2.</span>
+                      Professional table cards with your unique QR code
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="font-semibold text-primary">3.</span>
+                      Ready-to-print materials with "Get Rewarded for Tips & Reviews"
+                    </li>
+                  </ol>
+                </div>
+
+                <p className="text-gray-600 italic mt-6">
+                  Start turning every dining experience into an opportunity for growth and customer loyalty.
+                </p>
               </div>
               
               <CreateReviewPageButton 
