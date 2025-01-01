@@ -31,14 +31,18 @@ export const PDFGenerator = ({
         unit: 'mm'
       });
       
-      // Add EatUP! logo and tagline
-      doc.setFillColor(233, 78, 135); // #E94E87
-      doc.rect(20, 15, 15, 15, "F");
+      // Add EatUP! logo
+      const logoImg = new Image();
+      logoImg.src = "/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png";
+      await new Promise((resolve) => {
+        logoImg.onload = resolve;
+      });
+      doc.addImage(logoImg, "PNG", 20, 15, 40, 15); // Adjusted size and position for the logo
+      
+      // Add tagline
       doc.setTextColor(34, 31, 38); // #221F26
-      doc.setFontSize(32);
-      doc.text("EatUP!", 40, 27);
       doc.setFontSize(14);
-      doc.text("EAT. EARN. SAVE.", 40, 35);
+      doc.text("EAT. EARN. SAVE.", 20, 40);
       
       // Add horizontal line
       doc.setDrawColor(233, 78, 135);
@@ -51,13 +55,12 @@ export const PDFGenerator = ({
       doc.setFontSize(16);
       doc.text("Get rewarded twice with every visit!", 20, 75);
       
-      // Add QR code
+      // Add QR code with pink border
       const img = new Image();
       img.src = qrCodeUrl;
       await new Promise((resolve) => {
         img.onload = resolve;
       });
-      // Add QR code with pink border
       doc.setDrawColor(233, 78, 135);
       doc.setLineWidth(0.5);
       doc.roundedRect(20, 85, 70, 70, 3, 3);
