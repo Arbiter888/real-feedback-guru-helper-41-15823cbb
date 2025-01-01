@@ -29,6 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
       tipAmount, 
       tipReward, 
       tipRewardCode,
+      reviewRewardCode,
       restaurantInfo 
     }: EmailRequest = await req.json();
 
@@ -54,50 +55,68 @@ const handler = async (req: Request): Promise<Response> => {
 
     const htmlContent = `
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #E94E87; font-size: 24px; margin-bottom: 20px; text-align: center;">
-          Thank You for Your Generous Tip! 🎉
+        <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">
+          Your EatUP! Rewards Are Here! 🎉
         </h1>
         
         <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
-          We appreciate your generosity! As a thank you, we'd love to give you a special reward for your next visit.
+          Thank you for sharing your dining experience! We've prepared your rewards for both today and your next visit.
         </p>
 
-        <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
-            Your Next Visit Surprise Reward 🎁
-          </h2>
-          
-          <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
-            <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
-            <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
-              ${tipRewardCode}
-            </p>
-            <p style="color: #666; font-size: 14px; margin-top: 10px;">
-              Valid until ${formattedExpirationDate}
-            </p>
-          </div>
-
-          <p style="color: #333; font-size: 16px; text-align: center; margin-top: 20px;">
-            That's <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
-          </p>
-        </div>
-
-        ${restaurantInfo ? `
-          <div style="margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
-            <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">Stay Connected</h3>
-            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-              Follow us for more exclusive offers and updates!
-            </p>
-            <div style="margin-bottom: 20px;">
-              ${socialLinks.join(' • ')}
-            </div>
-            ${restaurantInfo.phoneNumber ? `
-              <p style="color: #666; font-size: 14px;">
-                To make a reservation, call us at: <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none;">${restaurantInfo.phoneNumber}</a>
+        ${reviewRewardCode ? `
+          <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+            <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+              Today's Review Reward 🌟
+            </h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Show this code to your server today:</p>
+              <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+                ${reviewRewardCode}
               </p>
-            ` : ''}
+              <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                Get 10% off your bill today!
+              </p>
+            </div>
           </div>
         ` : ''}
+
+        ${tipRewardCode ? `
+          <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+            <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+              Your Next Visit Tip Credit 🎁
+            </h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+              <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+                ${tipRewardCode}
+              </p>
+              <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                Valid until ${formattedExpirationDate}
+              </p>
+            </div>
+
+            <p style="color: #333; font-size: 16px; text-align: center; margin-top: 20px;">
+              That's <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
+            </p>
+          </div>
+        ` : ''}
+
+        <div style="margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
+          <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">Stay Connected</h3>
+          <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+            Follow us for more exclusive offers and updates!
+          </p>
+          <div style="margin-bottom: 20px;">
+            ${socialLinks.join(' • ')}
+          </div>
+          ${restaurantInfo?.phoneNumber ? `
+            <p style="color: #666; font-size: 14px;">
+              To make a reservation, call us at: <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none;">${restaurantInfo.phoneNumber}</a>
+            </p>
+          ` : ''}
+        </div>
       </div>
     `;
 
@@ -110,7 +129,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "EatUP! Rewards <rewards@eatup.co>",
         to: [email],
-        subject: `Your Special Reward is Here! 🎁`,
+        subject: `Your Rewards Are Here! 🎁`,
         html: htmlContent,
       }),
     });
