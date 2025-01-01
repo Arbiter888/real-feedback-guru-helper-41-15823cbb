@@ -6,10 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CreateReviewPageButton } from "@/components/demo/CreateReviewPageButton";
 import { ReviewPageUrlSection } from "@/components/demo/ReviewPageUrlSection";
-import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 import { CustomerCRMSection } from "@/components/demo/crm/CustomerCRMSection";
-import { RestaurantInfoSection } from "./sections/RestaurantInfoSection";
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
+import { RestaurantInfoSection } from "./sections/RestaurantInfoSection";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -92,39 +91,45 @@ export default function DashboardPage() {
             <div className="text-center py-8">
               <h2 className="text-2xl font-semibold mb-4">Create Your Review & Rewards Collection Page</h2>
               <p className="text-muted-foreground mb-6">
-                Generate a professional PDF with QR code for your payment counter. Make it easy for customers to recognize great service and share their experience while getting rewarded.
+                Generate professional materials to collect reviews & rewards:
               </p>
+              <ul className="text-sm md:text-base text-gray-600 max-w-xl mx-auto text-left list-disc pl-8 mb-6">
+                <li>Display table cards with QR codes at each table</li>
+                <li>Place the QR code on receipts and menus</li>
+                <li>Show the professional PDF display at your counter</li>
+              </ul>
+              <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto mb-8">
+                Make it easy for customers to recognize great service and get rewarded while dining with you.
+              </p>
+              
+              <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
+                <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
+                <ol className="space-y-3 text-sm text-gray-600">
+                  <li className="flex gap-2">
+                    <span className="font-semibold text-primary">1.</span>
+                    A beautifully designed review and rewards collection page
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-semibold text-primary">2.</span>
+                    Professional table cards with QR codes
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-semibold text-primary">3.</span>
+                    Branded QR codes with "Get Rewarded for Tips & Reviews" text
+                  </li>
+                </ol>
+              </div>
+              
               <CreateReviewPageButton 
-                setGeneratedUrl={setGeneratedUrl}
+                setGeneratedUrl={setGeneratedUrl} 
                 setReviewPageId={setReviewPageId}
               />
               
-              {generatedUrl && (
-                <div className="mt-8">
-                  <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
-                    <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
-                    <ol className="space-y-3 text-sm text-gray-600">
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-primary">1.</span>
-                        A beautifully designed review and rewards collection page
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-primary">2.</span>
-                        Professional PDF with QR code for your counter
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-primary">3.</span>
-                        Automated dual-rewards system for tips and reviews
-                      </li>
-                    </ol>
-                  </div>
-                  <ReviewPageUrlSection
-                    restaurantName={restaurantInfo.restaurantName}
-                    googleMapsUrl={restaurantInfo.googleMapsUrl}
-                    generatedUrl={generatedUrl}
-                  />
-                </div>
-              )}
+              <ReviewPageUrlSection
+                restaurantName={restaurantInfo.restaurantName}
+                googleMapsUrl={restaurantInfo.googleMapsUrl}
+                generatedUrl={generatedUrl}
+              />
             </div>
           </div>
 
@@ -133,13 +138,6 @@ export default function DashboardPage() {
 
           {/* Customer CRM Section */}
           <CustomerCRMSection restaurantInfo={restaurantInfo} />
-
-          {/* Analytics Section */}
-          {reviewPageId && (
-            <div className="bg-white rounded-xl shadow-lg">
-              <ReviewPageAnalytics reviewPageId={reviewPageId} />
-            </div>
-          )}
         </div>
       </div>
     </div>
