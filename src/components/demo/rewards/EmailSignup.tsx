@@ -120,15 +120,15 @@ export const EmailSignup = ({
         >
           <li className="flex items-center gap-2 text-gray-700">
             <Check className="w-5 h-5 text-primary" />
-            <span>Get instant access to £{totalRewardValue.toFixed(2)} in rewards</span>
+            <span>Get your £{totalRewardValue.toFixed(2)} tip credit voucher sent instantly to your email</span>
           </li>
           <li className="flex items-center gap-2 text-gray-700">
             <Check className="w-5 h-5 text-primary" />
-            <span>Exclusive weekly offers and promotions</span>
+            <span>Redeem your tip credit on your next visit</span>
           </li>
           <li className="flex items-center gap-2 text-gray-700">
             <Check className="w-5 h-5 text-primary" />
-            <span>Early access to special events</span>
+            <span>Receive exclusive, personalized offers from the restaurant</span>
           </li>
         </motion.ul>
 
@@ -136,7 +136,7 @@ export const EmailSignup = ({
           <div className="relative">
             <Input
               type="email"
-              placeholder="Enter your email to receive rewards"
+              placeholder="Enter your email to get your tip credit voucher"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10 h-12"
@@ -158,7 +158,7 @@ export const EmailSignup = ({
             ) : (
               <>
                 <Gift className="h-5 w-5 mr-2" />
-                <span>Get Your Rewards</span>
+                <span>Get Your Tip Credit Voucher</span>
               </>
             )}
           </Button>
