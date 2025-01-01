@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Gift, Mail, Check, Loader2 } from "lucide-react";
+import { Gift, Mail, Check, Lock, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface EmailSignupProps {
@@ -101,35 +101,36 @@ export const EmailSignup = ({
             <h4 className="font-medium text-lg mb-2">Your Rewards Summary:</h4>
             <ul className="space-y-2">
               <li className="flex items-center gap-2 text-gray-700">
-                <Check className="w-5 h-5 text-primary" />
-                <span>Get 10% off your bill today when you share your experience</span>
+                <Check className="w-5 h-5 text-green-500" />
+                <span>10% off today's bill</span>
+                <span className="text-sm text-green-600 ml-1">(Available now)</span>
               </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check className="w-5 h-5 text-primary" />
-                <span>Receive a personalized welcome voucher for your next visit</span>
+              <li className="flex items-center gap-2 text-gray-500">
+                <Lock className="w-5 h-5" />
+                <span>Mystery reward for your next visit</span>
               </li>
               {tipRewardAmount && tipRewardCode && (
-                <li className="flex items-center gap-2 text-gray-700">
-                  <Check className="w-5 h-5 text-primary" />
-                  <span>Earn £{tipRewardAmount.toFixed(2)} tip credit back for your next meal</span>
+                <li className="flex items-center gap-2 text-gray-500">
+                  <Lock className="w-5 h-5" />
+                  <span>£{tipRewardAmount.toFixed(2)} tip credit next time</span>
                 </li>
               )}
             </ul>
           </div>
 
           <div className="space-y-2">
-            <h4 className="font-medium">Plus, get access to:</h4>
+            <h4 className="font-medium">Plus, unlock access to:</h4>
             <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check className="w-5 h-5 text-primary" />
-                <span>Exclusive weekly offers and promotions</span>
+              <li className="flex items-center gap-2 text-gray-500">
+                <Lock className="w-5 h-5" />
+                <span>Exclusive weekly offers</span>
               </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check className="w-5 h-5 text-primary" />
-                <span>Early access to special events</span>
+              <li className="flex items-center gap-2 text-gray-500">
+                <Lock className="w-5 h-5" />
+                <span>Early access to events</span>
               </li>
-              <li className="flex items-center gap-2 text-gray-700">
-                <Check className="w-5 h-5 text-primary" />
+              <li className="flex items-center gap-2 text-gray-500">
+                <Lock className="w-5 h-5" />
                 <span>Birthday treats and surprises</span>
               </li>
             </ul>
@@ -140,7 +141,7 @@ export const EmailSignup = ({
           <div className="relative">
             <Input
               type="email"
-              placeholder="Enter your email to receive rewards"
+              placeholder="Enter your email to unlock rewards"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="pl-10 h-12"
@@ -162,7 +163,7 @@ export const EmailSignup = ({
             ) : (
               <>
                 <Gift className="h-5 w-5 mr-2" />
-                <span>Get Your Rewards</span>
+                <span>Unlock Your Rewards</span>
               </>
             )}
           </Button>
