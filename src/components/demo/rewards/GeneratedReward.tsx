@@ -22,8 +22,6 @@ export const GeneratedReward = ({
   if (!rewardCode && !tipRewardCode) return null;
 
   const totalRewardValue = (tipRewardAmount || 0) + (rewardCode ? reviewRewardAmount : 0);
-  const exampleBillAmount = 100;
-  const reviewSavings = (exampleBillAmount * (reviewRewardAmount / 100)).toFixed(2);
 
   return (
     <div className="space-y-6">
@@ -81,8 +79,6 @@ export const GeneratedReward = ({
               </div>
               <p className="text-sm text-gray-600">
                 Get {reviewRewardAmount}% off your current bill
-                <br />
-                Example: £{reviewSavings} savings on a £{exampleBillAmount} bill
               </p>
               {rewardCode && (
                 <div className="pt-3 border-t border-pink-100">
