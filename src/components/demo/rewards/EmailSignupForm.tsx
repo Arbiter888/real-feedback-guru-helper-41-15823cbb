@@ -33,16 +33,18 @@ export const EmailSignupForm = ({
           </p>
           
           <ul className="space-y-2">
-            {[
-              "Get instant access to your rewards",
-              "Exclusive weekly offers and promotions",
-              "Early access to special events"
-            ].map((benefit, index) => (
-              <li key={index} className="flex items-center gap-2 text-gray-700">
-                <Check className="h-5 w-5 text-primary" />
-                <span>{benefit}</span>
-              </li>
-            ))}
+            <li className="flex items-center gap-2 text-gray-700">
+              <Check className="h-5 w-5 text-primary" />
+              <span>Get instant access to your rewards</span>
+            </li>
+            <li className="flex items-center gap-2 text-gray-700">
+              <Check className="h-5 w-5 text-primary" />
+              <span>Exclusive weekly offers and promotions</span>
+            </li>
+            <li className="flex items-center gap-2 text-gray-700">
+              <Check className="h-5 w-5 text-primary" />
+              <span>Early access to special events</span>
+            </li>
           </ul>
 
           <div className="space-y-4">

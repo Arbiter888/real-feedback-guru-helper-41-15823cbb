@@ -1,7 +1,6 @@
 import { Gift, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { EmailSignup } from "./EmailSignup";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GeneratedRewardProps {
   rewardCode: string | null;
@@ -36,55 +35,38 @@ export const GeneratedReward = ({
         </Card>
       )}
 
-      {/* Rewards Details */}
-      <Tabs defaultValue={tipRewardCode ? "tip" : "review"} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          {tipRewardCode && (
-            <TabsTrigger value="tip" className="flex items-center gap-2">
-              <Star className="h-4 w-4" />
-              Tip Reward
-            </TabsTrigger>
-          )}
-          {rewardCode && (
-            <TabsTrigger value="review" className="flex items-center gap-2">
-              <Gift className="h-4 w-4" />
-              Review Reward
-            </TabsTrigger>
-          )}
-        </TabsList>
-
-        {tipRewardCode && (
-          <TabsContent value="tip">
-            <Card className="p-6 space-y-4">
-              <h4 className="font-semibold text-lg flex items-center gap-2">
-                <Star className="h-5 w-5 text-primary" />
-                Tip Reward Details
-              </h4>
-              <p>£{tipRewardAmount?.toFixed(2)} credit from your £{tipAmount?.toFixed(2)} tip</p>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Your Tip Reward Code:</p>
-                <p className="font-mono font-bold text-primary text-lg">{tipRewardCode}</p>
-              </div>
-            </Card>
-          </TabsContent>
-        )}
-
+      {/* Combined Rewards Display */}
+      <Card className="p-6 space-y-6">
+        {/* Review Reward Section */}
         {rewardCode && (
-          <TabsContent value="review">
-            <Card className="p-6 space-y-4">
-              <h4 className="font-semibold text-lg flex items-center gap-2">
-                <Gift className="h-5 w-5 text-primary" />
-                Review Reward Details
-              </h4>
-              <p>£{reviewRewardAmount} off your current bill for sharing your experience</p>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-600 mb-1">Your Review Reward Code:</p>
-                <p className="font-mono font-bold text-primary text-lg">{rewardCode}</p>
-              </div>
-            </Card>
-          </TabsContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Gift className="h-5 w-5 text-primary" />
+              <h4 className="font-semibold text-lg">Review Reward</h4>
+            </div>
+            <p>£{reviewRewardAmount} off your current bill for sharing your experience</p>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Your Review Reward Code:</p>
+              <p className="font-mono font-bold text-primary text-lg">{rewardCode}</p>
+            </div>
+          </div>
         )}
-      </Tabs>
+
+        {/* Tip Reward Section */}
+        {tipRewardCode && (
+          <div className="space-y-4 border-t pt-6">
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-primary" />
+              <h4 className="font-semibold text-lg">Tip Reward</h4>
+            </div>
+            <p>£{tipRewardAmount?.toFixed(2)} credit for your next visit from your £{tipAmount?.toFixed(2)} tip</p>
+            <div className="bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-gray-600 mb-1">Your Tip Reward Code:</p>
+              <p className="font-mono font-bold text-primary text-lg">{tipRewardCode}</p>
+            </div>
+          </div>
+        )}
+      </Card>
 
       {/* Single Email Signup Section */}
       <EmailSignup 
