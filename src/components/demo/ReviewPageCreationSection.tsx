@@ -41,8 +41,15 @@ export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: Rev
             Create Your Review & Rewards Collection Page
           </h2>
           <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto">
-            Generate a professional PDF with QR code that you can display at your payment counter. 
-            Make it easy for customers to recognize great service and share their experience while getting rewarded.
+            Generate a professional PDF with QR code that you can:
+          </p>
+          <ul className="text-sm md:text-base text-gray-600 max-w-xl mx-auto text-left list-disc pl-8">
+            <li>Add to your receipts</li>
+            <li>Place in your menus</li>
+            <li>Display at your counter, entrance, or tables</li>
+          </ul>
+          <p className="text-sm md:text-base text-gray-600 max-w-xl mx-auto">
+            Make it easy for customers to recognize great service and get rewarded while dining with you.
           </p>
           <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
             <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
@@ -53,7 +60,7 @@ export const ReviewPageCreationSection = ({ restaurantName, googleMapsUrl }: Rev
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">2.</span>
-                Professional PDF with QR code for your counter
+                Professional PDF with QR code for your business
               </li>
               <li className="flex gap-2">
                 <span className="font-semibold text-primary">3.</span>
