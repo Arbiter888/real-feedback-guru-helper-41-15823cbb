@@ -18,9 +18,9 @@ export const GeneratedReward = ({
   tipAmount,
   tipRewardAmount
 }: GeneratedRewardProps) => {
-  const totalRewardValue = (tipRewardAmount || 0) + (rewardCode ? reviewRewardAmount : 0);
-
   if (!rewardCode && !tipRewardCode) return null;
+
+  const totalRewardValue = (tipRewardAmount || 0) + (rewardCode ? reviewRewardAmount : 0);
 
   return (
     <div className="space-y-6">
@@ -76,7 +76,7 @@ export const GeneratedReward = ({
                 <Gift className="h-5 w-5 text-primary" />
                 Review Reward Details
               </h4>
-              <p>£{reviewRewardAmount} reward for sharing your experience</p>
+              <p>£{reviewRewardAmount} off your current bill for sharing your experience</p>
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">Your Review Reward Code:</p>
                 <p className="font-mono font-bold text-primary text-lg">{rewardCode}</p>
