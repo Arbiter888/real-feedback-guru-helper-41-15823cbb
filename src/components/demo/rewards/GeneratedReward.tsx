@@ -37,10 +37,10 @@ export const GeneratedReward = ({
           <h3 className="text-2xl font-bold text-gray-900">
             {tipAmount ? (
               <>
-                Save £{reviewSavings} today + £{tipRewardAmount?.toFixed(2)} for your next visit
+                Save {reviewRewardAmount}% today + £{tipRewardAmount?.toFixed(2)} for your next visit
               </>
             ) : (
-              <>Save £{reviewSavings} on your bill today</>
+              <>Save {reviewRewardAmount}% on your bill today</>
             )}
           </h3>
         </Card>
