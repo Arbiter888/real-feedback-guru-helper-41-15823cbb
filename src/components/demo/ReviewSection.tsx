@@ -43,10 +43,14 @@ export const ReviewSection = ({
     restaurantName,
     reviewRewardAmount,
     tipRewardPercentage,
+    tipAmount,
+    tipRewardAmount,
+    tipRewardCode,
     handlePreferencesSaved,
     handleReceiptUpload,
     handleRefineReview,
-    handleCopyAndRedirect
+    handleCopyAndRedirect,
+    handleTipSelected
   } = useReviewSection(customRestaurantName, customGoogleMapsUrl, customServerNames);
 
   return (
@@ -92,12 +96,13 @@ export const ReviewSection = ({
           onCopyAndRedirect={handleCopyAndRedirect}
         />
 
-        {analysisResult && selectedServer && (
+        {rewardCode && analysisResult && selectedServer && (
           <TipJarSection 
             serverName={selectedServer}
             totalAmount={analysisResult.total_amount}
             tipRewardPercentage={tipRewardPercentage}
             reviewRewardAmount={reviewRewardAmount}
+            onTipSelected={handleTipSelected}
           />
         )}
 
@@ -107,6 +112,9 @@ export const ReviewSection = ({
           customRestaurantName={restaurantName}
           customGoogleMapsUrl={googleMapsUrl}
           reviewRewardAmount={reviewRewardAmount}
+          tipRewardCode={tipRewardCode}
+          tipAmount={tipAmount}
+          tipRewardAmount={tipRewardAmount}
         />
 
         {onTakeAiSurvey && (
