@@ -8,7 +8,7 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not get canvas context");
 
-    // Set canvas size with extra space for text
+    // Set canvas size with extra space for logo and text
     canvas.width = 1000;
     canvas.height = 1200;
 
@@ -36,6 +36,23 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
 
     // Draw QR code
     ctx.drawImage(img, 0, 0);
+
+    // Load and draw EatUP! logo
+    const logo = new Image();
+    await new Promise((resolve, reject) => {
+      logo.onload = resolve;
+      logo.onerror = reject;
+      logo.src = "/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png";
+    });
+
+    // Calculate logo position (centered, above QR code)
+    const logoWidth = 300;
+    const logoHeight = 100;
+    const logoX = (canvas.width - logoWidth) / 2;
+    const logoY = 20;
+
+    // Draw logo
+    ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
 
     // Add text below QR code
     ctx.fillStyle = "#000000";
