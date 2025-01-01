@@ -5,7 +5,6 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { nanoid } from "nanoid";
 import { generateAndUploadQRCode } from "@/utils/qrCodeUtils";
-import { jsPDF } from "jspdf";
 
 const generateUniqueSlug = (baseName: string) => {
   const baseSlug = baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -23,28 +22,6 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const generateQRCodeAndPDF = async (url: string, restaurantName: string) => {
-    try {
-      const qrCodeUrl = await generateAndUploadQRCode(url);
-      setQrCodeUrl(qrCodeUrl);
-      
-      // Save QR code URL to localStorage for persistence
-      localStorage.setItem('qrCodeUrl', qrCodeUrl);
-      
-      toast({
-        title: "QR Code Generated!",
-        description: "You can now download the PDF with the QR code.",
-      });
-    } catch (error) {
-      console.error('Error generating QR code:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate QR code.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleCreateReviewPage = async () => {
     setIsCreating(true);
 
@@ -61,9 +38,19 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
         return;
       }
 
-      const { restaurantName, googleMapsUrl, contactEmail, serverNames } = JSON.parse(savedRestaurantInfo);
+      const { 
+        restaurantName, 
+        googleMapsUrl, 
+        contactEmail, 
+        serverNames,
+        reviewRewardAmount = 10,
+        tipRewardPercentage = 50
+      } = JSON.parse(savedRestaurantInfo);
+      
       console.log('Parsed contact email:', contactEmail);
       console.log('Server names:', serverNames);
+      console.log('Review reward amount:', reviewRewardAmount);
+      console.log('Tip reward percentage:', tipRewardPercentage);
 
       if (!restaurantName || !googleMapsUrl) {
         toast({
@@ -75,11 +62,7 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
       }
 
       const uniqueSlug = generateUniqueSlug(restaurantName);
-      
-      // Generate the correct URL path
       const generatedUrlPath = `/restaurant-review/${uniqueSlug}`;
-      
-      // For QR code, use the full URL including the current hostname
       const fullUrl = `${window.location.origin}${generatedUrlPath}`;
 
       const { data, error } = await supabase
@@ -90,7 +73,9 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
             google_maps_url: googleMapsUrl,
             contact_email: contactEmail,
             slug: uniqueSlug,
-            server_names: serverNames || []
+            server_names: serverNames || [],
+            review_reward_amount: reviewRewardAmount,
+            tip_reward_percentage: tipRewardPercentage
           }
         ])
         .select()
@@ -101,14 +86,13 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
         throw error;
       }
 
-      // Save the generated URL and review page ID to localStorage
       localStorage.setItem('generatedUrl', generatedUrlPath);
       localStorage.setItem('reviewPageId', data.id);
 
       setReviewPageId(data.id);
       setGeneratedUrl(generatedUrlPath);
 
-      await generateQRCodeAndPDF(fullUrl, restaurantName);
+      await generateQRCodeAndPDF(fullUrl, restaurantName, reviewRewardAmount, tipRewardPercentage);
 
       toast({
         title: "Review page created!",
@@ -124,6 +108,26 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
       });
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const generateQRCodeAndPDF = async (url: string, restaurantName: string, reviewReward: number, tipReward: number) => {
+    try {
+      const qrCodeUrl = await generateAndUploadQRCode(url);
+      setQrCodeUrl(qrCodeUrl);
+      localStorage.setItem('qrCodeUrl', qrCodeUrl);
+      
+      toast({
+        title: "QR Code Generated!",
+        description: "You can now download the PDF with the QR code.",
+      });
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate QR code.",
+        variant: "destructive",
+      });
     }
   };
 

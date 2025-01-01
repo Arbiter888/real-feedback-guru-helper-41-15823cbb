@@ -25,14 +25,18 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
         return;
       }
 
-      // Create PDF with A4 dimensions (in mm)
+      const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
+      const { reviewRewardAmount = 10, tipRewardPercentage = 50 } = savedRestaurantInfo 
+        ? JSON.parse(savedRestaurantInfo) 
+        : {};
+
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
         format: "a4",
       });
 
-      // Add EatUP! logo with corrected dimensions for proper aspect ratio
+      // Add EatUP! logo
       const logoUrl = '/lovable-uploads/7d4606be-1c43-44b0-83f0-eb98a468334a.png';
       pdf.addImage(logoUrl, 'PNG', 20, 20, 90, 30);
 
@@ -46,54 +50,50 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.setFont("helvetica", "bold");
       pdf.text(`${restaurantName}'s EatUP! Rewards`, 20, 90);
 
-      // Subtitle
+      // Subtitle with reward amounts
       pdf.setFontSize(16);
       pdf.setFont("helvetica", "normal");
-      pdf.text("Get rewarded twice with every visit!", 20, 100);
+      pdf.text(`Get up to £${reviewRewardAmount} for reviews and ${tipRewardPercentage}% back on tips!`, 20, 100);
 
-      // QR Code section with white background and border
+      // QR Code section
       pdf.setFillColor(255, 255, 255);
       pdf.setDrawColor(EATUP_PINK);
       pdf.roundedRect(20, 110, 90, 90, 3, 3, 'FD');
       pdf.addImage(qrCodeUrl, "PNG", 25, 115, 80, 80);
 
-      // How it works section
+      // Rewards section
       pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
-      pdf.text("How it works:", 120, 120);
+      pdf.text("Your Rewards:", 120, 120);
 
-      // Steps with proper font and spacing
+      // Reward details
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(12);
+      const rewardDetails = [
+        `• Get £${reviewRewardAmount} credit for your review`,
+        `• Receive ${tipRewardPercentage}% of your tip back`,
+        "• Instant digital rewards",
+        "• Valid for 30 days"
+      ];
+
+      rewardDetails.forEach((detail, index) => {
+        pdf.text(detail, 120, 135 + (index * 10));
+      });
+
+      // How it works section
+      pdf.setFont("helvetica", "bold");
+      pdf.text("How it works:", 20, 220);
+
       pdf.setFont("helvetica", "normal");
       const steps = [
         "1. Scan the QR code",
         "2. Share your dining experience",
         "3. Add your receipt photo",
-        "4. Get instant credit back on tips",
-        "5. Get special rewards for reviews"
+        "4. Get instant rewards"
       ];
 
       steps.forEach((step, index) => {
-        pdf.text(step, 120, 135 + (index * 10));
-      });
-
-      // Your EatUP! Journey section with updated content
-      pdf.setFillColor(248, 250, 252);
-      pdf.rect(20, 210, 170, 50, 'F');
-      
-      pdf.setFont("helvetica", "bold");
-      pdf.setFontSize(16);
-      pdf.text("Your EatUP! Journey", 30, 225);
-
-      pdf.setFont("helvetica", "normal");
-      pdf.setFontSize(12);
-      const journeyText = [
-        "• Earn instant credit back on your tips",
-        "• Receive special rewards for your reviews",
-        "• Get exclusive weekly offers in your inbox"
-      ];
-
-      journeyText.forEach((text, index) => {
-        pdf.text(text, 30, 240 + (index * 8));
+        pdf.text(step, 20, 235 + (index * 10));
       });
 
       // URL at the bottom
@@ -106,7 +106,6 @@ export const PDFGenerator = ({ url, qrCodeUrl, restaurantName }: PDFGeneratorPro
       pdf.setTextColor(128, 128, 128);
       pdf.text("Powered by EatUP! - The smart way to earn rewards", 20, 280);
 
-      // Save the PDF
       pdf.save(`${restaurantName}-review-qr-code.pdf`);
 
       toast({
