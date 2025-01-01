@@ -1,31 +1,56 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export interface ReviewData {
-  id?: string;
   reviewText: string;
   refinedReview?: string;
+  analysisResult?: any;
   serverName?: string;
-  photoUrl?: string;
   rewardCode: string;
   googleMapsUrl?: string;
   restaurantName?: string;
+  restaurantInfo?: any;
   reviewRewardAmount?: number;
   tipRewardPercentage?: number;
-  restaurantInfo?: {
-    restaurantName?: string;
-    googleMapsUrl?: string;
-    serverNames?: string[];
-  };
-  receiptData?: {
-    total_amount?: number;
-    items?: any[];
-    tip_amount?: number;
-  };
 }
 
-export const saveReviewData = (data: ReviewData) => {
-  localStorage.setItem('reviewData', JSON.stringify(data));
-};
+export const saveReviewData = async (
+  email: string,
+  listId: string,
+  reviewData: ReviewData
+) => {
+  try {
+    // If email is provided, save contact
+    if (email && listId) {
+      const { error: contactError } = await supabase
+        .from('email_contacts')
+        .upsert(
+          {
+            list_id: listId,
+            email: email,
+            metadata: {
+              reviews: [
+                {
+                  text: reviewData.reviewText,
+                  refined: reviewData.refinedReview,
+                  analysis: reviewData.analysisResult,
+                  server: reviewData.serverName,
+                  reward_code: reviewData.rewardCode,
+                  submitted_at: new Date().toISOString()
+                }
+              ]
+            }
+          },
+          {
+            onConflict: 'list_id,email'
+          }
+        );
 
-export const loadReviewData = (): ReviewData | null => {
-  const savedData = localStorage.getItem('reviewData');
-  return savedData ? JSON.parse(savedData) : null;
+      if (contactError) throw contactError;
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving review data:', error);
+    throw error;
+  }
 };

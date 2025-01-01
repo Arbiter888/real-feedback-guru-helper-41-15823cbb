@@ -5,6 +5,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { nanoid } from "nanoid";
 import { generateAndUploadQRCode } from "@/utils/qrCodeUtils";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const generateUniqueSlug = (baseName: string) => {
   const baseSlug = baseName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -20,6 +22,8 @@ interface CreateReviewPageButtonProps {
 export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: CreateReviewPageButtonProps) => {
   const [isCreating, setIsCreating] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [reviewRewardAmount, setReviewRewardAmount] = useState(10);
+  const [tipRewardPercentage, setTipRewardPercentage] = useState(50);
   const { toast } = useToast();
 
   const handleCreateReviewPage = async () => {
@@ -43,8 +47,6 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
         googleMapsUrl, 
         contactEmail, 
         serverNames,
-        reviewRewardAmount = 10,
-        tipRewardPercentage = 50
       } = JSON.parse(savedRestaurantInfo);
       
       console.log('Parsed contact email:', contactEmail);
@@ -132,7 +134,32 @@ export const CreateReviewPageButton = ({ setGeneratedUrl, setReviewPageId }: Cre
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="reviewReward">Review Reward Amount (£)</Label>
+          <Input
+            id="reviewReward"
+            type="number"
+            min="0"
+            step="0.01"
+            value={reviewRewardAmount}
+            onChange={(e) => setReviewRewardAmount(parseFloat(e.target.value))}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="tipReward">Tip Reward Percentage (%)</Label>
+          <Input
+            id="tipReward"
+            type="number"
+            min="0"
+            max="100"
+            step="1"
+            value={tipRewardPercentage}
+            onChange={(e) => setTipRewardPercentage(parseFloat(e.target.value))}
+          />
+        </div>
+      </div>
       <Button
         onClick={handleCreateReviewPage}
         disabled={isCreating}

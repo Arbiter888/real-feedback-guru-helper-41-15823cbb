@@ -104,8 +104,10 @@ export type Database = {
           google_maps_url: string
           id: string
           restaurant_name: string
+          review_reward_amount: number | null
           server_names: string[] | null
           slug: string
+          tip_reward_percentage: number | null
         }
         Insert: {
           contact_email?: string | null
@@ -114,8 +116,10 @@ export type Database = {
           google_maps_url: string
           id?: string
           restaurant_name: string
+          review_reward_amount?: number | null
           server_names?: string[] | null
           slug: string
+          tip_reward_percentage?: number | null
         }
         Update: {
           contact_email?: string | null
@@ -124,8 +128,10 @@ export type Database = {
           google_maps_url?: string
           id?: string
           restaurant_name?: string
+          review_reward_amount?: number | null
           server_names?: string[] | null
           slug?: string
+          tip_reward_percentage?: number | null
         }
         Relationships: []
       }

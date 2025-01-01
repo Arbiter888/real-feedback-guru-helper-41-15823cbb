@@ -10,12 +10,16 @@ interface ReviewPageUrlSectionProps {
   restaurantName: string | null;
   googleMapsUrl: string | null;
   generatedUrl: string | null;
+  reviewRewardAmount?: number;
+  tipRewardPercentage?: number;
 }
 
 export const ReviewPageUrlSection = ({
   restaurantName,
   googleMapsUrl,
   generatedUrl,
+  reviewRewardAmount = 10,
+  tipRewardPercentage = 50,
 }: ReviewPageUrlSectionProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -87,6 +91,8 @@ export const ReviewPageUrlSection = ({
               url={fullUrl}
               qrCodeUrl={qrCodeUrl}
               restaurantName={restaurantName || "Business"}
+              reviewRewardAmount={reviewRewardAmount}
+              tipRewardPercentage={tipRewardPercentage}
             />
           </div>
         </div>
