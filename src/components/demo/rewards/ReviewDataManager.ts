@@ -10,6 +10,7 @@ interface ReviewData {
   rewardCode: string;
   googleMapsUrl?: string;
   restaurantName?: string;
+  reviewRewardAmount?: number;
   restaurantInfo?: {
     restaurantName?: string;
     googleMapsUrl?: string;
