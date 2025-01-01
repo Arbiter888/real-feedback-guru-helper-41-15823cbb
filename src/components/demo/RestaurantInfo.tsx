@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { BasicInfoSection } from "./restaurant/BasicInfoSection";
 import { SocialMediaSection } from "./restaurant/SocialMediaSection";
 import { ServerManagementSection } from "./restaurant/ServerManagementSection";
+import { RewardSettingsSection } from "./restaurant/RewardSettingsSection";
 import { RestaurantContactCard } from "./RestaurantContactCard";
 
 interface RestaurantInfoProps {
@@ -26,7 +27,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   const { toast } = useToast();
 
   useEffect(() => {
-    console.log("RestaurantInfo: Loading saved preferences");
     const savedRestaurantInfo = localStorage.getItem('restaurantInfo');
     if (savedRestaurantInfo) {
       const parsedInfo = JSON.parse(savedRestaurantInfo);
@@ -39,7 +39,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       setServerNames(parsedInfo.serverNames || []);
       setReviewRewardAmount(parsedInfo.reviewRewardAmount || 10);
       setTipRewardPercentage(parsedInfo.tipRewardPercentage || 50);
-      console.log("RestaurantInfo: Loaded server names:", parsedInfo.serverNames);
       onRestaurantInfoSaved(
         parsedInfo.restaurantName, 
         parsedInfo.googleMapsUrl, 
@@ -81,9 +80,7 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   };
 
   const handleServerNamesChange = (names: string[]) => {
-    console.log("RestaurantInfo: Updating server names:", names);
     setServerNames(names);
-    // Save immediately when server names change
     const updatedInfo = {
       restaurantName,
       googleMapsUrl,
@@ -112,7 +109,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
     setIsSaving(true);
 
     try {
-      console.log("RestaurantInfo: Saving preferences with server names:", serverNames);
       const restaurantInfo = {
         restaurantName,
         googleMapsUrl,
@@ -156,8 +152,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
           restaurantName={restaurantName}
           googleMapsUrl={googleMapsUrl}
           contactEmail={contactEmail}
-          reviewRewardAmount={reviewRewardAmount}
-          tipRewardPercentage={tipRewardPercentage}
           onInfoChange={handleInfoChange}
           showSuccess={showSuccess}
         />
@@ -166,6 +160,12 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
           websiteUrl={websiteUrl}
           facebookUrl={facebookUrl}
           instagramUrl={instagramUrl}
+          onInfoChange={handleInfoChange}
+        />
+
+        <RewardSettingsSection
+          reviewRewardAmount={reviewRewardAmount}
+          tipRewardPercentage={tipRewardPercentage}
           onInfoChange={handleInfoChange}
         />
 
