@@ -60,7 +60,7 @@ export const GeneratedReward = ({
                 <Star className="h-5 w-5 text-primary" />
                 Tip Reward Details
               </h4>
-              <p>£{tipRewardAmount?.toFixed(2)} credit from your £{tipAmount} tip</p>
+              <p>£{tipRewardAmount?.toFixed(2)} credit from your £{tipAmount?.toFixed(2)} tip</p>
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm text-gray-600 mb-1">Your Tip Reward Code:</p>
                 <p className="font-mono font-bold text-primary text-lg">{tipRewardCode}</p>
