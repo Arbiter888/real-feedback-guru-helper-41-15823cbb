@@ -8,12 +8,14 @@ interface EmailSignupProps {
   rewardCode: string | null;
   customGoogleMapsUrl?: string;
   customRestaurantName?: string;
+  reviewRewardAmount?: number;
 }
 
 export const EmailSignup = ({ 
   rewardCode,
   customGoogleMapsUrl,
-  customRestaurantName 
+  customRestaurantName,
+  reviewRewardAmount = 10
 }: EmailSignupProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +70,8 @@ export const EmailSignup = ({
         serverName: serverName?.trim(),
         rewardCode,
         googleMapsUrl: customGoogleMapsUrl,
-        restaurantName: customRestaurantName
+        restaurantName: customRestaurantName,
+        reviewRewardAmount
       });
 
       // Get restaurant info from localStorage if available
@@ -82,7 +85,8 @@ export const EmailSignup = ({
           rewardCode,
           restaurantName: customRestaurantName || "The Local Kitchen & Bar",
           googleMapsUrl: customGoogleMapsUrl,
-          restaurantInfo
+          restaurantInfo,
+          reviewRewardAmount
         }
       });
 

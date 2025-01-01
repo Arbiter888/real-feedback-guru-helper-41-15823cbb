@@ -5,17 +5,22 @@ interface RewardsSectionProps {
   hasUploadedReceipt?: boolean;
   customGoogleMapsUrl?: string;
   customRestaurantName?: string;
+  reviewRewardAmount?: number;
 }
 
 export const RewardsSection = ({ 
   rewardCode, 
   hasUploadedReceipt,
   customGoogleMapsUrl,
-  customRestaurantName 
+  customRestaurantName,
+  reviewRewardAmount = 10
 }: RewardsSectionProps) => {
   return (
     <section className="space-y-6">
-      <GeneratedReward rewardCode={rewardCode} />
+      <GeneratedReward 
+        rewardCode={rewardCode} 
+        reviewRewardAmount={reviewRewardAmount}
+      />
     </section>
   );
 };

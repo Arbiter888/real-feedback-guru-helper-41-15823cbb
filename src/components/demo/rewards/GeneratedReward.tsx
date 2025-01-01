@@ -1,30 +1,33 @@
+import { EmailSignup } from "./EmailSignup";
+
 interface GeneratedRewardProps {
   rewardCode: string | null;
+  reviewRewardAmount?: number;
 }
 
-export const GeneratedReward = ({ rewardCode }: GeneratedRewardProps) => {
+export const GeneratedReward = ({ 
+  rewardCode,
+  reviewRewardAmount = 10
+}: GeneratedRewardProps) => {
   if (!rewardCode) return null;
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl border border-pink-100 shadow-lg text-center space-y-4">
-      <div className="text-2xl font-bold text-gray-900">
-        🎉 Congratulations!
-      </div>
-      <p className="text-gray-600">
-        Show your Google review and this screen to your server to receive today's special reward!
-      </p>
-      <div className="bg-pink-50 p-4 rounded-xl">
-        <p className="text-sm text-gray-500 mb-2">Your Next Visit Reward Code:</p>
-        <p className="text-xl font-mono font-bold text-primary">{rewardCode}</p>
-      </div>
-      <div className="space-y-2">
-        <p className="text-sm text-gray-500">
-          Valid for your next visit only
+    <div className="space-y-6">
+      <div className="bg-primary/5 p-6 rounded-lg">
+        <h3 className="text-xl font-semibold mb-4">
+          🎉 Your £{reviewRewardAmount} Review Reward Code
+        </h3>
+        <p className="text-2xl font-mono font-bold text-primary mb-4">
+          {rewardCode}
         </p>
-        <p className="text-sm font-medium text-primary">
-          Sign up below to save this code and unlock special rewards for your future visits! 👇
+        <p className="text-sm text-gray-600">
+          Sign up below to receive your reward code via email.
         </p>
       </div>
+      <EmailSignup 
+        rewardCode={rewardCode} 
+        reviewRewardAmount={reviewRewardAmount}
+      />
     </div>
   );
 };
