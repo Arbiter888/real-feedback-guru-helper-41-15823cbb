@@ -12,10 +12,14 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
     canvas.width = 1000;
     canvas.height = 1200;
 
+    // Draw white background
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
     // Generate QR code with margin
     const qrCodeDataUrl = await QRCode.toDataURL(content, {
-      width: 1000,
-      margin: 2,
+      width: 800,
+      margin: 1,
       color: {
         dark: "#000000",
         light: "#FFFFFF",
@@ -30,12 +34,12 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
       img.src = qrCodeDataUrl;
     });
 
-    // Draw white background
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Calculate QR code position (centered)
+    const qrX = (canvas.width - 800) / 2;
+    const qrY = 140; // Below logo
 
     // Draw QR code
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, qrX, qrY, 800, 800);
 
     // Load and draw EatUP! logo
     const logo = new Image();
@@ -58,8 +62,8 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
     ctx.fillStyle = "#000000";
     ctx.font = "bold 48px Arial";
     ctx.textAlign = "center";
-    ctx.fillText("Get Rewarded for", canvas.width / 2, 1080);
-    ctx.fillText("Tips & Reviews", canvas.width / 2, 1140);
+    ctx.fillText("Get Rewarded for", canvas.width / 2, 1020);
+    ctx.fillText("Tips & Reviews", canvas.width / 2, 1080);
 
     // Convert canvas to blob
     const blob = await new Promise<Blob>((resolve) => {
