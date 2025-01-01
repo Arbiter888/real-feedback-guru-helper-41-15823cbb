@@ -89,7 +89,7 @@ export const GeneratedReward = ({
       {/* Single Email Signup Section */}
       <EmailSignup 
         rewardCode={rewardCode}
-        tipRewardCode={tipRewardCode}
+        reviewRewardAmount={reviewRewardAmount}
         totalRewardValue={totalRewardValue}
       />
 

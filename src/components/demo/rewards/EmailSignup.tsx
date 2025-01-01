@@ -9,13 +9,15 @@ interface EmailSignupProps {
   customGoogleMapsUrl?: string;
   customRestaurantName?: string;
   reviewRewardAmount?: number;
+  totalRewardValue: number;
 }
 
 export const EmailSignup = ({ 
   rewardCode,
   customGoogleMapsUrl,
   customRestaurantName,
-  reviewRewardAmount = 10
+  reviewRewardAmount = 10,
+  totalRewardValue
 }: EmailSignupProps) => {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -118,6 +120,7 @@ export const EmailSignup = ({
       setEmail={setEmail}
       onSubmit={handleEmailSignup}
       isLoading={isLoading}
+      totalRewardValue={totalRewardValue}
     />
   );
 };
