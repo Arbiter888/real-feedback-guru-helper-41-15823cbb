@@ -3,9 +3,23 @@ import { corsHeaders } from "../_shared/cors.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
-serve(async (req) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
+interface EmailRequest {
+  email: string;
+  tipAmount?: number;
+  tipReward?: number;
+  tipRewardCode?: string;
+  reviewRewardCode?: string;
+  restaurantInfo?: {
+    restaurantName: string;
+    websiteUrl?: string;
+    facebookUrl?: string;
+    instagramUrl?: string;
+    phoneNumber?: string;
+  };
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
@@ -14,55 +28,76 @@ serve(async (req) => {
       email, 
       tipAmount, 
       tipReward, 
-      reviewRewardCode, 
-      serverName,
+      tipRewardCode,
       restaurantInfo 
-    } = await req.json();
+    }: EmailRequest = await req.json();
 
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #E94E87; text-align: center;">Welcome to EatUP! Rewards! 🎉</h1>
-        
-        <div style="margin: 30px 0; padding: 20px; background: #FFF5F8; border-radius: 10px;">
-          <h2 style="color: #333; margin-bottom: 20px;">Your Rewards:</h2>
-          
-          ${tipAmount ? `
-            <div style="margin-bottom: 25px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #FFD5E2;">
-              <h3 style="color: #E94E87; margin-top: 0;">Tip Reward for ${serverName}</h3>
-              <p>Thank you for your £${tipAmount} tip!</p>
-              <p style="font-size: 18px; font-weight: bold;">Your Reward: £${tipReward.toFixed(2)}</p>
-              <div style="background: #F8F8F8; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                <p style="margin: 0; font-family: monospace; font-size: 16px; color: #E94E87;">TIP${tipAmount}BACK</p>
-              </div>
-              <p style="font-size: 12px; color: #666; margin-top: 10px;">Valid for 30 days</p>
-            </div>
-          ` : ''}
-          
-          ${reviewRewardCode ? `
-            <div style="margin-bottom: 25px; padding: 15px; background: white; border-radius: 8px; border: 1px solid #FFD5E2;">
-              <h3 style="color: #E94E87; margin-top: 0;">Review Completion Reward</h3>
-              <p>Thank you for sharing your experience!</p>
-              <div style="background: #F8F8F8; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                <p style="margin: 0; font-family: monospace; font-size: 16px; color: #E94E87;">${reviewRewardCode}</p>
-              </div>
-              <p style="font-size: 12px; color: #666; margin-top: 10px;">Valid for 30 days</p>
-            </div>
-          ` : ''}
+    // Calculate expiration date (30 days from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+    const formattedExpirationDate = expirationDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
 
-          ${restaurantInfo ? `
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #FFD5E2;">
-              <h3 style="color: #333;">Connect With Us</h3>
-              ${restaurantInfo.websiteUrl ? `<p><strong>Website:</strong> <a href="${restaurantInfo.websiteUrl}" style="color: #E94E87;">${restaurantInfo.websiteUrl}</a></p>` : ''}
-              ${restaurantInfo.facebookUrl ? `<p><strong>Facebook:</strong> <a href="${restaurantInfo.facebookUrl}" style="color: #E94E87;">Follow us on Facebook</a></p>` : ''}
-              ${restaurantInfo.instagramUrl ? `<p><strong>Instagram:</strong> <a href="${restaurantInfo.instagramUrl}" style="color: #E94E87;">Follow us on Instagram</a></p>` : ''}
-              ${restaurantInfo.phoneNumber ? `<p><strong>Phone:</strong> ${restaurantInfo.phoneNumber}</p>` : ''}
-            </div>
-          ` : ''}
-        </div>
+    const socialLinks = [];
+    if (restaurantInfo?.websiteUrl) {
+      socialLinks.push(`<a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px;">Visit our Website</a>`);
+    }
+    if (restaurantInfo?.facebookUrl) {
+      socialLinks.push(`<a href="${restaurantInfo.facebookUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px;">Follow us on Facebook</a>`);
+    }
+    if (restaurantInfo?.instagramUrl) {
+      socialLinks.push(`<a href="${restaurantInfo.instagramUrl}" style="color: #E94E87; text-decoration: none;">Follow us on Instagram</a>`);
+    }
+
+    const htmlContent = `
+      <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #E94E87; font-size: 24px; margin-bottom: 20px; text-align: center;">
+          Thank You for Your Generous Tip! 🎉
+        </h1>
         
-        <p style="text-align: center; color: #666;">
-          Show these codes on your next visit to redeem your rewards!
+        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
+          We appreciate your generosity! As a thank you, we'd love to give you a special reward for your next visit.
         </p>
+
+        <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+            Your Next Visit Surprise Reward 🎁
+          </h2>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+            <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+              ${tipRewardCode}
+            </p>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+              Valid until ${formattedExpirationDate}
+            </p>
+          </div>
+
+          <p style="color: #333; font-size: 16px; text-align: center; margin-top: 20px;">
+            That's <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
+          </p>
+        </div>
+
+        ${restaurantInfo ? `
+          <div style="margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
+            <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">Stay Connected</h3>
+            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+              Follow us for more exclusive offers and updates!
+            </p>
+            <div style="margin-bottom: 20px;">
+              ${socialLinks.join(' • ')}
+            </div>
+            ${restaurantInfo.phoneNumber ? `
+              <p style="color: #666; font-size: 14px;">
+                To make a reservation, call us at: <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none;">${restaurantInfo.phoneNumber}</a>
+              </p>
+            ` : ''}
+          </div>
+        ` : ''}
       </div>
     `;
 
@@ -75,8 +110,8 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "EatUP! Rewards <rewards@eatup.co>",
         to: [email],
-        subject: "Your EatUP! Rewards Are Here! 🎁",
-        html: emailHtml,
+        subject: `Your Special Reward is Here! 🎁`,
+        html: htmlContent,
       }),
     });
 
@@ -90,7 +125,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending rewards email:", error);
     return new Response(
       JSON.stringify({ error: error.message }),
@@ -101,3 +136,5 @@ serve(async (req) => {
     );
   }
 });
+
+serve(handler);
