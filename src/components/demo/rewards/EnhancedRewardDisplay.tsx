@@ -114,7 +114,7 @@ export const EnhancedRewardDisplay = ({
             </li>
             <li className="flex items-center gap-2 text-sm text-muted-foreground">
               <Gift className="h-4 w-4" />
-              Receive £{totalReward.toFixed(2)} in rewards and exclusive weekly offers
+              Save £{discountPercentage}% today plus get £{creditAmount.toFixed(2)} for your next visit
             </li>
           </ul>
 
