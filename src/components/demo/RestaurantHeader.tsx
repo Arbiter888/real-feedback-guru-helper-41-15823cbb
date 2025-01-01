@@ -18,10 +18,11 @@ export const RestaurantHeader = ({ name, isCustomDemo = false }: RestaurantHeade
           Join {name}'s EatUP! Rewards
         </h1>
         <div className="text-muted-foreground text-center max-w-lg space-y-4">
-          <p className="font-medium text-lg">Get rewarded twice:</p>
+          <p className="font-medium text-lg">Get rewarded three ways:</p>
           <ol className="space-y-2 list-decimal list-inside">
-            <li>Earn instant credit back on your tips</li>
-            <li>Receive special rewards for your reviews</li>
+            <li>Get 10% off your bill today when you share your experience</li>
+            <li>Earn 50% credit back on your tips for your next visit</li>
+            <li>Receive a personalized welcome voucher when you join</li>
           </ol>
           <p className="text-sm italic">
             Plus unlock exclusive weekly offers when you join our mailing list!
@@ -46,7 +47,7 @@ export const RestaurantHeader = ({ name, isCustomDemo = false }: RestaurantHeade
           Turn Tips & Reviews into Customer Loyalty
         </h2>
         <p className="text-sm md:text-base text-muted-foreground max-w-lg">
-          See how EatUP! helps you reward great service, collect reviews, and build your mailing list with our innovative dual-rewards system that keeps customers coming back.
+          See how EatUP! helps you reward great service, collect reviews, and build your mailing list with our innovative triple-rewards system that keeps customers coming back.
         </p>
       </div>
     </div>
