@@ -1,1 +1,4 @@
 project_id = "xygmqhxlnwjrgxvbzcyb"
+
+[functions.generate-qr-code]
+verify_jwt = false
