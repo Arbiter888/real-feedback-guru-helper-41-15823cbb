@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, Send, TestTube2 } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AiPromptSection } from "./AiPromptSection";
 import { VoucherSection } from "./VoucherSection";
@@ -10,9 +10,9 @@ import { EmailPreview } from "./EmailPreview";
 import { ImageUploadSection } from "./ImageUploadSection";
 import { SavedCampaignsList } from "./SavedCampaignsList";
 import { SaveCampaignDialog } from "./SaveCampaignDialog";
-import { supabase } from "@/integrations/supabase/client";
-import { formatEmailContent } from "./EmailContentFormatter";
+import { TestEmailSection } from "./components/TestEmailSection";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
@@ -34,8 +34,14 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [emailContent, setEmailContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [testEmail, setTestEmail] = useState("");
-  const [isSendingTest, setIsSendingTest] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<Array<{
+    url: string;
+    title: string;
+    added: boolean;
+    isFooter?: boolean;
+  }>>([]);
+  const [footerHtml, setFooterHtml] = useState("");
+  const [voucherHtml, setVoucherHtml] = useState("");
 
   // Get the default email list for the restaurant
   const { data: emailList } = useQuery({
@@ -83,45 +89,6 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
       });
     } finally {
       setIsSending(false);
-    }
-  };
-
-  const handleSendTest = async () => {
-    if (!testEmail || !emailSubject.trim() || !emailContent.trim()) {
-      toast({
-        title: "Missing information",
-        description: "Please provide test email address, subject, and content.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSendingTest(true);
-    try {
-      const response = await supabase.functions.invoke("send-test-email", {
-        body: {
-          to: testEmail,
-          subject: emailSubject,
-          htmlContent: emailContent,
-          restaurantInfo,
-        },
-      });
-
-      if (response.error) throw new Error(response.error.message);
-
-      toast({
-        title: "Test email sent",
-        description: `Test email sent to ${testEmail}`,
-      });
-    } catch (error) {
-      console.error('Test email error:', error);
-      toast({
-        title: "Failed to send test email",
-        description: "There was an error sending the test email.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSendingTest(false);
     }
   };
 
@@ -173,10 +140,13 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           setEmailContent={setEmailContent}
         />
 
-        <ImageUploadSection />
+        <ImageUploadSection 
+          uploadedImages={uploadedImages}
+          setUploadedImages={setUploadedImages}
+        />
       </div>
 
-      <VoucherSection />
+      <VoucherSection setVoucherHtml={setVoucherHtml} />
 
       <div className="flex gap-4 items-center">
         <Button
@@ -197,31 +167,12 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           )}
         </Button>
         
-        <div className="flex gap-2 items-center flex-1">
-          <Input
-            type="email"
-            placeholder="Test email address"
-            value={testEmail}
-            onChange={(e) => setTestEmail(e.target.value)}
-          />
-          <Button
-            variant="outline"
-            onClick={handleSendTest}
-            disabled={isSendingTest || !testEmail || !emailContent.trim() || !emailSubject.trim()}
-          >
-            {isSendingTest ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              <>
-                <TestTube2 className="mr-2 h-4 w-4" />
-                Test
-              </>
-            )}
-          </Button>
-        </div>
+        <TestEmailSection 
+          emailSubject={emailSubject}
+          emailContent={emailContent}
+          restaurantInfo={restaurantInfo}
+          disabled={disabled}
+        />
 
         <Button
           variant="outline"
@@ -246,6 +197,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
             bookingUrl: "",
             googleMapsUrl: "",
           }}
+          footerHtml={footerHtml}
         />
       )}
     </div>
