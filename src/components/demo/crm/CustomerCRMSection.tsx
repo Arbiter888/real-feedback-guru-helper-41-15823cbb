@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { CustomerList } from "./CustomerList";
 import { EmailPreviewCard } from "../email/EmailPreviewCard";
 import { Customer, CustomerMetadata } from "@/types/customer";
@@ -27,6 +30,7 @@ interface CustomerCRMSectionProps {
 export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [generatedEmail, setGeneratedEmail] = useState<any>(null);
+  const [isOpen, setIsOpen] = useState(true);
   const { toast } = useToast();
 
   const { data: customers, isLoading } = useQuery({
@@ -98,26 +102,37 @@ export const CustomerCRMSection = ({ restaurantInfo }: CustomerCRMSectionProps) 
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
+    <Card>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="p-6 flex justify-between items-center">
           <div className="space-y-1">
             <h2 className="text-2xl font-semibold">Customer Database</h2>
             <p className="text-sm text-muted-foreground">
               View customer history and generate personalized thank you emails
             </p>
           </div>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm">
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
         </div>
 
-        <CustomerList
-          customers={customers || []}
-          isLoading={isLoading}
-          onSelectCustomer={setSelectedCustomerId}
-          selectedCustomerId={selectedCustomerId}
-          onGenerateFollowUp={handleGenerateFollowUp}
-          restaurantInfo={restaurantInfo}
-        />
-      </div>
+        <CollapsibleContent className="px-6 pb-6">
+          <CustomerList
+            customers={customers || []}
+            isLoading={isLoading}
+            onSelectCustomer={setSelectedCustomerId}
+            selectedCustomerId={selectedCustomerId}
+            onGenerateFollowUp={handleGenerateFollowUp}
+            restaurantInfo={restaurantInfo}
+          />
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };
