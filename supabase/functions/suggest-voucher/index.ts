@@ -49,9 +49,22 @@ serve(async (req) => {
       return acc;
     }, {}) || {};
 
-    // Enhanced context-aware prompt
+    // Standard restaurant reward types
+    const standardRewards = [
+      {
+        type: "percentage_discount",
+        values: ["10%", "15%", "20%", "25%"],
+        descriptions: ["off your entire bill", "off your next visit", "off your next meal"]
+      },
+      {
+        type: "free_item",
+        items: ["appetizer", "dessert", "drink"],
+        conditions: ["with any main course", "with purchase over £20", "when dining with a friend"]
+      }
+    ];
+
     const prompt = `
-      As a restaurant marketing expert, create a personalized voucher based on this detailed context:
+      As a restaurant marketing expert, create a standard reward voucher based on this context:
 
       Restaurant Information:
       ${JSON.stringify(restaurantInfo || {}, null, 2)}
@@ -59,35 +72,34 @@ serve(async (req) => {
       Customer Context:
       - Name: ${customerName || 'Customer'}
       - Review: ${reviewText || 'Not provided'}
-      - Refined Review: ${refinedReview || 'Not provided'}
       - Receipt Data: ${JSON.stringify(receiptData || {})}
-
-      Menu Information:
-      ${JSON.stringify(menuData || {})}
-      Category Averages: ${JSON.stringify(categoryAverages)}
 
       Email Campaign Context:
       ${emailContent ? `Campaign Content: ${emailContent}` : 'No campaign context provided'}
 
-      Create a voucher that:
-      1. Aligns perfectly with the restaurant's cuisine type and brand
-      2. References specific menu items or categories they might enjoy
-      3. Considers their spending patterns from receipt data
-      4. Creates an incentive for trying signature dishes
-      5. Has a clear value proposition based on menu prices
-      6. Uses language and terms specific to the cuisine type
-      7. Encourages exploration of different menu sections
-      8. Maintains cultural authenticity in the offer
+      Create a voucher using ONLY these standard types of rewards:
+      1. Percentage discounts (10%, 15%, 20%, or 25% off)
+      2. Free appetizer with main course
+      3. Free dessert with main course
+      4. Free drink with meal
+      5. Buy one get one free offers
+
+      The voucher should:
+      1. Use standard restaurant reward formats
+      2. Be easy to understand and redeem
+      3. Have clear terms and conditions
+      4. Be applicable to any restaurant type
+      5. Focus on common menu categories (appetizers, mains, desserts, drinks)
 
       Return a JSON object with:
       {
-        "title": "catchy, cuisine-appropriate voucher title",
-        "description": "detailed description mentioning specific dishes or categories",
+        "title": "clear, standard reward title",
+        "description": "simple description with clear terms",
         "validDays": number of days valid (integer),
-        "discountValue": "specific discount amount or percentage"
+        "discountValue": "standard discount (%, free item, or BOGO)"
       }
 
-      Ensure the title and description reflect the restaurant's actual cuisine and style.
+      Ensure the offer is restaurant-agnostic and uses standard reward formats only.
     `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -101,7 +113,7 @@ serve(async (req) => {
         messages: [
           { 
             role: 'system', 
-            content: 'You are a marketing expert specializing in restaurant loyalty programs with deep knowledge of various cuisines. Always respond with valid JSON only.' 
+            content: 'You are a marketing expert specializing in standard restaurant rewards and loyalty programs. Always respond with valid JSON only using common reward types.' 
           },
           { 
             role: 'user', 
@@ -121,7 +133,6 @@ serve(async (req) => {
     const data = await response.json();
     const suggestionText = data.choices[0].message.content;
     
-    // Parse the suggestion, ensuring it's valid JSON
     let suggestion;
     try {
       // Remove any markdown formatting if present
