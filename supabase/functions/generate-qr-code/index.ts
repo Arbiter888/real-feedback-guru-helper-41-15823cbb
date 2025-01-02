@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import QRCode from "npm:qrcode";
-import { createCanvas, loadImage } from "npm:canvas";
+import { createCanvas } from "npm:canvas";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,15 +31,7 @@ serve(async (req) => {
       throw new Error("URL is required");
     }
 
-    // Create canvas for the complete image
-    const canvas = createCanvas(1000, 1200);
-    const ctx = canvas.getContext("2d");
-
-    // Set white background
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Generate QR code
+    // Generate QR code as data URL
     const qrCodeDataUrl = await QRCode.toDataURL(url, {
       width: 800,
       margin: 2,
@@ -50,34 +42,10 @@ serve(async (req) => {
       errorCorrectionLevel: 'H'
     });
 
-    // Load and draw QR code
-    const qrCode = await loadImage(qrCodeDataUrl);
-    const qrSize = 800;
-    const qrX = (canvas.width - qrSize) / 2;
-    const qrY = 200;
-    
-    // Draw pink border around QR code
-    ctx.strokeStyle = "#E94E87";
-    ctx.lineWidth = 4;
-    ctx.strokeRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
-    
-    // Draw QR code
-    ctx.drawImage(qrCode, qrX, qrY, qrSize, qrSize);
-
-    // Add text below QR code
-    ctx.font = "bold 48px Arial";
-    ctx.fillStyle = "#221F26";
-    ctx.textAlign = "center";
-    ctx.fillText("Get Rewarded for", canvas.width / 2, qrY + qrSize + 60);
-    ctx.fillText("Tips & Reviews", canvas.width / 2, qrY + qrSize + 120);
-
-    // Convert canvas to data URL
-    const finalDataUrl = canvas.toDataURL("image/png");
-
     console.log('QR code generated successfully');
 
     return new Response(
-      JSON.stringify({ qrCodeUrl: finalDataUrl }),
+      JSON.stringify({ qrCodeUrl: qrCodeDataUrl }),
       {
         headers: {
           ...corsHeaders,
