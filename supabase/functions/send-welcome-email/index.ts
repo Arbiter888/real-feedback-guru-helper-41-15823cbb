@@ -93,17 +93,29 @@ const handler = async (req: Request): Promise<Response> => {
       contactInfo.push(`<p style="margin: 8px 0;"><a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none;">📍 Find us on Google Maps</a></p>`);
     }
 
+    // Calculate expiration date (30 days from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+    const formattedExpirationDate = expirationDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+
     const htmlContent = `
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #E94E87; font-size: 24px; margin-bottom: 20px;">Welcome to EatUP! 🎉</h1>
+        <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">
+          Welcome to EatUP!, ${firstName}! 🎉
+        </h1>
         
-        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Hi ${firstName}, thank you for joining EatUP! through ${restaurantInfo.restaurantName}. We hope you enjoyed your dining experience and the 10% discount on today's bill!
+        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
+          Thanks for dining with us at ${restaurantInfo.restaurantName}! We hope you enjoyed your 10% discount today.
+          We've prepared some additional rewards for your next visit!
         </p>
 
         ${tipRewardCode ? `
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Next Visit Tip Reward 💝</h2>
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Next Visit Tip Reward 🎁</h2>
           <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
             Thanks for your generous £${tipAmount?.toFixed(2)} tip! Here's your £${tipReward?.toFixed(2)} reward for your next visit:
           </p>
@@ -111,7 +123,7 @@ const handler = async (req: Request): Promise<Response> => {
             ${tipRewardCode}
           </p>
           <p style="color: #666; font-size: 14px; font-style: italic;">
-            Present this code on your next visit to redeem your reward
+            Valid until ${formattedExpirationDate}
           </p>
         </div>
         ` : ''}
@@ -123,6 +135,9 @@ const handler = async (req: Request): Promise<Response> => {
           </p>
           <p style="background: white; padding: 12px; border-radius: 6px; font-size: 24px; text-align: center; font-weight: bold; color: #E94E87; margin: 15px 0;">
             ${mysteryVoucherCode}
+          </p>
+          <p style="color: #666; font-size: 14px; font-style: italic;">
+            Valid until ${formattedExpirationDate}
           </p>
         </div>
 
@@ -138,16 +153,6 @@ const handler = async (req: Request): Promise<Response> => {
             ${referralUrl}
           </p>
         </div>
-
-        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          As an EatUP! member, you'll receive:
-          <ul style="color: #333; font-size: 16px; line-height: 1.6;">
-            <li>Exclusive offers from ${restaurantInfo.restaurantName}</li>
-            <li>Special birthday rewards</li>
-            <li>Early access to seasonal menus</li>
-            <li>VIP event invitations</li>
-          </ul>
-        </p>
 
         <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
           <div style="margin-bottom: 20px;">
