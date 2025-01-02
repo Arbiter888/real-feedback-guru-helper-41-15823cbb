@@ -1,12 +1,11 @@
-import { useState } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useState } from "react";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { SocialMediaSection } from "./SocialMediaSection";
 import { ServerManagementSection } from "./ServerManagementSection";
 import { RewardSettingsSection } from "./RewardSettingsSection";
-import { Button } from "@/components/ui/button";
-import { RestaurantContactCard } from "../RestaurantContactCard";
 
 interface RestaurantInfoCollapsibleProps {
   restaurantName: string;
@@ -44,79 +43,57 @@ export const RestaurantInfoCollapsible = ({
   const [isOpen, setIsOpen] = useState(true);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Restaurant Information</h2>
-        <CollapsibleTrigger asChild>
-          <Button variant="ghost" size="sm">
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        </CollapsibleTrigger>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="bg-white rounded-xl shadow-lg">
+      <div className="p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Restaurant Information</h2>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="icon">
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
       </div>
 
       <CollapsibleContent>
-        <div className="space-y-8">
-          <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-sm">
-            <BasicInfoSection
-              restaurantName={restaurantName}
-              googleMapsUrl={googleMapsUrl}
-              contactEmail={contactEmail}
-              onInfoChange={onInfoChange}
-              showSuccess={showSuccess}
-            />
+        <div className="p-6 space-y-6">
+          <BasicInfoSection
+            restaurantName={restaurantName}
+            googleMapsUrl={googleMapsUrl}
+            contactEmail={contactEmail}
+            onInfoChange={onInfoChange}
+            showSuccess={showSuccess}
+          />
 
-            <SocialMediaSection
-              websiteUrl={websiteUrl}
-              facebookUrl={facebookUrl}
-              instagramUrl={instagramUrl}
-              onInfoChange={onInfoChange}
-            />
+          <SocialMediaSection
+            websiteUrl={websiteUrl}
+            facebookUrl={facebookUrl}
+            instagramUrl={instagramUrl}
+            onInfoChange={onInfoChange}
+          />
 
-            <RewardSettingsSection
-              reviewRewardAmount={reviewRewardAmount}
-              tipRewardPercentage={tipRewardPercentage}
-              onInfoChange={onInfoChange}
-            />
+          <ServerManagementSection
+            serverNames={serverNames}
+            onServerNamesChange={onServerNamesChange}
+          />
 
-            <ServerManagementSection
-              serverNames={serverNames}
-              onServerNamesChange={onServerNamesChange}
-            />
+          <RewardSettingsSection
+            reviewRewardAmount={reviewRewardAmount}
+            tipRewardPercentage={tipRewardPercentage}
+            onInfoChange={onInfoChange}
+          />
 
-            <Button 
-              onClick={onSave}
-              disabled={isSaving}
-              className={`w-full transition-all duration-300 ${
-                showSuccess 
-                  ? "bg-green-500 hover:bg-green-600" 
-                  : "bg-primary hover:bg-primary/90"
-              }`}
-            >
-              {showSuccess ? (
-                <>
-                  ✓ Saved Successfully!
-                </>
-              ) : isSaving ? (
-                "Saving..."
-              ) : (
-                "Save Demo Preferences"
-              )}
-            </Button>
-          </div>
-
-          {restaurantName && (
-            <RestaurantContactCard
-              name={restaurantName}
-              websiteUrl={websiteUrl}
-              facebookUrl={facebookUrl}
-              instagramUrl={instagramUrl}
-              googleMapsUrl={googleMapsUrl}
-            />
-          )}
+          <Button 
+            onClick={onSave}
+            className="w-full"
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving..." : "Save Restaurant Information"}
+          </Button>
         </div>
       </CollapsibleContent>
     </Collapsible>
