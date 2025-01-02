@@ -8,12 +8,14 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     const { url, options } = await req.json();
+    console.log('Generating QR code for URL:', url);
 
     if (!url) {
       throw new Error("URL is required");
@@ -28,7 +30,7 @@ serve(async (req) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Load and draw EatUP! logo
-    const logo = await loadImage("/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png");
+    const logo = await loadImage("https://xygmqhxlnwjrgxvbzcyb.supabase.co/storage/v1/object/public/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png");
     const logoWidth = 400;
     const logoHeight = (logo.height / logo.width) * logoWidth;
     ctx.drawImage(logo, (canvas.width - logoWidth) / 2, 50, logoWidth, logoHeight);
@@ -67,6 +69,8 @@ serve(async (req) => {
 
     // Convert canvas to data URL
     const finalDataUrl = canvas.toDataURL("image/png");
+
+    console.log('QR code generated successfully');
 
     return new Response(
       JSON.stringify({ qrCodeUrl: finalDataUrl }),
