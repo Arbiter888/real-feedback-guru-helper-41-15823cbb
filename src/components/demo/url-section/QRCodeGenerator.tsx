@@ -24,7 +24,9 @@ export const QRCodeGenerator = ({ url, onQRGenerated }: QRCodeGeneratorProps) =>
   const generateQRCode = async () => {
     try {
       setIsGenerating(true);
-      const generatedQrCodeUrl = await generateAndUploadQRCode(url);
+      // Generate a referral URL that includes the restaurant context
+      const referralUrl = `${window.location.origin}/referral?restaurant=${encodeURIComponent(url)}`;
+      const generatedQrCodeUrl = await generateAndUploadQRCode(referralUrl);
       setQrCodeUrl(generatedQrCodeUrl);
       onQRGenerated(generatedQrCodeUrl);
       setQrGenerated(true);
