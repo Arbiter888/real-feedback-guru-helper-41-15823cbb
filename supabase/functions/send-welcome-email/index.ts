@@ -71,8 +71,14 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (referralError) throw referralError;
 
-    // Generate mystery voucher code
-    const mysteryVoucherCode = `MYSTERY-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    // Calculate expiration date (30 days from now)
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + 30);
+    const formattedExpirationDate = expirationDate.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
 
     const socialLinks = [];
     if (restaurantInfo.websiteUrl) {
@@ -95,40 +101,56 @@ const handler = async (req: Request): Promise<Response> => {
 
     const htmlContent = `
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #E94E87; font-size: 24px; margin-bottom: 20px;">Welcome to EatUP! 🎉</h1>
+        <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">
+          Welcome to EatUP!, ${firstName}! 🎉
+        </h1>
         
-        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Hi ${firstName}, thank you for joining EatUP! through ${restaurantInfo.restaurantName}. We hope you enjoyed your dining experience and the 10% discount on today's bill!
+        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
+          Thank you for joining EatUP! We've prepared your rewards for both today and your next visit.
         </p>
 
-        ${tipRewardCode ? `
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Next Visit Tip Reward 💝</h2>
-          <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
-            Thanks for your generous £${tipAmount?.toFixed(2)} tip! Here's your £${tipReward?.toFixed(2)} reward for your next visit:
-          </p>
-          <p style="background: white; padding: 12px; border-radius: 6px; font-size: 24px; text-align: center; font-weight: bold; color: #E94E87; margin: 15px 0;">
-            ${tipRewardCode}
-          </p>
-          <p style="color: #666; font-size: 14px; font-style: italic;">
-            Present this code on your next visit to redeem your reward
-          </p>
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+            Your Review Reward for Next Visit ⭐
+          </h2>
+          
+          <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+            <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+            <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+              ${rewardCode}
+            </p>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+              Get 10% off your next meal!<br>
+              Valid until ${formattedExpirationDate}
+            </p>
+          </div>
         </div>
+
+        ${tipRewardCode ? `
+          <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+            <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+              Your Additional Tip Credit 🎁
+            </h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code along with your review reward:</p>
+              <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+                ${tipRewardCode}
+              </p>
+              <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                Valid until ${formattedExpirationDate}
+              </p>
+            </div>
+
+            <p style="color: #333; font-size: 16px; text-align: center; margin-top: 20px;">
+              That's an additional <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
+            </p>
+          </div>
         ` : ''}
 
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Mystery Reward 🎁</h2>
-          <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
-            We've got a special surprise waiting for you on your next visit! Show this code to unlock your mystery reward:
-          </p>
-          <p style="background: white; padding: 12px; border-radius: 6px; font-size: 24px; text-align: center; font-weight: bold; color: #E94E87; margin: 15px 0;">
-            ${mysteryVoucherCode}
-          </p>
-        </div>
-
-        <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Share with Friends & Earn More! 🤝</h2>
-          <p style="color: #333; font-size: 16px; margin-bottom: 20px;">
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">Share with Friends & Earn More! 🤝</h2>
+          <p style="color: #333; font-size: 16px; margin-bottom: 20px; text-align: center;">
             Share your personal referral link with friends and they'll get a special welcome reward when they join!
           </p>
           <div style="text-align: center; margin: 20px 0;">
@@ -139,23 +161,19 @@ const handler = async (req: Request): Promise<Response> => {
           </p>
         </div>
 
-        <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          As an EatUP! member, you'll receive:
-          <ul style="color: #333; font-size: 16px; line-height: 1.6;">
-            <li>Exclusive offers from ${restaurantInfo.restaurantName}</li>
-            <li>Special birthday rewards</li>
-            <li>Early access to seasonal menus</li>
-            <li>VIP event invitations</li>
-          </ul>
-        </p>
-
-        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+        <div style="margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px solid #eee;">
+          <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">Stay Connected</h3>
+          <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+            Follow us for more exclusive offers and updates!
+          </p>
           <div style="margin-bottom: 20px;">
-            ${contactInfo.join('\n')}
+            ${socialLinks.join(' • ')}
           </div>
-          <div style="margin-top: 16px;">
-            ${socialLinks.join('\n')}
-          </div>
+          ${restaurantInfo?.phoneNumber ? `
+            <p style="color: #666; font-size: 14px;">
+              To make a reservation, call us at: <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none;">${restaurantInfo.phoneNumber}</a>
+            </p>
+          ` : ''}
         </div>
       </div>
     `;
