@@ -12,10 +12,16 @@ serve(async (req) => {
   }
 
   try {
-    const { reviewText, refinedReview, receiptData, customerName } = await req.json();
+    const { reviewText, refinedReview, receiptData, customerName, restaurantInfo, emailContent } = await req.json();
 
-    // Log the received data for debugging
-    console.log('Received data:', { reviewText, refinedReview, receiptData, customerName });
+    console.log('Received data:', { 
+      reviewText, 
+      refinedReview, 
+      receiptData, 
+      customerName,
+      restaurantInfo,
+      emailContent 
+    });
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -43,31 +49,45 @@ serve(async (req) => {
       return acc;
     }, {}) || {};
 
-    // Prepare the prompt with proper JSON stringification
+    // Enhanced context-aware prompt
     const prompt = `
-      Based on the following information, suggest a personalized voucher:
+      As a restaurant marketing expert, create a personalized voucher based on this detailed context:
 
-      Customer Review: ${reviewText || 'Not provided'}
-      Refined Review: ${refinedReview || 'Not provided'}
-      Receipt Data: ${JSON.stringify(receiptData || {})}
-      Customer Name: ${customerName || 'Customer'}
-      Menu Data: ${JSON.stringify(menuData || {})}
+      Restaurant Information:
+      ${JSON.stringify(restaurantInfo || {}, null, 2)}
+
+      Customer Context:
+      - Name: ${customerName || 'Customer'}
+      - Review: ${reviewText || 'Not provided'}
+      - Refined Review: ${refinedReview || 'Not provided'}
+      - Receipt Data: ${JSON.stringify(receiptData || {})}
+
+      Menu Information:
+      ${JSON.stringify(menuData || {})}
       Category Averages: ${JSON.stringify(categoryAverages)}
 
-      Generate a voucher that:
-      1. References specific menu items or categories they might enjoy
-      2. Considers their spending patterns
-      3. Creates an incentive for trying new menu items
-      4. Has a clear value proposition based on menu prices
-      5. Encourages exploration of different menu sections
+      Email Campaign Context:
+      ${emailContent ? `Campaign Content: ${emailContent}` : 'No campaign context provided'}
+
+      Create a voucher that:
+      1. Aligns perfectly with the restaurant's cuisine type and brand
+      2. References specific menu items or categories they might enjoy
+      3. Considers their spending patterns from receipt data
+      4. Creates an incentive for trying signature dishes
+      5. Has a clear value proposition based on menu prices
+      6. Uses language and terms specific to the cuisine type
+      7. Encourages exploration of different menu sections
+      8. Maintains cultural authenticity in the offer
 
       Return a JSON object with:
       {
-        "title": "catchy voucher title",
-        "description": "detailed description",
+        "title": "catchy, cuisine-appropriate voucher title",
+        "description": "detailed description mentioning specific dishes or categories",
         "validDays": number of days valid (integer),
         "discountValue": "specific discount amount or percentage"
       }
+
+      Ensure the title and description reflect the restaurant's actual cuisine and style.
     `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -77,11 +97,11 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           { 
             role: 'system', 
-            content: 'You are a marketing expert specializing in restaurant loyalty programs. Always respond with valid JSON only.' 
+            content: 'You are a marketing expert specializing in restaurant loyalty programs with deep knowledge of various cuisines. Always respond with valid JSON only.' 
           },
           { 
             role: 'user', 
@@ -107,6 +127,9 @@ serve(async (req) => {
       // Remove any markdown formatting if present
       const cleanJson = suggestionText.replace(/```json\n?|\n?```/g, '').trim();
       suggestion = JSON.parse(cleanJson);
+
+      // Log the final suggestion for debugging
+      console.log('Generated suggestion:', suggestion);
     } catch (error) {
       console.error('Error parsing OpenAI response:', error);
       console.log('Raw response:', suggestionText);
