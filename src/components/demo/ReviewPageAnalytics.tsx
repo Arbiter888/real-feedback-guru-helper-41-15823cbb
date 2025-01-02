@@ -8,6 +8,9 @@ import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { Database } from "@/integrations/supabase/types";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { AnalyticsHeader } from "./analytics/AnalyticsHeader";
 
 type ReviewFromDB = Database['public']['Tables']['reviews']['Row'];
 
@@ -91,6 +94,7 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
   const [analytics, setAnalytics] = useState<AnalyticsData>(defaultAnalytics);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -202,23 +206,31 @@ export const ReviewPageAnalytics = ({ reviewPageId }: { reviewPageId: string }) 
   }
 
   return (
-    <Card className="p-6">
-      <h2 className="text-xl font-semibold mb-6">Review Page Analytics</h2>
-      
-      <MetricsOverview analytics={analytics} />
+    <Card>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger asChild>
+          <Button variant="ghost" className="w-full p-6">
+            <AnalyticsHeader isOpen={isOpen} />
+          </Button>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent className="px-6 pb-6">
+          <MetricsOverview analytics={analytics} />
 
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-4">Review Details</h3>
-        <ReviewsTable reviews={reviews} />
-      </div>
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4">Review Details</h3>
+            <ReviewsTable reviews={reviews} />
+          </div>
 
-      <AnalyticsChart analytics={analytics} />
+          <AnalyticsChart analytics={analytics} />
 
-      {analytics.last_viewed_at && (
-        <p className="text-sm text-gray-500 mt-4">
-          Last viewed: {new Date(analytics.last_viewed_at).toLocaleDateString()}
-        </p>
-      )}
+          {analytics.last_viewed_at && (
+            <p className="text-sm text-gray-500 mt-4">
+              Last viewed: {new Date(analytics.last_viewed_at).toLocaleDateString()}
+            </p>
+          )}
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 };
