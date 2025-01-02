@@ -71,6 +71,9 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (referralError) throw referralError;
 
+    // Generate mystery voucher code
+    const mysteryVoucherCode = `MYSTERY-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+
     const socialLinks = [];
     if (restaurantInfo.websiteUrl) {
       socialLinks.push(`<a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px;">Visit our Website</a>`);
@@ -95,17 +98,8 @@ const handler = async (req: Request): Promise<Response> => {
         <h1 style="color: #E94E87; font-size: 24px; margin-bottom: 20px;">Welcome to EatUP! 🎉</h1>
         
         <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
-          Hi ${firstName}, thank you for joining EatUP! through ${restaurantInfo.restaurantName}. We're excited to have you as part of our rewards program!
+          Hi ${firstName}, thank you for joining EatUP! through ${restaurantInfo.restaurantName}. We hope you enjoyed your dining experience and the 10% discount on today's bill!
         </p>
-
-        ${rewardCode ? `
-        <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Review Reward Has Been Redeemed ✅</h2>
-          <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
-            Thank you for sharing your dining experience with us! Your review reward code (${rewardCode}) has been redeemed and applied to your bill.
-          </p>
-        </div>
-        ` : ''}
 
         ${tipRewardCode ? `
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
@@ -121,6 +115,16 @@ const handler = async (req: Request): Promise<Response> => {
           </p>
         </div>
         ` : ''}
+
+        <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Mystery Reward 🎁</h2>
+          <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
+            We've got a special surprise waiting for you on your next visit! Show this code to unlock your mystery reward:
+          </p>
+          <p style="background: white; padding: 12px; border-radius: 6px; font-size: 24px; text-align: center; font-weight: bold; color: #E94E87; margin: 15px 0;">
+            ${mysteryVoucherCode}
+          </p>
+        </div>
 
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
           <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Share with Friends & Earn More! 🤝</h2>
