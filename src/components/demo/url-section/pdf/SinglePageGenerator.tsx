@@ -4,6 +4,7 @@ import { loadImage } from "@/utils/pdfUtils";
 interface SinglePageGeneratorProps {
   doc: jsPDF;
   qrCodeUrl: string;
+  url: string; // Added missing url property
   restaurantName: string;
   reviewRewardAmount: number;
   tipRewardPercentage: number;
@@ -12,6 +13,7 @@ interface SinglePageGeneratorProps {
 export const generateSinglePage = async ({
   doc,
   qrCodeUrl,
+  url,
   restaurantName,
   reviewRewardAmount,
   tipRewardPercentage,
