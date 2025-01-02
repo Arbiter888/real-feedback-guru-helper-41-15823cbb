@@ -1,5 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { createContext, useContext, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/integrations/supabase/client'
 
@@ -18,9 +18,17 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null)
+  // Create a mock user for development
+  const mockUser: User = {
+    id: 'mock-user-id',
+    app_metadata: {},
+    user_metadata: {},
+    aud: 'authenticated',
+    created_at: new Date().toISOString(),
+  }
+
+  const [user, setUser] = useState<User | null>(mockUser)
   const navigate = useNavigate()
-  const location = useLocation()
 
   const signOut = async () => {
     try {
@@ -31,44 +39,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Error signing out:', error);
     }
   };
-
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (session?.user) {
-          setUser(session.user);
-        } else {
-          // For demo purposes, sign in anonymously
-          const { data: { user: anonUser }, error } = await supabase.auth.signInWithPassword({
-            email: 'demo@example.com',
-            password: 'demo-password'
-          });
-
-          if (!error && anonUser) {
-            setUser(anonUser);
-          }
-        }
-      }
-    );
-
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-      }
-    });
-
-    // If on login page, redirect to dashboard
-    if (location.pathname === '/auth/login') {
-      navigate('/dashboard');
-    }
-
-    // Cleanup subscription
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, location.pathname]);
 
   return (
     <AuthContext.Provider value={{ user, signOut }}>
