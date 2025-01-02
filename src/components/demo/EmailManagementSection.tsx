@@ -2,6 +2,10 @@ import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { EmailCompositionForm } from "./email/EmailCompositionForm";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -21,6 +25,7 @@ interface EmailManagementSectionProps {
 
 export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectionProps) => {
   const { toast } = useToast();
+  const [isOpen, setIsOpen] = useState(true);
 
   const sendEmailMutation = useMutation({
     mutationFn: async (params: { subject: string; content: string }) => {
@@ -102,13 +107,26 @@ export const EmailManagementSection = ({ restaurantInfo }: EmailManagementSectio
   return (
     <div className="space-y-8">
       {/* Email Composition Section */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-xl font-semibold mb-6">Send Email Campaign</h2>
-        <EmailCompositionForm
-          onSend={handleSendEmail}
-          restaurantInfo={restaurantInfo}
-        />
-      </div>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen} className="bg-white rounded-xl shadow-lg">
+        <div className="p-6 flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Send Email Campaign</h2>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm">
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+        <CollapsibleContent className="px-6 pb-6">
+          <EmailCompositionForm
+            onSend={handleSendEmail}
+            restaurantInfo={restaurantInfo}
+          />
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 };
