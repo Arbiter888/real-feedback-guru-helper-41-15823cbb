@@ -1,4 +1,4 @@
-import { Gift } from "lucide-react";
+import { Gift, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { EmailSignup } from "./EmailSignup";
@@ -31,6 +31,7 @@ export const GeneratedReward = ({
 
   return (
     <div className="space-y-6">
+      {/* Total Value Display */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -43,14 +44,18 @@ export const GeneratedReward = ({
         </Card>
       </motion.div>
 
-      <EmailSignup 
-        rewardCode={rewardCode}
-        tipAmount={tipAmount}
-        tipRewardCode={tipRewardCode}
-        tipRewardAmount={tipRewardAmount}
-        totalRewardValue={totalRewardValue}
-      />
+      {/* Email Signup */}
+      <Card className="p-6">
+        <EmailSignup 
+          rewardCode={rewardCode}
+          tipAmount={tipAmount}
+          tipRewardCode={tipRewardCode}
+          tipRewardAmount={tipRewardAmount}
+          totalRewardValue={totalRewardValue}
+        />
+      </Card>
 
+      {/* Referral Signup */}
       {reviewId && restaurantName && reviewText && (
         <Card className="p-6">
           <ReferralSignupForm

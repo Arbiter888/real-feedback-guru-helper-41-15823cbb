@@ -88,7 +88,7 @@ export const EmailSignup = ({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="mt-6 space-y-6"
+      className="mt-6 p-6 bg-gradient-to-br from-pink-50/50 via-white to-pink-50/50 rounded-xl border border-pink-100"
     >
       {!isSignedUp ? (
         <div className="space-y-6">
@@ -100,46 +100,69 @@ export const EmailSignup = ({
           </div>
 
           <div className="space-y-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Enter your first name"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                className="pl-10 h-12"
-                disabled={isLoading}
-              />
-              <Gift className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            </div>
-            <div className="relative">
-              <Input
-                type="email"
-                placeholder="Enter your email to unlock rewards"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 h-12"
-                disabled={isLoading}
-              />
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
+              <h4 className="font-medium text-lg mb-2">Unlock Your Rewards:</h4>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Lock className="w-5 h-5 text-primary" />
+                  <span>10% off today's bill</span>
+                  <span className="text-sm text-primary ml-1">(Unlock now)</span>
+                </li>
+                {tipRewardAmount && tipRewardCode && (
+                  <li className="flex items-center gap-2 text-gray-700">
+                    <Lock className="w-5 h-5 text-primary" />
+                    <span>£{tipRewardAmount.toFixed(2)} tip credit next time</span>
+                  </li>
+                )}
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Lock className="w-5 h-5 text-primary" />
+                  <span>Mystery reward for your next visit</span>
+                </li>
+              </ul>
             </div>
 
-            <Button 
-              onClick={handleEmailSignup}
-              disabled={isLoading || !email || !firstName}
-              className="w-full h-12 bg-pink-300 hover:bg-pink-400"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                  <span>Processing...</span>
-                </>
-              ) : (
-                <>
-                  <Gift className="h-5 w-5 mr-2" />
-                  <span>Unlock Your Rewards</span>
-                </>
-              )}
-            </Button>
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Enter your first name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="pl-10 h-12"
+                  disabled={isLoading}
+                />
+                <Gift className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+              <div className="relative">
+                <Input
+                  type="email"
+                  placeholder="Enter your email to unlock rewards"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-12"
+                  disabled={isLoading}
+                />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+
+              <Button 
+                onClick={handleEmailSignup}
+                disabled={isLoading || !email || !firstName}
+                className="w-full h-12 bg-pink-300 hover:bg-pink-400"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Gift className="h-5 w-5 mr-2" />
+                    <span>Unlock Your Rewards</span>
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       ) : (
@@ -151,11 +174,11 @@ export const EmailSignup = ({
             </h3>
           </div>
 
-          <div className="bg-green-50 p-6 rounded-lg border border-green-100">
+          <div className="bg-green-50 p-4 rounded-lg border border-green-100">
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-gray-700">
                 <Check className="w-5 h-5 text-green-500" />
-                <span>Take {totalRewardValue}% off the current bill</span>
+                <span>10% off your current bill</span>
               </li>
               {tipAmount && (
                 <li className="flex items-center gap-2 text-gray-700">
