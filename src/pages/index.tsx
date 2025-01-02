@@ -34,8 +34,8 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      <div className="flex-grow">
+    <main className="min-h-screen bg-white">
+      <div className="w-full">
         <DemoHeroSection onSurveyDemo={handleSurveyDemoClick} />
 
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
@@ -54,7 +54,7 @@ const Page = () => {
       </div>
       <AiSurveyWidget show={showWidget} />
       <Footer />
-    </div>
+    </main>
   );
 };
 
