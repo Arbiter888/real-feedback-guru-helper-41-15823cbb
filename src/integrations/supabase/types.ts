@@ -473,33 +473,48 @@ export type Database = {
       }
       referral_codes: {
         Row: {
+          active: boolean | null
           code: string
           created_at: string
+          expires_at: string | null
           id: string
+          qr_code_url: string | null
+          referral_url: string | null
           referrer_email: string
           referrer_name: string
+          restaurant_info: Json | null
           restaurant_name: string
           review_id: string | null
           total_referrals: number | null
           total_rewards: number | null
         }
         Insert: {
+          active?: boolean | null
           code: string
           created_at?: string
+          expires_at?: string | null
           id?: string
+          qr_code_url?: string | null
+          referral_url?: string | null
           referrer_email: string
           referrer_name: string
+          restaurant_info?: Json | null
           restaurant_name: string
           review_id?: string | null
           total_referrals?: number | null
           total_rewards?: number | null
         }
         Update: {
+          active?: boolean | null
           code?: string
           created_at?: string
+          expires_at?: string | null
           id?: string
+          qr_code_url?: string | null
+          referral_url?: string | null
           referrer_email?: string
           referrer_name?: string
+          restaurant_info?: Json | null
           restaurant_name?: string
           review_id?: string | null
           total_referrals?: number | null
