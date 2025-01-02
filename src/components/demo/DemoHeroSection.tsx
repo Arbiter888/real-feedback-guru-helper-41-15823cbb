@@ -6,9 +6,10 @@ import { ComingSoonSection } from "./sections/ComingSoonSection";
 interface DemoHeroSectionProps {
   onSurveyDemo: () => void;
   onBookingDemo: () => void;
+  onTakeoutDemo: () => void;
 }
 
-export const DemoHeroSection = ({ onSurveyDemo, onBookingDemo }: DemoHeroSectionProps) => {
+export const DemoHeroSection = ({ onSurveyDemo, onBookingDemo, onTakeoutDemo }: DemoHeroSectionProps) => {
   return (
     <section className="relative py-12 md:py-20">
       <div className="absolute inset-0 overflow-hidden">
@@ -67,7 +68,11 @@ export const DemoHeroSection = ({ onSurveyDemo, onBookingDemo }: DemoHeroSection
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
         >
-          <ComingSoonSection onSurveyDemo={onSurveyDemo} onBookingDemo={onBookingDemo} />
+          <ComingSoonSection 
+            onSurveyDemo={onSurveyDemo} 
+            onBookingDemo={onBookingDemo}
+            onTakeoutDemo={onTakeoutDemo}
+          />
         </motion.div>
       </div>
     </section>

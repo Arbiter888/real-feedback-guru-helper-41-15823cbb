@@ -1,12 +1,13 @@
-import { Bot, MessageSquare, Bike } from "lucide-react";
+import { Bot, MessageSquare, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ComingSoonSectionProps {
   onSurveyDemo: () => void;
   onBookingDemo: () => void;
+  onTakeoutDemo: () => void;
 }
 
-export const ComingSoonSection = ({ onSurveyDemo, onBookingDemo }: ComingSoonSectionProps) => {
+export const ComingSoonSection = ({ onSurveyDemo, onBookingDemo, onTakeoutDemo }: ComingSoonSectionProps) => {
   return (
     <div className="max-w-4xl mx-auto mb-8 md:mb-12">
       <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 bg-gradient-to-r from-[#8B5CF6] via-[#D946EF] to-[#1EAEDB] text-transparent bg-clip-text">
@@ -59,12 +60,19 @@ export const ComingSoonSection = ({ onSurveyDemo, onBookingDemo }: ComingSoonSec
             Coming Soon
           </div>
           <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
-            <Bike className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
+            <Phone className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
           </div>
-          <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Direct Deliver</h3>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Offer delivery services without the high fees using our network of trusted drivers or your own team, all managed through WhatsApp. Build direct relationships with your customers while keeping delivery costs low and maintaining control over the delivery experience.
+          <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">AI Delivery Agent</h3>
+          <p className="text-sm md:text-base text-muted-foreground mb-4">
+            Our AI agent handles takeout and delivery orders 24/7, managing your delivery operations through our network of drivers or your own team. Perfect for restaurants looking to offer delivery without the high fees of third-party platforms.
           </p>
+          <Button
+            onClick={onTakeoutDemo}
+            className="w-full bg-[#E94E87] hover:bg-[#E94E87]/90 text-white"
+          >
+            Try Takeout Call Demo
+            <Phone className="ml-2 h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { ReviewSection } from "@/components/demo/ReviewSection";
 import { useState, useEffect } from "react";
 import { AiSurveyWidget } from "@/components/demo/AiSurveyWidget";
 import { AiBookingWidget } from "@/components/demo/AiBookingWidget";
+import { AiTakeoutWidget } from "@/components/demo/AiTakeoutWidget";
 import { Footer } from "@/components/Footer";
 import { ReviewPageCreationSection } from "@/components/demo/ReviewPageCreationSection";
 import { DemoHeroSection } from "@/components/demo/DemoHeroSection";
@@ -10,6 +11,7 @@ import { DemoHeroSection } from "@/components/demo/DemoHeroSection";
 const Page = () => {
   const [showSurveyWidget, setShowSurveyWidget] = useState(false);
   const [showBookingWidget, setShowBookingWidget] = useState(false);
+  const [showTakeoutWidget, setShowTakeoutWidget] = useState(false);
   const [preferences, setPreferences] = useState<{
     restaurantName: string | null;
     googleMapsUrl: string | null;
@@ -34,11 +36,19 @@ const Page = () => {
   const handleSurveyDemoClick = () => {
     setShowSurveyWidget(!showSurveyWidget);
     setShowBookingWidget(false);
+    setShowTakeoutWidget(false);
   };
 
   const handleBookingDemoClick = () => {
     setShowBookingWidget(!showBookingWidget);
     setShowSurveyWidget(false);
+    setShowTakeoutWidget(false);
+  };
+
+  const handleTakeoutDemoClick = () => {
+    setShowTakeoutWidget(!showTakeoutWidget);
+    setShowSurveyWidget(false);
+    setShowBookingWidget(false);
   };
 
   return (
@@ -47,6 +57,7 @@ const Page = () => {
         <DemoHeroSection 
           onSurveyDemo={handleSurveyDemoClick}
           onBookingDemo={handleBookingDemoClick}
+          onTakeoutDemo={handleTakeoutDemoClick}
         />
 
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
@@ -65,6 +76,7 @@ const Page = () => {
       </div>
       <AiSurveyWidget show={showSurveyWidget} />
       <AiBookingWidget show={showBookingWidget} />
+      <AiTakeoutWidget show={showTakeoutWidget} />
       <Footer />
     </div>
   );
