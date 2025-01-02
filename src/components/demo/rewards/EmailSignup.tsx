@@ -92,13 +92,6 @@ export const EmailSignup = ({
     >
       {!isSignedUp ? (
         <div className="space-y-6">
-          <div className="flex items-center justify-center gap-3">
-            <Gift className="h-8 w-8 text-primary" />
-            <h3 className="text-xl font-semibold text-gray-900">
-              Join EatUP! Rewards
-            </h3>
-          </div>
-
           <div className="space-y-4">
             <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
               <h4 className="font-medium text-lg mb-2">Unlock Your Rewards:</h4>
@@ -178,7 +171,7 @@ export const EmailSignup = ({
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-gray-700">
                 <Check className="w-5 h-5 text-green-500" />
-                <span>10% off your current bill</span>
+                <span>Take 10% off your current bill</span>
               </li>
               {tipAmount && (
                 <li className="flex items-center gap-2 text-gray-700">
