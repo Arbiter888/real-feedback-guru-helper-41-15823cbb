@@ -33,19 +33,41 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // For demo purposes, we'll simulate a logged-in user
-    const demoUser = {
-      id: 'demo-user',
-      email: 'demo@example.com',
-      role: 'authenticated',
-    } as User;
-    
-    setUser(demoUser);
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setUser(session.user);
+        } else {
+          // For demo purposes, sign in anonymously
+          const { data: { user: anonUser }, error } = await supabase.auth.signInWithPassword({
+            email: 'demo@example.com',
+            password: 'demo-password'
+          });
+
+          if (!error && anonUser) {
+            setUser(anonUser);
+          }
+        }
+      }
+    );
+
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+      }
+    });
 
     // If on login page, redirect to dashboard
     if (location.pathname === '/auth/login') {
       navigate('/dashboard');
     }
+
+    // Cleanup subscription
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, location.pathname]);
 
   return (
