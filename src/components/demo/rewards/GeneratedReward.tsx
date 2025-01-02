@@ -2,6 +2,7 @@ import { Gift, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { EmailSignup } from "./EmailSignup";
+import { ReferralSignupForm } from "./ReferralSignupForm";
 
 interface GeneratedRewardProps {
   rewardCode: string | null;
@@ -9,6 +10,9 @@ interface GeneratedRewardProps {
   tipRewardCode?: string;
   tipAmount?: number;
   tipRewardAmount?: number;
+  reviewId?: string;
+  restaurantName?: string;
+  reviewText?: string;
 }
 
 export const GeneratedReward = ({ 
@@ -16,7 +20,10 @@ export const GeneratedReward = ({
   reviewRewardAmount = 10,
   tipRewardCode,
   tipAmount,
-  tipRewardAmount
+  tipRewardAmount,
+  reviewId,
+  restaurantName,
+  reviewText
 }: GeneratedRewardProps) => {
   if (!rewardCode && !tipRewardCode) return null;
 
@@ -66,6 +73,17 @@ export const GeneratedReward = ({
           totalRewardValue={totalRewardValue}
         />
       </Card>
+
+      {/* Referral Signup */}
+      {reviewId && restaurantName && reviewText && (
+        <Card className="p-6">
+          <ReferralSignupForm
+            reviewId={reviewId}
+            restaurantName={restaurantName}
+            reviewText={reviewText}
+          />
+        </Card>
+      )}
     </div>
   );
 };

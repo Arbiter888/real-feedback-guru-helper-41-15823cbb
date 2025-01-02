@@ -471,6 +471,139 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          referrer_email: string
+          referrer_name: string
+          restaurant_name: string
+          review_id: string | null
+          total_referrals: number | null
+          total_rewards: number | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          referrer_email: string
+          referrer_name: string
+          restaurant_name: string
+          review_id?: string | null
+          total_referrals?: number | null
+          total_rewards?: number | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          referrer_email?: string
+          referrer_name?: string
+          restaurant_name?: string
+          review_id?: string | null
+          total_referrals?: number | null
+          total_rewards?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_codes_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_rewards: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          id: string
+          referral_code_id: string
+          referral_signup_id: string
+          reward_amount: number
+          reward_code: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code_id: string
+          referral_signup_id: string
+          reward_amount: number
+          reward_code: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code_id?: string
+          referral_signup_id?: string
+          reward_amount?: number
+          reward_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_rewards_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referral_rewards_referral_signup_id_fkey"
+            columns: ["referral_signup_id"]
+            isOneToOne: false
+            referencedRelation: "referral_signups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referral_signups: {
+        Row: {
+          id: string
+          referee_email: string
+          referee_name: string
+          referral_code_id: string
+          signup_date: string
+          status: string | null
+          visit_date: string | null
+          voucher_claimed_at: string | null
+          voucher_code: string | null
+        }
+        Insert: {
+          id?: string
+          referee_email: string
+          referee_name: string
+          referral_code_id: string
+          signup_date?: string
+          status?: string | null
+          visit_date?: string | null
+          voucher_claimed_at?: string | null
+          voucher_code?: string | null
+        }
+        Update: {
+          id?: string
+          referee_email?: string
+          referee_name?: string
+          referral_code_id?: string
+          signup_date?: string
+          status?: string | null
+          visit_date?: string | null
+          voucher_claimed_at?: string | null
+          voucher_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_signups_referral_code_id_fkey"
+            columns: ["referral_code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       restaurant_menu_versions: {
         Row: {
           analysis: Json | null
