@@ -2,14 +2,12 @@ import { RestaurantHeader } from "@/components/demo/RestaurantHeader";
 import { ReviewSection } from "@/components/demo/ReviewSection";
 import { useState, useEffect } from "react";
 import { AiSurveyWidget } from "@/components/demo/AiSurveyWidget";
-import { AiBookingWidget } from "@/components/demo/AiBookingWidget";
 import { Footer } from "@/components/Footer";
 import { ReviewPageCreationSection } from "@/components/demo/ReviewPageCreationSection";
 import { DemoHeroSection } from "@/components/demo/DemoHeroSection";
 
 const Page = () => {
-  const [showSurveyWidget, setShowSurveyWidget] = useState(false);
-  const [showBookingWidget, setShowBookingWidget] = useState(false);
+  const [showWidget, setShowWidget] = useState(false);
   const [preferences, setPreferences] = useState<{
     restaurantName: string | null;
     googleMapsUrl: string | null;
@@ -32,22 +30,13 @@ const Page = () => {
   }, []);
 
   const handleSurveyDemoClick = () => {
-    setShowSurveyWidget(!showSurveyWidget);
-    setShowBookingWidget(false);
-  };
-
-  const handleBookingDemoClick = () => {
-    setShowBookingWidget(!showBookingWidget);
-    setShowSurveyWidget(false);
+    setShowWidget(!showWidget);
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <div className="flex-grow">
-        <DemoHeroSection 
-          onSurveyDemo={handleSurveyDemoClick}
-          onBookingDemo={handleBookingDemoClick}
-        />
+        <DemoHeroSection onSurveyDemo={handleSurveyDemoClick} />
 
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
           <RestaurantHeader 
@@ -63,8 +52,7 @@ const Page = () => {
           </div>
         </div>
       </div>
-      <AiSurveyWidget show={showSurveyWidget} />
-      <AiBookingWidget show={showBookingWidget} />
+      <AiSurveyWidget show={showWidget} />
       <Footer />
     </div>
   );
