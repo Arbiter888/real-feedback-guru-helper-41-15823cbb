@@ -100,22 +100,24 @@ const handler = async (req: Request): Promise<Response> => {
 
         ${rewardCode ? `
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Review Reward 🎁</h2>
-          <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Show this code on your next visit:</p>
-          <p style="background: white; padding: 12px; border-radius: 6px; font-size: 24px; text-align: center; font-weight: bold; color: #E94E87; margin: 15px 0;">
-            ${rewardCode}
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Review Reward Has Been Redeemed ✅</h2>
+          <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
+            Thank you for sharing your dining experience with us! Your review reward code (${rewardCode}) has been redeemed and applied to your bill.
           </p>
         </div>
         ` : ''}
 
         ${tipRewardCode ? `
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
-          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Tip Reward 💝</h2>
+          <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px;">Your Next Visit Tip Reward 💝</h2>
           <p style="color: #333; font-size: 16px; margin-bottom: 10px;">
-            Thanks for your £${tipAmount?.toFixed(2)} tip! Here's your £${tipReward?.toFixed(2)} reward code:
+            Thanks for your generous £${tipAmount?.toFixed(2)} tip! Here's your £${tipReward?.toFixed(2)} reward for your next visit:
           </p>
           <p style="background: white; padding: 12px; border-radius: 6px; font-size: 24px; text-align: center; font-weight: bold; color: #E94E87; margin: 15px 0;">
             ${tipRewardCode}
+          </p>
+          <p style="color: #666; font-size: 14px; font-style: italic;">
+            Present this code on your next visit to redeem your reward
           </p>
         </div>
         ` : ''}
