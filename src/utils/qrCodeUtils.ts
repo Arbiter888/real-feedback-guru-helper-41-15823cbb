@@ -4,20 +4,9 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
   try {
     console.log('Generating QR code for content:', content);
     
-    // Call the Edge Function to generate QR code with custom styling
+    // Call the Edge Function to generate QR code
     const { data, error } = await supabase.functions.invoke("generate-qr-code", {
-      body: { 
-        url: content,
-        options: {
-          width: 800,
-          margin: 2,
-          color: {
-            dark: "#000000",
-            light: "#FFFFFF",
-          },
-          errorCorrectionLevel: 'H'
-        }
-      }
+      body: { url: content }
     });
 
     if (error) {

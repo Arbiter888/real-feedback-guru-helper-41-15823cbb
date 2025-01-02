@@ -1,5 +1,6 @@
 {
   "imports": {
+    "https://deno.land/std@0.168.0/http/server.ts": "https://deno.land/std@0.168.0/http/server.ts",
     "qrcode": "npm:qrcode@1.5.3",
     "canvas": "npm:canvas@2.11.2"
   }
