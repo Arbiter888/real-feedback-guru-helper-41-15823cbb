@@ -1,25 +1,14 @@
 import { motion } from "framer-motion";
-import { Bot, Star, Gift, MessageSquare, LogIn } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { DemoHeader } from "./sections/DemoHeader";
+import { FeatureCards } from "./sections/FeatureCards";
+import { ComingSoonSection } from "./sections/ComingSoonSection";
 
 interface DemoHeroSectionProps {
   onSurveyDemo: () => void;
+  onBookingDemo: () => void;
 }
 
-export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-
-  const handleAuthClick = () => {
-    if (user) {
-      navigate("/dashboard");
-    } else {
-      navigate("/auth/login");
-    }
-  };
-
+export const DemoHeroSection = ({ onSurveyDemo, onBookingDemo }: DemoHeroSectionProps) => {
   return (
     <section className="relative py-12 md:py-20">
       <div className="absolute inset-0 overflow-hidden">
@@ -32,19 +21,7 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 text-center relative">
-        <div className="flex justify-end mb-4">
-          <Button 
-            onClick={handleAuthClick} 
-            className="bg-gradient-to-r from-[#8B5CF6] to-[#D946EF] hover:from-[#7C4DEF] hover:to-[#C935DE] text-white shadow-lg transition-all duration-300 hover:shadow-xl"
-          >
-            Demo Dashboard
-            {user ? (
-              <MessageSquare className="ml-2 h-4 w-4" />
-            ) : (
-              <LogIn className="ml-2 h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        <DemoHeader />
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -81,59 +58,16 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 max-w-4xl mx-auto mb-8 md:mb-12 px-2"
         >
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg">
-            <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
-              <Star className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
-            </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Smart Tip Rewards</h3>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Recognize and reward your servers while building customer loyalty through our innovative tip-based rewards system
-            </p>
-          </div>
-          
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg">
-            <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
-              <Gift className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
-            </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Dual Rewards System</h3>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Double the engagement with rewards for both generous tipping and detailed reviews, creating a win-win for staff and customers
-            </p>
-          </div>
-          
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg">
-            <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
-              <MessageSquare className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
-            </div>
-            <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Automated Email Marketing</h3>
-            <p className="text-sm md:text-base text-muted-foreground">
-              Seamlessly collect customer emails and automate personalized marketing campaigns to keep them coming back
-            </p>
-          </div>
+          <FeatureCards />
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-lg max-w-2xl mx-auto mb-8 md:mb-12"
         >
-          <div className="flex items-center justify-center gap-2 md:gap-3 mb-4 md:mb-6">
-            <Bot className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
-            <h2 className="text-xl md:text-2xl font-bold">Try Our AI Survey Demo</h2>
-          </div>
-          <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
-            Experience how our AI helps collect detailed customer feedback while suggesting personalized rewards based on their preferences and dining history.
-          </p>
-          <Button
-            onClick={onSurveyDemo}
-            className="bg-[#E94E87] hover:bg-[#E94E87]/90 text-white font-semibold w-full md:w-auto"
-          >
-            Start AI Survey Demo
-            <Bot className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-          </Button>
+          <ComingSoonSection onSurveyDemo={onSurveyDemo} onBookingDemo={onBookingDemo} />
         </motion.div>
       </div>
     </section>
