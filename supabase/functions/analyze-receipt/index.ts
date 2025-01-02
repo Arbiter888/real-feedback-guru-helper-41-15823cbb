@@ -79,29 +79,43 @@ Do not include any additional text, explanation, or markdown formatting. Only re
       const content = data.choices[0].message.content;
       console.log('Raw content from OpenAI:', content);
       
-      // Clean the content by removing any markdown formatting
-      const cleanContent = content.replace(/```json\n?|\n?```/g, '').trim();
+      // Clean the content by removing any markdown formatting and extra whitespace
+      const cleanContent = content
+        .replace(/```json\n?|\n?```/g, '')
+        .replace(/^\s+|\s+$/g, '');
       console.log('Cleaned content:', cleanContent);
       
       // Try to parse the cleaned content as JSON
-      analysis = JSON.parse(cleanContent);
+      try {
+        analysis = JSON.parse(cleanContent);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Content that failed to parse:', cleanContent);
+        throw new Error(`Failed to parse OpenAI response as JSON: ${parseError.message}`);
+      }
 
       // Validate the required fields
-      if (typeof analysis.total_amount !== 'number' || !Array.isArray(analysis.items)) {
-        console.error('Invalid analysis format:', analysis);
-        throw new Error('Response missing required fields');
+      if (typeof analysis.total_amount !== 'number') {
+        throw new Error('Invalid total_amount: must be a number');
+      }
+      
+      if (!Array.isArray(analysis.items)) {
+        throw new Error('Invalid items: must be an array');
       }
 
       // Validate each item in the items array
       analysis.items.forEach((item: any, index: number) => {
-        if (typeof item.name !== 'string' || typeof item.price !== 'number') {
-          throw new Error(`Invalid item format at index ${index}`);
+        if (typeof item.name !== 'string') {
+          throw new Error(`Invalid item name at index ${index}: must be a string`);
+        }
+        if (typeof item.price !== 'number') {
+          throw new Error(`Invalid item price at index ${index}: must be a number`);
         }
       });
 
-    } catch (parseError) {
-      console.error('Error parsing OpenAI response:', parseError);
-      throw new Error(`Failed to parse OpenAI response: ${parseError.message}`);
+    } catch (error) {
+      console.error('Error processing OpenAI response:', error);
+      throw new Error(`Failed to process OpenAI response: ${error.message}`);
     }
 
     return new Response(
