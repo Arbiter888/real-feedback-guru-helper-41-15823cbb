@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Check } from "lucide-react";
-import { BasicInfoSection } from "./restaurant/BasicInfoSection";
-import { SocialMediaSection } from "./restaurant/SocialMediaSection";
-import { ServerManagementSection } from "./restaurant/ServerManagementSection";
-import { RewardSettingsSection } from "./restaurant/RewardSettingsSection";
-import { RestaurantContactCard } from "./RestaurantContactCard";
+import { RestaurantInfoCollapsible } from "./restaurant/RestaurantInfoCollapsible";
 
 interface RestaurantInfoProps {
   onRestaurantInfoSaved: (name: string, url: string, email: string, serverNames: string[], reviewRewardAmount: number, tipRewardPercentage: number) => void;
@@ -146,65 +140,21 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
   };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-sm">
-        <BasicInfoSection
-          restaurantName={restaurantName}
-          googleMapsUrl={googleMapsUrl}
-          contactEmail={contactEmail}
-          onInfoChange={handleInfoChange}
-          showSuccess={showSuccess}
-        />
-
-        <SocialMediaSection
-          websiteUrl={websiteUrl}
-          facebookUrl={facebookUrl}
-          instagramUrl={instagramUrl}
-          onInfoChange={handleInfoChange}
-        />
-
-        <RewardSettingsSection
-          reviewRewardAmount={reviewRewardAmount}
-          tipRewardPercentage={tipRewardPercentage}
-          onInfoChange={handleInfoChange}
-        />
-
-        <ServerManagementSection
-          serverNames={serverNames}
-          onServerNamesChange={handleServerNamesChange}
-        />
-
-        <Button 
-          onClick={handleSavePreferences}
-          disabled={isSaving}
-          className={`w-full transition-all duration-300 ${
-            showSuccess 
-              ? "bg-green-500 hover:bg-green-600" 
-              : "bg-primary hover:bg-primary/90"
-          }`}
-        >
-          {showSuccess ? (
-            <>
-              <Check className="mr-2 h-4 w-4" />
-              Saved Successfully!
-            </>
-          ) : isSaving ? (
-            "Saving..."
-          ) : (
-            "Save Demo Preferences"
-          )}
-        </Button>
-      </div>
-
-      {restaurantName && (
-        <RestaurantContactCard
-          name={restaurantName}
-          websiteUrl={websiteUrl}
-          facebookUrl={facebookUrl}
-          instagramUrl={instagramUrl}
-          googleMapsUrl={googleMapsUrl}
-        />
-      )}
-    </div>
+    <RestaurantInfoCollapsible
+      restaurantName={restaurantName}
+      googleMapsUrl={googleMapsUrl}
+      contactEmail={contactEmail}
+      websiteUrl={websiteUrl}
+      facebookUrl={facebookUrl}
+      instagramUrl={instagramUrl}
+      serverNames={serverNames}
+      reviewRewardAmount={reviewRewardAmount}
+      tipRewardPercentage={tipRewardPercentage}
+      showSuccess={showSuccess}
+      isSaving={isSaving}
+      onInfoChange={handleInfoChange}
+      onServerNamesChange={handleServerNamesChange}
+      onSave={handleSavePreferences}
+    />
   );
 };
