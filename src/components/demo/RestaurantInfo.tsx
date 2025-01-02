@@ -2,24 +2,17 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Check } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import { BasicInfoSection } from "./restaurant/BasicInfoSection";
 import { SocialMediaSection } from "./restaurant/SocialMediaSection";
 import { ServerManagementSection } from "./restaurant/ServerManagementSection";
 import { RewardSettingsSection } from "./restaurant/RewardSettingsSection";
 import { RestaurantContactCard } from "./RestaurantContactCard";
-import { CollapsibleHeader } from "./restaurant/CollapsibleHeader";
 
 interface RestaurantInfoProps {
   onRestaurantInfoSaved: (name: string, url: string, email: string, serverNames: string[], reviewRewardAmount: number, tipRewardPercentage: number) => void;
 }
 
 export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) => {
-  const [isOpen, setIsOpen] = useState(true);
   const [restaurantName, setRestaurantName] = useState("");
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -46,7 +39,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       setServerNames(parsedInfo.serverNames || []);
       setReviewRewardAmount(parsedInfo.reviewRewardAmount || 10);
       setTipRewardPercentage(parsedInfo.tipRewardPercentage || 50);
-      setIsOpen(false); // Close the section if we have saved info
       onRestaurantInfoSaved(
         parsedInfo.restaurantName, 
         parsedInfo.googleMapsUrl, 
@@ -133,7 +125,6 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
       onRestaurantInfoSaved(restaurantName, googleMapsUrl, contactEmail, serverNames, reviewRewardAmount, tipRewardPercentage);
       
       setShowSuccess(true);
-      setIsOpen(false); // Close the section after saving
       toast({
         title: "Preferences saved!",
         description: "Your demo has been customized successfully.",
@@ -156,69 +147,54 @@ export const RestaurantInfo = ({ onRestaurantInfoSaved }: RestaurantInfoProps) =
 
   return (
     <div className="space-y-8">
-      <Collapsible
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-sm"
-      >
-        <CollapsibleTrigger className="w-full">
-          <CollapsibleHeader
-            isOpen={isOpen}
-            restaurantName={restaurantName}
-            googleMapsUrl={googleMapsUrl}
-            contactEmail={contactEmail}
-          />
-        </CollapsibleTrigger>
+      <div className="space-y-4 bg-white/80 backdrop-blur-sm p-6 rounded-lg shadow-sm">
+        <BasicInfoSection
+          restaurantName={restaurantName}
+          googleMapsUrl={googleMapsUrl}
+          contactEmail={contactEmail}
+          onInfoChange={handleInfoChange}
+          showSuccess={showSuccess}
+        />
 
-        <CollapsibleContent className="space-y-4">
-          <BasicInfoSection
-            restaurantName={restaurantName}
-            googleMapsUrl={googleMapsUrl}
-            contactEmail={contactEmail}
-            onInfoChange={handleInfoChange}
-            showSuccess={showSuccess}
-          />
+        <SocialMediaSection
+          websiteUrl={websiteUrl}
+          facebookUrl={facebookUrl}
+          instagramUrl={instagramUrl}
+          onInfoChange={handleInfoChange}
+        />
 
-          <SocialMediaSection
-            websiteUrl={websiteUrl}
-            facebookUrl={facebookUrl}
-            instagramUrl={instagramUrl}
-            onInfoChange={handleInfoChange}
-          />
+        <RewardSettingsSection
+          reviewRewardAmount={reviewRewardAmount}
+          tipRewardPercentage={tipRewardPercentage}
+          onInfoChange={handleInfoChange}
+        />
 
-          <RewardSettingsSection
-            reviewRewardAmount={reviewRewardAmount}
-            tipRewardPercentage={tipRewardPercentage}
-            onInfoChange={handleInfoChange}
-          />
+        <ServerManagementSection
+          serverNames={serverNames}
+          onServerNamesChange={handleServerNamesChange}
+        />
 
-          <ServerManagementSection
-            serverNames={serverNames}
-            onServerNamesChange={handleServerNamesChange}
-          />
-
-          <Button 
-            onClick={handleSavePreferences}
-            disabled={isSaving}
-            className={`w-full transition-all duration-300 ${
-              showSuccess 
-                ? "bg-green-500 hover:bg-green-600" 
-                : "bg-primary hover:bg-primary/90"
-            }`}
-          >
-            {showSuccess ? (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Saved Successfully!
-              </>
-            ) : isSaving ? (
-              "Saving..."
-            ) : (
-              "Save Demo Preferences"
-            )}
-          </Button>
-        </CollapsibleContent>
-      </Collapsible>
+        <Button 
+          onClick={handleSavePreferences}
+          disabled={isSaving}
+          className={`w-full transition-all duration-300 ${
+            showSuccess 
+              ? "bg-green-500 hover:bg-green-600" 
+              : "bg-primary hover:bg-primary/90"
+          }`}
+        >
+          {showSuccess ? (
+            <>
+              <Check className="mr-2 h-4 w-4" />
+              Saved Successfully!
+            </>
+          ) : isSaving ? (
+            "Saving..."
+          ) : (
+            "Save Demo Preferences"
+          )}
+        </Button>
+      </div>
 
       {restaurantName && (
         <RestaurantContactCard
