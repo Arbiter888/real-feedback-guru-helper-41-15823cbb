@@ -50,19 +50,6 @@ export const GeneratedReward = ({
         </Card>
       </motion.div>
 
-      {/* Server Instructions */}
-      <Card className="p-4 bg-green-50/50 border-green-100">
-        <div className="space-y-2">
-          <p className="font-medium text-gray-900">Show this to your server:</p>
-          <ul className="list-disc pl-6 space-y-1">
-            <li className="text-gray-700">{reviewRewardAmount}% off your current bill</li>
-            {tipAmount && (
-              <li className="text-gray-700">Add £{tipAmount.toFixed(2)} tip to the final amount</li>
-            )}
-          </ul>
-        </div>
-      </Card>
-
       {/* Email Signup */}
       <Card className="p-6">
         <EmailSignup 
