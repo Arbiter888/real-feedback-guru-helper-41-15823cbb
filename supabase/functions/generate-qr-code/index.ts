@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import QRCode from "npm:qrcode";
+import { createCanvas, loadImage } from "npm:canvas";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -7,31 +8,68 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { url } = await req.json();
+    const { url, options } = await req.json();
 
     if (!url) {
       throw new Error("URL is required");
     }
 
-    // Generate QR code with custom styling
+    // Create canvas for the complete image
+    const canvas = createCanvas(1000, 1200);
+    const ctx = canvas.getContext("2d");
+
+    // Set white background
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Load and draw EatUP! logo
+    const logo = await loadImage("/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png");
+    const logoWidth = 400;
+    const logoHeight = (logo.height / logo.width) * logoWidth;
+    ctx.drawImage(logo, (canvas.width - logoWidth) / 2, 50, logoWidth, logoHeight);
+
+    // Generate QR code
     const qrCodeDataUrl = await QRCode.toDataURL(url, {
+      ...options,
       width: 800,
-      margin: 1,
+      margin: 2,
       color: {
         dark: "#000000",
         light: "#FFFFFF",
       },
-      errorCorrectionLevel: 'H'
     });
 
+    // Load and draw QR code
+    const qrCode = await loadImage(qrCodeDataUrl);
+    const qrSize = 800;
+    const qrX = (canvas.width - qrSize) / 2;
+    const qrY = logoHeight + 100;
+    
+    // Draw pink border around QR code
+    ctx.strokeStyle = "#E94E87";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(qrX - 10, qrY - 10, qrSize + 20, qrSize + 20);
+    
+    // Draw QR code
+    ctx.drawImage(qrCode, qrX, qrY, qrSize, qrSize);
+
+    // Add text below QR code
+    ctx.font = "bold 48px Arial";
+    ctx.fillStyle = "#221F26";
+    ctx.textAlign = "center";
+    ctx.fillText("Get Rewarded for", canvas.width / 2, qrY + qrSize + 60);
+    ctx.fillText("Tips & Reviews", canvas.width / 2, qrY + qrSize + 120);
+
+    // Convert canvas to data URL
+    const finalDataUrl = canvas.toDataURL("image/png");
+
     return new Response(
-      JSON.stringify({ qrCodeUrl: qrCodeDataUrl }),
+      JSON.stringify({ qrCodeUrl: finalDataUrl }),
       {
         headers: {
           ...corsHeaders,
