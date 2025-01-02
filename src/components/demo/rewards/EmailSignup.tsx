@@ -148,7 +148,7 @@ export const EmailSignup = ({
               <Button 
                 onClick={handleEmailSignup}
                 disabled={isLoading || !email || !firstName}
-                className="w-full h-12"
+                className="w-full h-12 bg-pink-300 hover:bg-pink-400"
               >
                 {isLoading ? (
                   <>
