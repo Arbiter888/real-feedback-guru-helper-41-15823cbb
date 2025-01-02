@@ -34,20 +34,22 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <DemoHeroSection onSurveyDemo={handleSurveyDemoClick} />
+    <div className="min-h-screen flex flex-col">
+      <div className="flex-grow">
+        <DemoHeroSection onSurveyDemo={handleSurveyDemoClick} />
 
-      <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
-        <RestaurantHeader 
-          name={preferences.restaurantName || "Demo Restaurant"}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          <ReviewSection />
-          <ReviewPageCreationSection 
-            restaurantName={preferences.restaurantName}
-            googleMapsUrl={preferences.googleMapsUrl}
+        <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+          <RestaurantHeader 
+            name={preferences.restaurantName || "Demo Restaurant"}
           />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+            <ReviewSection />
+            <ReviewPageCreationSection 
+              restaurantName={preferences.restaurantName}
+              googleMapsUrl={preferences.googleMapsUrl}
+            />
+          </div>
         </div>
       </div>
       <AiSurveyWidget show={showWidget} />
