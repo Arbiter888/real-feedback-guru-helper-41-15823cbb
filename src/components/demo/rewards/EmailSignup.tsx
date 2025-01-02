@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Gift, Mail, Check, Lock, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { ReferralSignupForm } from "./ReferralSignupForm";
 
 interface EmailSignupProps {
   rewardCode: string | null;
@@ -123,45 +122,47 @@ export const EmailSignup = ({
 
             <div className="space-y-4">
               <div className="relative">
-                <Input
+                <input
                   type="text"
                   placeholder="Enter your first name"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  className="pl-10 h-12"
+                  className="w-full pl-10 h-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20"
                   disabled={isLoading}
                 />
                 <Gift className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               </div>
               <div className="relative">
-                <Input
+                <input
                   type="email"
                   placeholder="Enter your email to unlock rewards"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 h-12"
+                  className="w-full pl-10 h-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20"
                   disabled={isLoading}
                 />
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               </div>
 
-              <Button 
+              <button 
                 onClick={handleEmailSignup}
                 disabled={isLoading || !email || !firstName}
-                className="w-full h-12 bg-pink-300 hover:bg-pink-400"
+                className="w-full h-12 bg-pink-300 hover:bg-pink-400 text-white rounded-xl text-lg font-semibold 
+                         flex items-center justify-center gap-2 transform transition-all duration-300 
+                         hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    <Loader2 className="h-5 w-5 animate-spin" />
                     <span>Processing...</span>
                   </>
                 ) : (
                   <>
-                    <Gift className="h-5 w-5 mr-2" />
+                    <Gift className="h-5 w-5" />
                     <span>Unlock Your Rewards</span>
                   </>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -192,6 +193,14 @@ export const EmailSignup = ({
           <p className="text-sm text-center text-gray-500">
             Valid for today only
           </p>
+
+          <div className="pt-6 border-t border-gray-200">
+            <ReferralSignupForm
+              reviewId={null}
+              restaurantName={localStorage.getItem('restaurantInfo') ? JSON.parse(localStorage.getItem('restaurantInfo')!).restaurantName : 'Restaurant'}
+              reviewText=""
+            />
+          </div>
         </div>
       )}
     </motion.div>
