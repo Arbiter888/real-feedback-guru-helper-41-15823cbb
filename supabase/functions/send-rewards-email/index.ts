@@ -17,6 +17,8 @@ interface EmailRequest {
     instagramUrl?: string;
     phoneNumber?: string;
   };
+  referralCode?: string;
+  qrCodeUrl?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -32,7 +34,9 @@ const handler = async (req: Request): Promise<Response> => {
       tipReward, 
       tipRewardCode,
       reviewRewardCode,
-      restaurantInfo 
+      restaurantInfo,
+      referralCode,
+      qrCodeUrl
     }: EmailRequest = await req.json();
 
     // Calculate expiration date (30 days from now)
@@ -58,49 +62,64 @@ const handler = async (req: Request): Promise<Response> => {
     const htmlContent = `
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">
-          Welcome to EatUP!, ${firstName}! 🎉
+          Thanks for Your Review, ${firstName}! 🌟
         </h1>
         
         <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
-          Thank you for joining EatUP! We've prepared your rewards for both today and your next visit.
+          We hope you enjoyed your 10% discount today at ${restaurantInfo?.restaurantName || 'our restaurant'}! 
+          Here are your rewards for next time:
         </p>
+
+        ${tipRewardCode ? `
+          <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
+            <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
+              Your Tip Reward Credit 💝
+            </h2>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
+              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+              <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
+                ${tipRewardCode}
+              </p>
+              <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                Get £${tipReward?.toFixed(2)} off your next meal!<br>
+                Valid until ${formattedExpirationDate}
+              </p>
+            </div>
+          </div>
+        ` : ''}
 
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
           <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
-            Your Review Reward for Next Visit ⭐
+            Mystery Reward for Next Visit 🎁
           </h2>
           
           <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
-            <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code on your next visit:</p>
+            <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Show this code to unlock your surprise:</p>
             <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
               ${reviewRewardCode}
             </p>
             <p style="color: #666; font-size: 14px; margin-top: 10px;">
-              Get 10% off your next meal!<br>
               Valid until ${formattedExpirationDate}
             </p>
           </div>
         </div>
 
-        ${tipRewardCode ? `
+        ${qrCodeUrl ? `
           <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
             <h2 style="color: #E94E87; font-size: 20px; margin-bottom: 15px; text-align: center;">
-              Your Additional Tip Credit 🎁
+              Share With Friends & Earn Rewards 🤝
             </h2>
             
-            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; border: 2px dashed #E94E87; margin: 20px 0;">
-              <p style="color: #333; font-size: 16px; margin-bottom: 10px;">Present this code along with your review reward:</p>
-              <p style="background: #FFF5F8; padding: 12px; border-radius: 6px; font-size: 24px; font-weight: bold; color: #E94E87; margin: 15px 0;">
-                ${tipRewardCode}
+            <div style="background: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <img src="${qrCodeUrl}" alt="Your Referral QR Code" style="width: 200px; height: 200px; margin: 0 auto;">
+              <p style="color: #666; font-size: 14px; margin-top: 15px;">
+                Share your personal code: <strong>${referralCode}</strong>
               </p>
               <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                Valid until ${formattedExpirationDate}
+                When friends use your code, you'll both receive special rewards!
               </p>
             </div>
-
-            <p style="color: #333; font-size: 16px; text-align: center; margin-top: 20px;">
-              That's an additional <strong>£${tipReward?.toFixed(2)}</strong> off your next meal!
-            </p>
           </div>
         ` : ''}
 
@@ -121,7 +140,7 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
-    console.log("Sending email to:", email);
+    console.log("Sending rewards email to:", email);
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -131,7 +150,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "EatUP! Rewards <rewards@eatup.co>",
         to: [email],
-        subject: `Welcome to EatUP!, ${firstName}! 🎁`,
+        subject: `Your Rewards Are Ready, ${firstName}! 🎁`,
         html: htmlContent,
       }),
     });
