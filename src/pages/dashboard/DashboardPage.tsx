@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { Home, ChevronDown, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +10,7 @@ import { ReviewPageAnalytics } from "@/components/demo/ReviewPageAnalytics";
 import { CustomerCRMSection } from "@/components/demo/crm/CustomerCRMSection";
 import { RestaurantInfoSection } from "./sections/RestaurantInfoSection";
 import { EmailManagementSection } from "@/components/demo/EmailManagementSection";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface RestaurantInfo {
   restaurantName: string;
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(null);
   const [reviewPageId, setReviewPageId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(true);
   const [restaurantInfo, setRestaurantInfo] = useState<RestaurantInfo>({
     restaurantName: "",
     googleMapsUrl: "",
@@ -88,45 +90,59 @@ export default function DashboardPage() {
           />
           
           {/* Review Page Creation Section */}
-          <div className="bg-white rounded-xl shadow-lg p-6">
-            <div className="text-center py-8">
-              <h2 className="text-2xl font-semibold mb-4">Create Your Review & Rewards Collection Page</h2>
-              <p className="text-muted-foreground mb-6">
-                Generate a professional PDF with QR code for your payment counter. Make it easy for customers to recognize great service and share their experience while getting rewarded.
-              </p>
-              <CreateReviewPageButton 
-                setGeneratedUrl={setGeneratedUrl}
-                setReviewPageId={setReviewPageId}
-              />
-              
-              {generatedUrl && (
-                <div className="mt-8">
-                  <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
-                    <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
-                    <ol className="space-y-3 text-sm text-gray-600">
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-primary">1.</span>
-                        A beautifully designed review and rewards collection page
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-primary">2.</span>
-                        Professional PDF with QR code for your counter
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-primary">3.</span>
-                        Automated dual-rewards system for tips and reviews
-                      </li>
-                    </ol>
-                  </div>
-                  <ReviewPageUrlSection
-                    restaurantName={restaurantInfo.restaurantName}
-                    googleMapsUrl={restaurantInfo.googleMapsUrl}
-                    generatedUrl={generatedUrl}
-                  />
-                </div>
-              )}
+          <Collapsible open={isOpen} onOpenChange={setIsOpen} className="bg-white rounded-xl shadow-lg">
+            <div className="p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-semibold">Create Your Review & Rewards Collection Page</h2>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  {isOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
             </div>
-          </div>
+            
+            <CollapsibleContent className="px-6 pb-6">
+              <div className="text-center py-8">
+                <p className="text-muted-foreground mb-6">
+                  Generate a professional PDF with QR code for your payment counter. Make it easy for customers to recognize great service and share their experience while getting rewarded.
+                </p>
+                <CreateReviewPageButton 
+                  setGeneratedUrl={setGeneratedUrl}
+                  setReviewPageId={setReviewPageId}
+                />
+                
+                {generatedUrl && (
+                  <div className="mt-8">
+                    <div className="space-y-4 text-left border-t border-pink-200 pt-4 mt-4">
+                      <h3 className="font-semibold text-gray-800">What You'll Get:</h3>
+                      <ol className="space-y-3 text-sm text-gray-600">
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-primary">1.</span>
+                          A beautifully designed review and rewards collection page
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-primary">2.</span>
+                          Professional PDF with QR code for your counter
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-primary">3.</span>
+                          Automated dual-rewards system for tips and reviews
+                        </li>
+                      </ol>
+                    </div>
+                    <ReviewPageUrlSection
+                      restaurantName={restaurantInfo.restaurantName}
+                      googleMapsUrl={restaurantInfo.googleMapsUrl}
+                      generatedUrl={generatedUrl}
+                    />
+                  </div>
+                )}
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Email Management Section */}
           <EmailManagementSection restaurantInfo={restaurantInfo} />
