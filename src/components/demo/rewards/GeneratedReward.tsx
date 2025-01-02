@@ -39,13 +39,7 @@ export const GeneratedReward = ({
       >
         <Card className="p-6 bg-gradient-to-br from-pink-50/50 via-white to-pink-50/50">
           <h3 className="text-2xl font-bold text-gray-900">
-            {tipAmount ? (
-              <>
-                Save {reviewRewardAmount}% today + £{tipRewardAmount?.toFixed(2)} for your next visit
-              </>
-            ) : (
-              <>Save {reviewRewardAmount}% on your bill today</>
-            )}
+            Save {reviewRewardAmount}% today + £{tipRewardAmount?.toFixed(2)} for your next visit
           </h3>
         </Card>
       </motion.div>
