@@ -33,19 +33,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // For demo purposes, we'll simulate a logged-in user
-    const demoUser = {
-      id: 'demo-user',
-      email: 'demo@example.com',
-      role: 'authenticated',
-    } as User;
-    
-    setUser(demoUser);
+    // For demo purposes, we'll simulate a logged-in user and set up the Supabase session
+    const setupDemoUser = async () => {
+      const demoUser = {
+        id: 'demo-user',
+        email: 'demo@example.com',
+        role: 'authenticated',
+      } as User;
+      
+      // Set the demo user in state
+      setUser(demoUser);
 
-    // If on login page, redirect to dashboard
-    if (location.pathname === '/auth/login') {
-      navigate('/dashboard');
-    }
+      // Set up the Supabase session for the demo user
+      await supabase.auth.setSession({
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh-token',
+      });
+
+      // If on login page, redirect to dashboard
+      if (location.pathname === '/auth/login') {
+        navigate('/dashboard');
+      }
+    };
+
+    setupDemoUser();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate, location.pathname]);
 
   return (
