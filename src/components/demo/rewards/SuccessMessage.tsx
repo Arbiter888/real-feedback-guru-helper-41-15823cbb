@@ -68,11 +68,32 @@ export const SuccessMessage = ({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
+            className="flex items-center justify-center gap-2 w-full py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors mb-4"
           >
             <MessageSquare className="w-5 h-5" />
             Share on WhatsApp
           </a>
+
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className="flex justify-between items-start mb-2">
+              <p className="text-sm text-gray-500">Message Preview:</p>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(shareMessage);
+                  toast({
+                    title: "Copied to clipboard",
+                    description: "The message has been copied to your clipboard.",
+                  });
+                }}
+                className="text-primary hover:text-primary/90 text-sm font-medium"
+              >
+                Copy text
+              </button>
+            </div>
+            <p className="text-sm text-gray-700">
+              {`Hey! Just had amazing food at ${restaurantName}! You can get a welcome reward voucher when you sign up to their EatUP! rewards program using my referral link: ${shareUrl}. The food is fantastic!`}
+            </p>
+          </div>
         </div>
       </div>
     </div>
