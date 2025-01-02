@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Loader2, Send, TestTube2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AiPromptSection } from "./AiPromptSection";
@@ -8,9 +7,12 @@ import { VoucherSection } from "./VoucherSection";
 import { EmailHeader } from "./EmailHeader";
 import { EmailContent } from "./EmailContent";
 import { EmailPreview } from "./EmailPreview";
-import { ImageUploadSection, UploadedImage } from "./ImageUploadSection";
+import { ImageUploadSection } from "./ImageUploadSection";
+import { SavedCampaignsList } from "./SavedCampaignsList";
+import { SaveCampaignDialog } from "./SaveCampaignDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { formatEmailContent } from "./EmailContentFormatter";
+import { useQuery } from "@tanstack/react-query";
 
 interface EmailCompositionFormProps {
   onSend: (subject: string, content: string) => Promise<void>;
@@ -32,72 +34,25 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
   const [emailContent, setEmailContent] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
-  const [htmlContent, setHtmlContent] = useState<string>("");
   const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
-  const [voucherHtml, setVoucherHtml] = useState<string>("");
-  const [footerHtml, setFooterHtml] = useState<string>("");
 
-  useEffect(() => {
-    const formattedContent = formatEmailContent({
-      content: emailContent,
-      images: uploadedImages,
-      restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
-      voucherHtml
-    });
-    setHtmlContent(formattedContent);
-    if (emailContent) setShowPreview(true);
-  }, [emailContent, uploadedImages, restaurantInfo, voucherHtml]);
-
-  useEffect(() => {
-    const footerImagesHtml = uploadedImages.filter(img => img.added && img.isFooter)
-      .map(img => `
-        <div style="text-align: center; margin: 20px 0;">
-          <img src="${img.url}" alt="${img.title}" style="max-width: 100%; height: auto; border-radius: 8px;" />
-          ${img.title ? `<p style="margin: 10px 0; font-style: italic; color: #666;">${img.title}</p>` : ''}
-        </div>
-      `).join('\n') || '';
-
-    setFooterHtml(`
-      <div style="margin-top: 30px; padding: 20px 0; border-top: 1px solid #eee;">
-        ${footerImagesHtml}
-        <div style="margin-bottom: 20px;">
-          ${restaurantInfo.phoneNumber ? `
-            <p style="margin: 8px 0;">
-              <a href="tel:${restaurantInfo.phoneNumber}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
-                📞 ${restaurantInfo.phoneNumber}
-              </a>
-            </p>
-          ` : ''}
-          ${restaurantInfo.googleMapsUrl ? `
-            <p style="margin: 8px 0;">
-              <a href="${restaurantInfo.googleMapsUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
-                📍 Find us on Google Maps
-              </a>
-            </p>
-          ` : ''}
-        </div>
-        <div style="margin-top: 16px;">
-          ${restaurantInfo.websiteUrl ? `
-            <a href="${restaurantInfo.websiteUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
-              🌐 Visit our Website
-            </a>
-          ` : ''}
-          ${restaurantInfo.facebookUrl ? `
-            <a href="${restaurantInfo.facebookUrl}" style="color: #E94E87; text-decoration: none; margin-right: 16px; font-weight: 500;">
-              👥 Follow us on Facebook
-            </a>
-          ` : ''}
-          ${restaurantInfo.instagramUrl ? `
-            <a href="${restaurantInfo.instagramUrl}" style="color: #E94E87; text-decoration: none; font-weight: 500;">
-              📸 Follow us on Instagram
-            </a>
-          ` : ''}
-        </div>
-      </div>
-    `);
-  }, [restaurantInfo, uploadedImages]);
+  // Get the default email list for the restaurant
+  const { data: emailList } = useQuery({
+    queryKey: ['email-list', restaurantInfo?.restaurantName],
+    queryFn: async () => {
+      if (!restaurantInfo?.restaurantName) return null;
+      
+      const { data, error } = await supabase
+        .rpc('get_or_create_restaurant_email_list', {
+          restaurant_name: restaurantInfo.restaurantName
+        });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!restaurantInfo?.restaurantName,
+  });
 
   const handleSend = async () => {
     if (!emailSubject.trim() || !emailContent.trim()) {
@@ -111,11 +66,9 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
 
     setIsSending(true);
     try {
-      await onSend(emailSubject, '<div>' + (htmlContent || emailContent) + footerHtml + '</div>');
+      await onSend(emailSubject, emailContent);
       setEmailSubject("");
       setEmailContent("");
-      setHtmlContent("");
-      setUploadedImages([]);
       setShowPreview(false);
       toast({
         title: "Email sent successfully",
@@ -149,7 +102,7 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
         body: {
           to: testEmail,
           subject: emailSubject,
-          htmlContent: '<div>' + (htmlContent || emailContent) + footerHtml + '</div>',
+          htmlContent: emailContent,
           restaurantInfo,
         },
       });
@@ -172,19 +125,39 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
     }
   };
 
+  const handleLoadCampaign = (campaign: any) => {
+    setEmailSubject(campaign.subject);
+    setEmailContent(campaign.content);
+    setShowPreview(true);
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-semibold">Email Marketing Hub</h2>
+        {emailList && (
+          <SaveCampaignDialog
+            listId={emailList}
+            emailSubject={emailSubject}
+            emailContent={emailContent}
+          />
+        )}
+      </div>
+
+      {emailList && (
+        <div className="bg-white/50 rounded-lg p-4 border">
+          <h3 className="font-medium mb-4">Saved Campaigns</h3>
+          <SavedCampaignsList
+            listId={emailList}
+            onLoadCampaign={handleLoadCampaign}
+          />
+        </div>
+      )}
+
       <AiPromptSection 
         onEmailGenerated={(subject, content) => {
           setEmailSubject(subject);
           setEmailContent(content);
-          const formattedContent = formatEmailContent({
-            content,
-            images: uploadedImages,
-            restaurantName: restaurantInfo?.restaurantName || 'Your Restaurant',
-            voucherHtml
-          });
-          setHtmlContent(formattedContent);
           setShowPreview(true);
         }}
       />
@@ -200,13 +173,10 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
           setEmailContent={setEmailContent}
         />
 
-        <ImageUploadSection
-          uploadedImages={uploadedImages}
-          setUploadedImages={setUploadedImages}
-        />
+        <ImageUploadSection />
       </div>
 
-      <VoucherSection setVoucherHtml={setVoucherHtml} />
+      <VoucherSection />
 
       <div className="flex gap-4 items-center">
         <Button
@@ -256,27 +226,28 @@ export const EmailCompositionForm = ({ onSend, disabled, restaurantInfo }: Email
         <Button
           variant="outline"
           onClick={() => setShowPreview(!showPreview)}
-          disabled={!emailContent.trim() && !htmlContent.trim()}
+          disabled={!emailContent.trim()}
         >
           {showPreview ? "Hide Preview" : "Show Preview"}
         </Button>
       </div>
 
-      <EmailPreview 
-        emailSubject={emailSubject}
-        htmlContent={htmlContent || emailContent}
-        showPreview={showPreview}
-        restaurantInfo={restaurantInfo || {
-          restaurantName: "",
-          websiteUrl: "",
-          facebookUrl: "",
-          instagramUrl: "",
-          phoneNumber: "",
-          bookingUrl: "",
-          googleMapsUrl: "",
-        }}
-        footerHtml={footerHtml}
-      />
+      {showPreview && (
+        <EmailPreview 
+          emailSubject={emailSubject}
+          htmlContent={emailContent}
+          showPreview={showPreview}
+          restaurantInfo={restaurantInfo || {
+            restaurantName: "",
+            websiteUrl: "",
+            facebookUrl: "",
+            instagramUrl: "",
+            phoneNumber: "",
+            bookingUrl: "",
+            googleMapsUrl: "",
+          }}
+        />
+      )}
     </div>
   );
 };

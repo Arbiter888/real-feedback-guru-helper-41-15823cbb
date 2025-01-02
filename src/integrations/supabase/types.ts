@@ -1125,6 +1125,56 @@ export type Database = {
           },
         ]
       }
+      saved_campaigns: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          list_id: string | null
+          metadata: Json | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["campaign_status"] | null
+          subject: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          list_id?: string | null
+          metadata?: Json | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"] | null
+          subject: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          list_id?: string | null
+          metadata?: Json | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["campaign_status"] | null
+          subject?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_campaigns_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "email_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_plans: {
         Row: {
           coach_personality: Json | null
@@ -1285,6 +1335,7 @@ export type Database = {
     }
     Enums: {
       audit_status: "pending" | "in_progress" | "completed" | "cancelled"
+      campaign_status: "draft" | "scheduled" | "sent" | "failed"
     }
     CompositeTypes: {
       review_metadata: {
