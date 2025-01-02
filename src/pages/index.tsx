@@ -34,7 +34,7 @@ const Page = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <div className="flex-grow">
         <DemoHeroSection onSurveyDemo={handleSurveyDemoClick} />
 
