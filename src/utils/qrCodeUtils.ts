@@ -2,6 +2,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const generateAndUploadQRCode = async (content: string): Promise<string> => {
   try {
+    console.log('Generating QR code for content:', content);
+    
     // Call the Edge Function to generate QR code with custom styling
     const { data, error } = await supabase.functions.invoke("generate-qr-code", {
       body: { 
@@ -18,7 +20,14 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
       }
     });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error from Edge Function:', error);
+      throw error;
+    }
+
+    if (!data?.qrCodeUrl) {
+      throw new Error('No QR code URL received from server');
+    }
 
     // Convert base64 to blob
     const response = await fetch(data.qrCodeUrl);
@@ -33,13 +42,17 @@ export const generateAndUploadQRCode = async (content: string): Promise<string> 
         upsert: false,
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error('Error uploading to storage:', uploadError);
+      throw uploadError;
+    }
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
       .from("qr_codes")
       .getPublicUrl(uploadData.path);
 
+    console.log('Successfully generated and uploaded QR code:', publicUrl);
     return publicUrl;
   } catch (error) {
     console.error("Error generating and uploading QR code:", error);

@@ -1,5 +1,6 @@
 {
   "imports": {
-    "qrcode": "npm:qrcode@1.5.3"
+    "qrcode": "npm:qrcode@1.5.3",
+    "canvas": "npm:canvas@2.11.2"
   }
 }

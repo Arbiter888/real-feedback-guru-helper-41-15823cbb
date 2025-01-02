@@ -3,8 +3,8 @@ import QRCode from "npm:qrcode";
 import { createCanvas, loadImage } from "npm:canvas";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
@@ -29,11 +29,16 @@ serve(async (req) => {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Load and draw EatUP! logo
-    const logo = await loadImage("https://xygmqhxlnwjrgxvbzcyb.supabase.co/storage/v1/object/public/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png");
-    const logoWidth = 400;
-    const logoHeight = (logo.height / logo.width) * logoWidth;
-    ctx.drawImage(logo, (canvas.width - logoWidth) / 2, 50, logoWidth, logoHeight);
+    try {
+      // Load and draw EatUP! logo
+      const logo = await loadImage("https://xygmqhxlnwjrgxvbzcyb.supabase.co/storage/v1/object/public/lovable-uploads/f30e50d5-6430-450d-9e41-5b7b45e8ef7c.png");
+      const logoWidth = 400;
+      const logoHeight = (logo.height / logo.width) * logoWidth;
+      ctx.drawImage(logo, (canvas.width - logoWidth) / 2, 50, logoWidth, logoHeight);
+    } catch (logoError) {
+      console.error('Error loading logo:', logoError);
+      // Continue without logo if it fails to load
+    }
 
     // Generate QR code
     const qrCodeDataUrl = await QRCode.toDataURL(url, {
@@ -50,7 +55,7 @@ serve(async (req) => {
     const qrCode = await loadImage(qrCodeDataUrl);
     const qrSize = 800;
     const qrX = (canvas.width - qrSize) / 2;
-    const qrY = logoHeight + 100;
+    const qrY = 200; // Adjusted position
     
     // Draw pink border around QR code
     ctx.strokeStyle = "#E94E87";
