@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, Mail } from "lucide-react";
-import { Customer } from "@/types/customer";
+import { Customer, isCustomerMetadata } from "@/types/customer";
 import { CustomerMetadataDisplay } from "./CustomerMetadataDisplay";
 import { formatDistanceToNow } from "date-fns";
 
@@ -61,7 +61,7 @@ export const CustomerListItem = ({
           )}
         </Button>
 
-        {isExpanded && customer.metadata && (
+        {isExpanded && customer.metadata && isCustomerMetadata(customer.metadata) && (
           <CustomerMetadataDisplay metadata={customer.metadata} />
         )}
       </div>
