@@ -1,14 +1,15 @@
 import { motion } from "framer-motion";
-import { Bot, Star, Gift, MessageSquare, LogIn } from "lucide-react";
+import { Bot, Star, Gift, MessageSquare, LogIn, Bike } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 interface DemoHeroSectionProps {
   onSurveyDemo: () => void;
+  onBookingDemo: () => void;
 }
 
-export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
+export const DemoHeroSection = ({ onSurveyDemo, onBookingDemo }: DemoHeroSectionProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -118,21 +119,84 @@ export const DemoHeroSection = ({ onSurveyDemo }: DemoHeroSectionProps) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.5 }}
-          className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 md:p-8 shadow-lg max-w-2xl mx-auto mb-8 md:mb-12"
+          className="max-w-4xl mx-auto mb-8 md:mb-12"
         >
-          <div className="flex items-center justify-center gap-2 md:gap-3 mb-4 md:mb-6">
-            <Bot className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
-            <h2 className="text-xl md:text-2xl font-bold">Try Our AI Survey Demo</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 bg-gradient-to-r from-[#8B5CF6] via-[#D946EF] to-[#1EAEDB] text-transparent bg-clip-text">
+            Coming Soon
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg relative">
+              <div className="absolute top-2 right-2 bg-[#E94E87] text-white text-xs px-2 py-1 rounded-full">
+                Coming Soon
+              </div>
+              <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
+                <Bot className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">AI Survey Demo</h3>
+              <p className="text-sm md:text-base text-muted-foreground mb-4">
+                Experience how our AI engages with customers to gather detailed feedback in a natural, conversational way, helping restaurants improve while freeing up staff time
+              </p>
+              <Button
+                onClick={onSurveyDemo}
+                className="w-full bg-[#E94E87] hover:bg-[#E94E87]/90 text-white"
+              >
+                Try AI Survey Demo
+                <Bot className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg relative">
+              <div className="absolute top-2 right-2 bg-[#E94E87] text-white text-xs px-2 py-1 rounded-full">
+                Coming Soon
+              </div>
+              <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
+                <MessageSquare className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">AI Agent Booking</h3>
+              <p className="text-sm md:text-base text-muted-foreground mb-4">
+                Let our AI booking agent handle reservations 24/7, managing your tables efficiently while providing a personalized experience
+              </p>
+              <Button
+                onClick={onBookingDemo}
+                className="w-full bg-[#E94E87] hover:bg-[#E94E87]/90 text-white"
+              >
+                Try Booking Demo
+                <MessageSquare className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 md:p-6 shadow-lg relative">
+              <div className="absolute top-2 right-2 bg-[#E94E87] text-white text-xs px-2 py-1 rounded-full">
+                Coming Soon
+              </div>
+              <div className="inline-block p-3 bg-[#E94E87]/10 rounded-full mb-3 md:mb-4">
+                <Bike className="h-6 w-6 md:h-8 md:w-8 text-[#E94E87]" />
+              </div>
+              <h3 className="text-lg md:text-xl font-bold mb-2 md:mb-3">Direct Deliver</h3>
+              <p className="text-sm md:text-base text-muted-foreground">
+                Offer delivery services without the high fees using our network of trusted drivers or your own team, all managed through WhatsApp
+              </p>
+            </div>
           </div>
-          <p className="text-sm md:text-base text-muted-foreground mb-4 md:mb-6">
-            Experience how our AI helps collect detailed customer feedback while suggesting personalized rewards based on their preferences and dining history.
-          </p>
-          <Button
-            onClick={onSurveyDemo}
-            className="bg-[#E94E87] hover:bg-[#E94E87]/90 text-white font-semibold w-full md:w-auto"
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="flex justify-end"
+        >
+          <Button 
+            onClick={handleAuthClick} 
+            className="bg-gradient-to-r from-[#8B5CF6] to-[#D946EF] hover:from-[#7C4DEF] hover:to-[#C935DE] text-white shadow-lg transition-all duration-300 hover:shadow-xl"
           >
-            Start AI Survey Demo
-            <Bot className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+            Demo Dashboard
+            {user ? (
+              <MessageSquare className="ml-2 h-4 w-4" />
+            ) : (
+              <LogIn className="ml-2 h-4 w-4" />
+            )}
           </Button>
         </motion.div>
       </div>
