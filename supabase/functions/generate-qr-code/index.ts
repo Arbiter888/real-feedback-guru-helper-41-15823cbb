@@ -4,16 +4,24 @@ import { createCanvas, loadImage } from "npm:canvas";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      status: 204,
+      headers: corsHeaders 
+    });
   }
 
   try {
+    if (req.method !== "POST") {
+      throw new Error("Method not allowed");
+    }
+
     const { url, options } = await req.json();
     console.log('Generating QR code for URL:', url);
 
@@ -49,13 +57,14 @@ serve(async (req) => {
         dark: "#000000",
         light: "#FFFFFF",
       },
+      errorCorrectionLevel: 'H'
     });
 
     // Load and draw QR code
     const qrCode = await loadImage(qrCodeDataUrl);
     const qrSize = 800;
     const qrX = (canvas.width - qrSize) / 2;
-    const qrY = 200; // Adjusted position
+    const qrY = 200;
     
     // Draw pink border around QR code
     ctx.strokeStyle = "#E94E87";
@@ -89,7 +98,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error generating QR code:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        details: error.stack 
+      }),
       {
         status: 400,
         headers: {
