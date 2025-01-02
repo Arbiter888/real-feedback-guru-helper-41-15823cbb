@@ -1,4 +1,5 @@
 import { Check, MessageSquare } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface SuccessMessageProps {
   tipAmount?: number;
@@ -15,6 +16,7 @@ export const SuccessMessage = ({
   firstName,
   restaurantName
 }: SuccessMessageProps) => {
+  const { toast } = useToast();
   const shareUrl = `${window.location.origin}/referral/${referralCode}`;
   const shareMessage = `Hey! Check out ${restaurantName}. Use my referral code to get a special welcome offer: ${shareUrl}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
