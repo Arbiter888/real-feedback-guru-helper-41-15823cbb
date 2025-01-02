@@ -4,6 +4,7 @@ import { corsHeaders } from "../_shared/cors.ts";
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 
 interface EmailRequest {
+  firstName: string;
   email: string;
   tipAmount?: number;
   tipReward?: number;
@@ -25,6 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { 
+      firstName,
       email, 
       tipAmount, 
       tipReward, 
@@ -56,11 +58,11 @@ const handler = async (req: Request): Promise<Response> => {
     const htmlContent = `
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #333; font-size: 24px; margin-bottom: 20px; text-align: center;">
-          Your EatUP! Rewards Are Here! 🎉
+          Welcome to EatUP!, ${firstName}! 🎉
         </h1>
         
         <p style="color: #333; font-size: 16px; line-height: 1.6; margin-bottom: 20px; text-align: center;">
-          Thank you for sharing your dining experience! We've prepared your rewards for both today and your next visit.
+          Thank you for joining EatUP! We've prepared your rewards for both today and your next visit.
         </p>
 
         <div style="background-color: #FFF5F8; padding: 20px; border-radius: 12px; margin: 30px 0;">
@@ -129,7 +131,7 @@ const handler = async (req: Request): Promise<Response> => {
       body: JSON.stringify({
         from: "EatUP! Rewards <rewards@eatup.co>",
         to: [email],
-        subject: `Your EatUP! Rewards Are Here! 🎁`,
+        subject: `Welcome to EatUP!, ${firstName}! 🎁`,
         html: htmlContent,
       }),
     });

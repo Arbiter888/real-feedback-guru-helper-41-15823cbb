@@ -21,15 +21,17 @@ export const EmailSignup = ({
   tipRewardAmount,
   totalRewardValue
 }: EmailSignupProps) => {
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignedUp, setIsSignedUp] = useState(false);
   const { toast } = useToast();
 
   const handleEmailSignup = async () => {
-    if (!email) {
+    if (!firstName || !email) {
       toast({
-        title: "Email required",
-        description: "Please enter your email address to sign up.",
+        title: "Required fields missing",
+        description: "Please enter both your first name and email address to sign up.",
         variant: "destructive",
       });
       return;
@@ -52,6 +54,7 @@ export const EmailSignup = ({
 
       const { error: emailError } = await supabase.functions.invoke('send-rewards-email', {
         body: {
+          firstName,
           email,
           tipAmount,
           tipReward: tipRewardAmount,
@@ -63,12 +66,11 @@ export const EmailSignup = ({
 
       if (emailError) throw emailError;
 
+      setIsSignedUp(true);
       toast({
-        title: "Success!",
+        title: "Welcome to EatUP!",
         description: "Your rewards have been sent to your email!",
       });
-
-      setEmail("");
     } catch (error: any) {
       console.error('Error signing up:', error);
       toast({
@@ -88,91 +90,110 @@ export const EmailSignup = ({
       transition={{ delay: 0.2 }}
       className="mt-6 p-6 bg-gradient-to-br from-pink-50/50 via-white to-pink-50/50 rounded-xl border border-pink-100"
     >
-      <div className="space-y-6">
-        <div className="flex items-center justify-center gap-3">
-          <Gift className="h-8 w-8 text-primary" />
-          <h3 className="text-xl font-semibold text-gray-900">
-            Join EatUP! Rewards
-          </h3>
-        </div>
+      {!isSignedUp ? (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center gap-3">
+            <Gift className="h-8 w-8 text-primary" />
+            <h3 className="text-xl font-semibold text-gray-900">
+              Join EatUP! Rewards
+            </h3>
+          </div>
 
-        <div className="space-y-4">
-          <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
-            <h4 className="font-medium text-lg mb-2">Your Rewards Summary:</h4>
-            <ul className="space-y-2">
+          <div className="space-y-4">
+            <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
+              <h4 className="font-medium text-lg mb-2">Unlock Your Rewards:</h4>
+              <ul className="space-y-2">
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Lock className="w-5 h-5 text-primary" />
+                  <span>10% off today's bill</span>
+                  <span className="text-sm text-primary ml-1">(Unlock now)</span>
+                </li>
+                {tipRewardAmount && tipRewardCode && (
+                  <li className="flex items-center gap-2 text-gray-700">
+                    <Lock className="w-5 h-5 text-primary" />
+                    <span>£{tipRewardAmount.toFixed(2)} tip credit next time</span>
+                  </li>
+                )}
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Lock className="w-5 h-5 text-primary" />
+                  <span>Mystery reward for your next visit</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Enter your first name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="pl-10 h-12"
+                  disabled={isLoading}
+                />
+                <Gift className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+              <div className="relative">
+                <Input
+                  type="email"
+                  placeholder="Enter your email to unlock rewards"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 h-12"
+                  disabled={isLoading}
+                />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+
+              <Button 
+                onClick={handleEmailSignup}
+                disabled={isLoading || !email || !firstName}
+                className="w-full h-12"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Gift className="h-5 w-5 mr-2" />
+                    <span>Unlock Your Rewards</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex items-center justify-center gap-3">
+            <Check className="h-8 w-8 text-green-500" />
+            <h3 className="text-xl font-semibold text-gray-900">
+              Show this to your server
+            </h3>
+          </div>
+
+          <div className="bg-green-50 p-4 rounded-lg border border-green-100">
+            <ul className="space-y-3">
               <li className="flex items-center gap-2 text-gray-700">
                 <Check className="w-5 h-5 text-green-500" />
-                <span>10% off today's bill</span>
-                <span className="text-sm text-green-600 ml-1">(Available now)</span>
+                <span>10% off your current bill</span>
               </li>
-              <li className="flex items-center gap-2 text-gray-500">
-                <Lock className="w-5 h-5" />
-                <span>Mystery reward for your next visit</span>
-              </li>
-              {tipRewardAmount && tipRewardCode && (
-                <li className="flex items-center gap-2 text-gray-500">
-                  <Lock className="w-5 h-5" />
-                  <span>£{tipRewardAmount.toFixed(2)} tip credit next time</span>
+              {tipAmount && (
+                <li className="flex items-center gap-2 text-gray-700">
+                  <Check className="w-5 h-5 text-green-500" />
+                  <span>Add £{tipAmount.toFixed(2)} tip to the final amount</span>
                 </li>
               )}
             </ul>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="font-medium">Plus, unlock access to:</h4>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-gray-500">
-                <Lock className="w-5 h-5" />
-                <span>Exclusive weekly offers</span>
-              </li>
-              <li className="flex items-center gap-2 text-gray-500">
-                <Lock className="w-5 h-5" />
-                <span>Early access to events</span>
-              </li>
-              <li className="flex items-center gap-2 text-gray-500">
-                <Lock className="w-5 h-5" />
-                <span>Birthday treats and surprises</span>
-              </li>
-            </ul>
-          </div>
+          <p className="text-sm text-center text-gray-500">
+            Valid for today only
+          </p>
         </div>
-
-        <div className="space-y-4">
-          <div className="relative">
-            <Input
-              type="email"
-              placeholder="Enter your email to unlock rewards"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="pl-10 h-12"
-              disabled={isLoading}
-            />
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-          </div>
-
-          <Button 
-            onClick={handleEmailSignup}
-            disabled={isLoading || !email}
-            className="w-full h-12"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Gift className="h-5 w-5 mr-2" />
-                <span>Unlock Your Rewards</span>
-              </>
-            )}
-          </Button>
-        </div>
-
-        <p className="text-sm text-center text-gray-500">
-          All rewards valid for 30 days from issue
-        </p>
-      </div>
+      )}
     </motion.div>
   );
 };
