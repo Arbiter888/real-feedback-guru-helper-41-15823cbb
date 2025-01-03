@@ -619,6 +619,44 @@ export type Database = {
           },
         ]
       }
+      referral_stars: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_reward_at: string | null
+          referrer_code: string
+          restaurant_name: string
+          stars_count: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_reward_at?: string | null
+          referrer_code: string
+          restaurant_name: string
+          stars_count?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_reward_at?: string | null
+          referrer_code?: string
+          restaurant_name?: string
+          stars_count?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_stars_referrer_code_fkey"
+            columns: ["referrer_code"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       restaurant_menu_versions: {
         Row: {
           analysis: Json | null
@@ -1232,6 +1270,47 @@ export type Database = {
         }
         Relationships: []
       }
+      star_rewards: {
+        Row: {
+          claimed_at: string | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          referral_stars_id: string | null
+          restaurant_name: string
+          reward_code: string
+          status: Database["public"]["Enums"]["referral_reward_status"] | null
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          referral_stars_id?: string | null
+          restaurant_name: string
+          reward_code: string
+          status?: Database["public"]["Enums"]["referral_reward_status"] | null
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          referral_stars_id?: string | null
+          restaurant_name?: string
+          reward_code?: string
+          status?: Database["public"]["Enums"]["referral_reward_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "star_rewards_referral_stars_id_fkey"
+            columns: ["referral_stars_id"]
+            isOneToOne: false
+            referencedRelation: "referral_stars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tip_vouchers: {
         Row: {
           created_at: string
@@ -1336,6 +1415,7 @@ export type Database = {
     Enums: {
       audit_status: "pending" | "in_progress" | "completed" | "cancelled"
       campaign_status: "draft" | "scheduled" | "sent" | "failed"
+      referral_reward_status: "pending" | "claimed" | "expired"
     }
     CompositeTypes: {
       review_metadata: {
