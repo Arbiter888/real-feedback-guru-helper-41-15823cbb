@@ -1,0 +1,7 @@
+project_id = "xygmqhxlnwjrgxvbzcyb"
+
+[functions.generate-qr-code]
+verify_jwt = false
+
+[functions.generate-referral-page]
+verify_jwt = false

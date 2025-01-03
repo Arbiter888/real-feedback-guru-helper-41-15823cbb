@@ -476,6 +476,7 @@ export type Database = {
           active: boolean | null
           code: string
           created_at: string
+          download_page_url: string | null
           expires_at: string | null
           id: string
           qr_code_url: string | null
@@ -492,6 +493,7 @@ export type Database = {
           active?: boolean | null
           code: string
           created_at?: string
+          download_page_url?: string | null
           expires_at?: string | null
           id?: string
           qr_code_url?: string | null
@@ -508,6 +510,7 @@ export type Database = {
           active?: boolean | null
           code?: string
           created_at?: string
+          download_page_url?: string | null
           expires_at?: string | null
           id?: string
           qr_code_url?: string | null
