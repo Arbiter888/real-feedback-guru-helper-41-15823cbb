@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { QRCode, Share } from "lucide-react";
+import { QrCode, Share } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { generateAndUploadQRCode } from "@/utils/qrCodeUtils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface InstagramStoryGeneratorProps {
   referralUrl: string;
@@ -95,7 +96,7 @@ export const InstagramStoryGenerator = ({
           variant="outline"
           className="w-full"
         >
-          <QRCode className="h-4 w-4 mr-2" />
+          <QrCode className="h-4 w-4 mr-2" />
           {isGenerating ? "Generating..." : "Generate Story Card"}
         </Button>
 
