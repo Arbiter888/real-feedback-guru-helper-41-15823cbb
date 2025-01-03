@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Gift, Mail, Lock, Loader2 } from "lucide-react";
+import { Gift, Mail, Lock, Loader2, Star } from "lucide-react";
 
 interface SignupFormProps {
   firstName: string;
@@ -50,6 +50,24 @@ export const SignupForm = ({
             <li className="flex items-center gap-2 text-gray-700">
               <Lock className="w-5 h-5 text-primary" />
               <span>Mystery reward for your next visit</span>
+            </li>
+            <li className="flex items-center gap-2 text-gray-700 pt-2 border-t border-pink-100">
+              <Star className="w-5 h-5 text-primary" />
+              <div className="space-y-1">
+                <span className="block font-medium">Share & earn more rewards!</span>
+                <div className="text-sm text-gray-600 space-y-0.5">
+                  <p>• Get your personal referral code</p>
+                  <p>• Earn stars for friend referrals</p>
+                  <p className="flex items-center gap-1">
+                    • Collect stars for special rewards
+                    <span className="inline-flex ml-1">
+                      <Star className="w-4 h-4 text-primary" fill="currentColor" />
+                      <Star className="w-4 h-4 text-gray-300" />
+                      <Star className="w-4 h-4 text-gray-300" />
+                    </span>
+                  </p>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
