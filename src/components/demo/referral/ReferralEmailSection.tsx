@@ -152,6 +152,12 @@ export const ReferralEmailSection = ({
           </>
         )}
       </div>
+
+      <InstagramStoryGenerator
+        referralUrl={downloadUrl || qrCodeUrl}
+        restaurantName={restaurantName}
+        referrerName={referrerName}
+      />
     </Card>
   );
 };
