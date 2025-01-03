@@ -11,6 +11,8 @@ interface ReferralPageRequest {
   restaurantName: string;
   qrCodeUrl: string;
   restaurantLogo?: string;
+  refinedReview?: string;
+  referrerName: string;
   expirationDate?: string;
   termsAndConditions?: string;
   starsCount?: number;
@@ -27,6 +29,8 @@ serve(async (req: Request) => {
       restaurantName,
       qrCodeUrl,
       restaurantLogo,
+      refinedReview,
+      referrerName,
       expirationDate,
       termsAndConditions,
       starsCount
@@ -85,12 +89,37 @@ serve(async (req: Request) => {
               margin: 20px 0;
               font-size: 24px;
             }
+            .review-card {
+              background: #f8f8f8;
+              padding: 20px;
+              border-radius: 8px;
+              margin: 20px auto;
+              max-width: 500px;
+              text-align: left;
+            }
+            .review-text {
+              font-style: italic;
+              color: #333;
+              margin-bottom: 10px;
+            }
+            .reviewer-name {
+              color: #E94E87;
+              font-weight: 500;
+            }
           </style>
         </head>
         <body>
           <div class="container">
             ${restaurantLogo ? `<img src="${restaurantLogo}" alt="${restaurantName}" class="logo">` : ''}
             <h1>Scan for a treat at ${restaurantName}!</h1>
+            
+            ${refinedReview ? `
+              <div class="review-card">
+                <div class="review-text">"${refinedReview}"</div>
+                <div class="reviewer-name">- ${referrerName}</div>
+              </div>
+            ` : ''}
+            
             <img src="${qrCodeUrl}" alt="Referral QR Code" class="qr-code">
             <div class="cta">Share and Earn Rewards!</div>
             <div class="benefits">

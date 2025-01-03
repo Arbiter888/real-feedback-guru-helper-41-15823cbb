@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Card } from "@/components/ui/card";
-import { Gift, Loader2 } from "lucide-react";
+import { Gift, Loader2, Quote } from "lucide-react";
 
 export default function ReferralPage() {
   const { code } = useParams();
@@ -112,6 +112,8 @@ export default function ReferralPage() {
     );
   }
 
+  const review = referralData.reviews?.refined_review || referralData.reviews?.review_text;
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <Card className="max-w-md mx-auto p-6 space-y-6">
@@ -120,12 +122,16 @@ export default function ReferralPage() {
             {referralData.referrer_name} thinks you'll love {referralData.restaurant_name}!
           </h1>
           
-          {referralData.reviews?.review_text && (
-            <div className="bg-gray-50 p-4 rounded-lg mt-4">
-              <p className="text-gray-600 italic">
-                "{referralData.reviews.refined_review || referralData.reviews.review_text}"
-              </p>
-            </div>
+          {review && (
+            <Card className="bg-white p-4 mt-4 space-y-2">
+              <div className="flex items-start gap-2">
+                <Quote className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                <div className="space-y-2">
+                  <p className="text-gray-700 italic">"{review}"</p>
+                  <p className="text-sm text-primary font-medium">- {referralData.referrer_name}</p>
+                </div>
+              </div>
+            </Card>
           )}
         </div>
 
